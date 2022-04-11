@@ -52,7 +52,7 @@
 }
 ```
 
--   **Email Already Exists: ** 443
+-   **Email Already Exists:** 443
 
 | Field |  Type  |  Description  |
 | :---: | :----: | :-----------: |
@@ -64,7 +64,7 @@
 | :---: | :----: | :-----------: |
 | error | string | Error message |
 
--   **Server Error Response: ** 500
+-   **Server Error Response:** 500
 
 | Field |  Type  |  Description  |
 | :---: | :----: | :-----------: |
@@ -136,7 +136,7 @@
 | :---: | :----: | :-----------: |
 | error | string | Error message |
 
--   **Server Error Response: ** 500
+-   **Server Error Response:** 500
 
 | Field |  Type  |  Description  |
 | :---: | :----: | :-----------: |

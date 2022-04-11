@@ -100,7 +100,7 @@
 }
 ```
 
--   **Success Response: ** 200
+-   **Success Response:** 200
 
 |    Field     |     Type      | Description             |
 | :----------: | :-----------: | :---------------------- |
@@ -124,7 +124,7 @@
 }
 ```
 
--   **Sign In Failed: ** 443
+-   **Sign In Failed:** 443
 
 | Field |  Type  |  Description  |
 | :---: | :----: | :-----------: |

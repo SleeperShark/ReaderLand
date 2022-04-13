@@ -12,7 +12,10 @@ mongoose.connect(
 
 const userSchema = mongoose.Schema({
     name: String,
-    role: Number, // ADMIN: 1, USER: 2
+    role: {
+        type: Number,
+        default: 2,
+    }, // ADMIN: 1, USER: 2
     valid: {
         // pass email validation or not
         type: Boolean,
@@ -36,13 +39,13 @@ const userSchema = mongoose.Schema({
     },
     follower: [mongoose.SchemaTypes.ObjectId],
     followee: [mongoose.SchemaTypes.ObjectId],
-    favorite_articles: [mongoose.SchemaTypes.ObjectId],
-    subscribe_category: [String],
+    favorite: [mongoose.SchemaTypes.ObjectId],
+    subscribe: Object,
 });
 
 const commentSchema = mongoose.Schema({
     context: String,
-    createdTime: {
+    createdAt: {
         type: Date,
         immutable: true,
     },
@@ -52,7 +55,7 @@ const commentSchema = mongoose.Schema({
     },
     authorReply: {
         context: String,
-        createdTime: {
+        createdAt: {
             type: Date,
             immutable: true,
         },
@@ -60,18 +63,37 @@ const commentSchema = mongoose.Schema({
 });
 
 const articleSchema = mongoose.Schema({
-    title: String,
+    title: {
+        type: String,
+        required: true,
+    },
     author: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'User ',
+        required: true,
     },
-    context: String,
-    created_time: Date,
-    readCount: Number,
+    context: {
+        type: String,
+        required: true,
+    },
+    createdAt: {
+        type: Date,
+        immutable: true,
+        default: new Date().toISOString(),
+    },
+    readCount: {
+        type: Number,
+        default: 0,
+    },
     likes: [mongoose.SchemaTypes.ObjectId],
     comments: [commentSchema],
+    category: [String],
 });
+
+articleSchema.index({ title: 1, author: 1 }, { unique: true });
 
 module.exports = {
     User: mongoose.model('User', userSchema, 'User'),
+    Article: mongoose.model('Article', articleSchema, 'Article'),
+    ObjectId: mongoose.Types.ObjectId,
 };

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const Cache = require('./util/cache');
 
 const { PORT: port, NODE_ENV } = process.env;
 
@@ -15,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // API routes
-app.use('/api', [require('./server/routes/user_route')]);
+app.use('/api', [require('./server/routes/user_route'), require('./server/routes/article_route')]);
 
 // Page not found
 app.use((req, res, next) => {
@@ -31,6 +32,9 @@ app.use((err, req, res, next) => {
 
 if (NODE_ENV != 'production') {
     app.listen(port, async () => {
+        Cache.connect().catch(() => {
+            console.log('Redis connect fail...');
+        });
         console.log(`Listening on port: ${port}`);
     });
 }

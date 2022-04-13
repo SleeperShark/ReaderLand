@@ -1,6 +1,6 @@
 require('dotenv').config();
 const validator = require('validator');
-const User = require('../models/user_models');
+const User = require('../models/user_model');
 
 const signUp = async (req, res) => {
     let { name } = req.body;
@@ -87,7 +87,34 @@ const signIn = async (req, res) => {
     });
 };
 
+const getUserProfile = async (req, res) => {
+    const result = await User.getUserDetail(req.user.email);
+    if (result.error) {
+        res.status(result.status || 500).json({ error: result.error });
+        return;
+    }
+
+    const profile = result.user;
+    res.status(200).json({
+        data: {
+            name: profile.name,
+            email: profile.email,
+            provider: profile.provider,
+            follower: profile.follower,
+            followee: profile.followee,
+            favorite_articles: profile.favorite_articles,
+            subscribe_category: profile.subscribe_category,
+        },
+    });
+};
+
+const subscribeCategory = async (req, res) => {
+    const subscribes = req.body.subscribe;
+};
+
 module.exports = {
+    getUserProfile,
     signUp,
     signIn,
+    subscribeCategory,
 };

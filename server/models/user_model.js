@@ -61,7 +61,22 @@ const nativeSignIn = async (email, password) => {
     }
 };
 
+const getUserDetail = async (email, roleId) => {
+    try {
+        if (roleId) {
+            return { user: await User.findOne({ email, role: roleId }) };
+        } else {
+            return { user: await User.findOne({ email }) };
+        }
+    } catch (error) {
+        console.log(error);
+        return { error: error.message };
+    }
+};
+
 module.exports = {
+    USER_ROLE,
     nativeSignIn,
     signUp,
+    getUserDetail,
 };

@@ -177,16 +177,19 @@
 ```
 
 -   **Client Error (No token) Response: 401**
-    | Field | Type | Description |
-    | :---------: | :----: | :---------------------------- |
-    | error | String | Error Message |
+
+| Field |  Type  | Description   |
+| :---: | :----: | :------------ |
+| error | String | Error Message |
 
 -   **Client Error (Wrong token) Response: 403**
-    | Field | Type | Description |
-    | :---------: | :----: | :---------------------------- |
-    | error | String | Error Message |
+
+| Field |  Type  | Description   |
+| :---: | :----: | :------------ |
+| error | String | Error Message |
 
 -   **Server Error Response: 500**
-    | Field | Type | Description |
-    | :---------: | :----: | :---------------------------- |
-    | error | String | Error Message |
+
+| Field |  Type  | Description   |
+| :---: | :----: | :------------ |
+| error | String | Error Message |

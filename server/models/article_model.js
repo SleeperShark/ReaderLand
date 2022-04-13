@@ -143,6 +143,15 @@ const generateNewsFeed = async (userId) => {
         });
 
         if (Cache.ready) {
+            const cacheFeed = [];
+            for (let i = 0; i < newsfeedMaterial.length; i += 50) {
+                const temp = newsfeedMaterial.slice(i, 50 + i);
+                temp.sort((a, b) => b.weight - a.weight);
+                cacheFeed.push(...temp.map((elem) => JSON.stringify(elem)));
+            }
+
+            await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
+            return { cache: 1 };
         } else {
             console.log('Cache failed, return top 50 articles according to weight');
             newsfeedMaterial.sort((a, b) => b.weight - a.weight);

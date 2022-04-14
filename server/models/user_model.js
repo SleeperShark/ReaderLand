@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { User } = require('./schemas');
+const { User, ObjectId } = require('./schemas');
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET } = process.env;
 const bcrypt = require('bcrypt');
@@ -74,9 +74,53 @@ const getUserDetail = async (email, roleId) => {
     }
 };
 
+const follow = async (userId, followerId) => {
+    // validate whether followerId match BSON format
+    try {
+        followerId = ObjectId(followerId);
+    } catch (error) {
+        return { error: 'followerId format error', status: 400 };
+    }
+
+    try {
+        // check if followe exist
+        let exist = await User.countDocuments({ _id: followerId });
+        if (!exist) {
+            return { error: "FollowerId doesn't exist.", status: 400 };
+        }
+
+        // push followerId to user's follower array
+        // check if already follow
+        const follow = await User.countDocuments({ _id: userId, follower: { $elemMatch: followerId } });
+        if (!follow) {
+            // not exist => push followerId to user's follower array
+            await User.findByIdAndUpdate(userId, { $push: { follower: followerId } });
+            console.log("Update user's follower list.");
+        } else {
+            console.log('This follower is already in follower list.');
+        }
+
+        // push userId to follower's followee array
+        let followed = await User.countDocuments({ _id: followerId, followee: { $elemMatch: userId } });
+        if (!followed) {
+            // not exist => push userId to follower's followee list
+            await User.findByIdAndUpdate(followerId, { $push: { followee: userId } });
+            console.log("Update follower's folowee list.");
+        } else {
+            console.log('This followee is already in followee list.');
+        }
+
+        return { follow: 1 };
+    } catch (error) {
+        console.log(error);
+        return { error: 'Server Error', status: 500 };
+    }
+};
+
 module.exports = {
     USER_ROLE,
     nativeSignIn,
     signUp,
     getUserDetail,
+    follow,
 };

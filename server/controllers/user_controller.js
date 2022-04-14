@@ -108,13 +108,30 @@ const getUserProfile = async (req, res) => {
     });
 };
 
-const subscribeCategory = async (req, res) => {
-    const subscribes = req.body.subscribe;
+const subscribe = async (req, res) => {
+    const subscribe = req.body.subscribe;
+};
+
+const follow = async (req, res) => {
+    const { followerId, userId } = req.body;
+    if (!followerId) {
+        res.status(400).json({ error: 'FollowerId is required.' });
+        return;
+    }
+    const result = await User.follow(userId, followerId);
+
+    if (result.error) {
+        res.status(result.status || 500).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: 'OK' });
 };
 
 module.exports = {
     getUserProfile,
     signUp,
     signIn,
-    subscribeCategory,
+    subscribe,
+    follow,
 };

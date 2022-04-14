@@ -108,10 +108,6 @@ const getUserProfile = async (req, res) => {
     });
 };
 
-const subscribe = async (req, res) => {
-    const subscribe = req.body.subscribe;
-};
-
 const follow = async (req, res) => {
     const { followerId } = req.body;
     const { userId } = req.user;
@@ -149,11 +145,39 @@ const unfollow = async (req, res) => {
     res.status(200).json({ data: 'Ok' });
 };
 
+const subscribe = async (req, res) => {
+    const { userId } = req.user;
+    const { category, weight } = req.body;
+
+    // validate category and weight
+    if (!category || !weight) {
+        res.status(400).json({ error: 'category and weight is required in subscribe objecr' });
+        return;
+    } else if (isNaN(parseInt(weight)) || weight <= 0 || weight >= 10) {
+        res.status(400).json({ error: 'weight must be a positive integer between 1 and 10.' });
+        return;
+    }
+
+    const result = await User.subscribe(userId, category, weight);
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: 'OK' });
+};
+
+const updateSubscribe = async (req, res) => {};
+
+const unsubscribe = async (req, res) => {};
+
 module.exports = {
     getUserProfile,
     signUp,
     signIn,
-    subscribe,
     follow,
     unfollow,
+    subscribe,
+    updateSubscribe,
+    unsubscribe,
 };

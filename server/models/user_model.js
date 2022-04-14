@@ -1,12 +1,11 @@
 require('dotenv').config();
-const { User, ObjectId } = require('./schemas');
+const { User, ObjectId, Category } = require('./schemas');
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET } = process.env;
 const bcrypt = require('bcrypt');
 const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
-const res = require('express/lib/response');
 
 const USER_ROLE = {
     ALL: -1,
@@ -152,6 +151,27 @@ const unfollow = async (userId, followerId) => {
     return { unfollow: 1 };
 };
 
+const subscribe = async (userId, category, weight) => {
+    try {
+        // verify if category in Cateogry schema
+        const catExist = await Category.countDocuments({ category });
+        if (!catExist) {
+            return { error: `category ${category} doesn't exist.`, status: 400 };
+        }
+
+        // retrieve user's subscribe object
+        let subscription = (await User.findById(userId, { _id: 0, subscribe: 1 }))['subscribe'] || {};
+        subscription[category] = weight;
+
+        await User.findByIdAndUpdate(userId, { subscribe: subscription });
+        console.log("Successfully update user's subscription...");
+        return { subscribe: 1 };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 module.exports = {
     USER_ROLE,
     nativeSignIn,
@@ -159,4 +179,5 @@ module.exports = {
     getUserDetail,
     follow,
     unfollow,
+    subscribe,
 };

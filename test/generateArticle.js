@@ -1,9 +1,12 @@
-const { Article, User } = require('../server/models/schemas');
+const { Article, User, Category } = require('../server/models/schemas');
 
 async function run() {
-    // Get all User id
+    await Article.deleteMany({});
+    await Category.deleteMany({});
+
+    // Get all User id, take first 15 user as author (Tester-1 not included)
     let usersId = await User.find({}, { _id: 1 });
-    usersId = usersId.map((elem) => elem._id.toString()).slice(0, 15);
+    usersId = usersId.map((elem) => elem._id.toString()).slice(1, 16);
 
     const days = 10;
     const daysInMilli = days * 24 * 60 * 60 * 1000;
@@ -11,7 +14,39 @@ async function run() {
     let fakeTimeStamp = new Date().getTime() - daysInMilli;
     const timeInterval = parseInt(daysInMilli / 1000);
 
-    const categories = ['投資理財', '政治', '國際', '教育', '科學', '音樂藝文', '文學', '心理', '健康與情感', '寵物', '職場產業', 'ACG', '創作', '電影戲劇', '閱讀書評'];
+    const categories = [
+        '政治與評論',
+        '國際時事',
+        '電影戲劇',
+        '投資理財',
+        '職場產業',
+        '閱讀書評',
+        '創作',
+        'ACG',
+        '文化生活',
+        '旅行美食',
+        '音樂藝文',
+        '健康與情感',
+        '寵物',
+        '個人成長',
+        '親子與教育',
+        '運動',
+        '科學',
+        '心理',
+    ];
+
+    // insert category
+    try {
+        const result = await Category.insertMany(
+            categories.map((elem) => {
+                return { category: elem };
+            })
+        );
+        console.log('Successfully insert category');
+        console.log(result);
+    } catch (error) {
+        console.error(error);
+    }
 
     for (let i = 0; i < 1000; i++) {
         try {

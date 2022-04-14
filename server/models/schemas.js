@@ -62,6 +62,14 @@ const commentSchema = mongoose.Schema({
     },
 });
 
+const categorySchema = mongoose.Schema({
+    category: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+});
+
 const articleSchema = mongoose.Schema({
     title: {
         type: String,
@@ -95,5 +103,6 @@ articleSchema.index({ title: 1, author: 1 }, { unique: true });
 module.exports = {
     User: mongoose.model('User', userSchema, 'User'),
     Article: mongoose.model('Article', articleSchema, 'Article'),
+    Category: mongoose.model('Category', categorySchema, 'Category'),
     ObjectId: mongoose.Types.ObjectId,
 };

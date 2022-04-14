@@ -94,27 +94,35 @@ const follow = async (userId, followerId) => {
             return { error: "FollowerId doesn't exist.", status: 400 };
         }
 
-        // push followerId to user's follower array
-        // check if already follow
-        const follow = await User.countDocuments({ _id: userId, follower: { $elemMatch: { $eq: followerId } } });
-        if (!follow) {
-            // not exist => push followerId to user's follower array
-            await User.findByIdAndUpdate(userId, { $push: { follower: followerId } });
-            console.log("Update user's follower list.");
-        } else {
-            console.log('This follower is already in follower list.');
-        }
+        await User.updateOne({ _id: userId }, [
+            {
+                $set: {
+                    follower: {
+                        $cond: {
+                            if: { $in: [followerId, '$follower'] },
+                            then: '$follower',
+                            else: { $concatArrays: ['$follower', [followerId]] },
+                        },
+                    },
+                },
+            },
+        ]);
+        console.log("Successfully update user's follower list...");
 
-        // push userId to follower's followee array
-        // check if already followed
-        let followed = await User.countDocuments({ _id: followerId, followee: { $elemMatch: { $eq: userId } } });
-        if (!followed) {
-            // not exist => push userId to follower's followee list
-            await User.findByIdAndUpdate(followerId, { $push: { followee: userId } });
-            console.log("Update follower's folowee list.");
-        } else {
-            console.log('This followee is already in followee list.');
-        }
+        await User.updateOne({ _id: followerId }, [
+            {
+                $set: {
+                    followee: {
+                        $cond: {
+                            if: { $in: [userId, '$followee'] },
+                            then: '$followee',
+                            else: { $concatArrays: ['$followee', [userId]] },
+                        },
+                    },
+                },
+            },
+        ]);
+        console.log("Successfully update follower's followee list...");
 
         return { follow: 1 };
     } catch (error) {

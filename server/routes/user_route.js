@@ -12,6 +12,5 @@ router.route('/user/subscribe').delete(authentication(USER_ROLE.ALL), wrapAsync(
 
 router.route('/user/follow').post(authentication(USER_ROLE.ALL), wrapAsync(follow));
 router.route('/user/follow').delete(authentication(USER_ROLE.ALL), wrapAsync(unfollow));
-// router.route('/user/subscribe').post(authentication(USER_ROLE.ALL), wrapAsync(subscribeCategory));
 
 module.exports = router;

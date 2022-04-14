@@ -164,8 +164,24 @@ const subscribe = async (userId, category, weight) => {
         subscription[category] = weight;
 
         await User.findByIdAndUpdate(userId, { subscribe: subscription });
-        console.log("Successfully update user's subscription...");
+        console.log(`Successfully update user's subscription with new category ${category}:${weight}...`);
         return { subscribe: 1 };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
+const unsubscribe = async (userId, category) => {
+    try {
+        let subscription = await User.findById(userId, { subscribe: 1, _id: 0 });
+        subscription = subscription.subscribe;
+        delete subscription[category];
+
+        await User.findByIdAndUpdate(userId, { subscribe: subscription });
+        console.log(`Successfully unsubscribe the category ${category}...`);
+
+        return { unsubscribe: 1 };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };
@@ -180,4 +196,5 @@ module.exports = {
     follow,
     unfollow,
     subscribe,
+    unsubscribe,
 };

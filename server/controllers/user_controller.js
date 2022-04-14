@@ -167,9 +167,24 @@ const subscribe = async (req, res) => {
     res.status(200).json({ data: 'OK' });
 };
 
-const updateSubscribe = async (req, res) => {};
+const unsubscribe = async (req, res) => {
+    const { category } = req.body;
+    const { userId } = req.user;
 
-const unsubscribe = async (req, res) => {};
+    if (!category) {
+        res.status(400).json({ error: 'Category is required.' });
+        return;
+    }
+
+    const result = await User.unsubscribe(userId, category);
+
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: 'Ok' });
+};
 
 module.exports = {
     getUserProfile,
@@ -178,6 +193,5 @@ module.exports = {
     follow,
     unfollow,
     subscribe,
-    updateSubscribe,
     unsubscribe,
 };

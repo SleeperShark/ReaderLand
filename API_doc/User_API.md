@@ -207,6 +207,60 @@
 |     Field     |  Type  | Description                      |
 | :-----------: | :----: | :------------------------------- |
 | Authorization | String | Access token preceding `Bearer`. |
+|  followerId   | String | Follower's id in BSON format     |
+
+-   **Success Response: 200**
+
+| Field |   Type   | Description |
+| :---: | :------: | :---------: |
+| data  | `String` | success msg |
+
+-   **Success Example**
+
+```JSON
+{
+  "data": "OK"
+}
+```
+
+-   **Client Error (Bad request) Response: 400**
+
+| Field |  Type  | Description   |
+| :---: | :----: | :------------ |
+| error | String | Error Message |
+
+-   **Client Error (No token) Response: 401**
+
+| Field |  Type  | Description   |
+| :---: | :----: | :------------ |
+| error | String | Error Message |
+
+-   **Client Error (Wrong token) Response: 403**
+
+| Field |  Type  | Description   |
+| :---: | :----: | :------------ |
+| error | String | Error Message |
+
+-   **Server Error Response: 500**
+
+| Field |  Type  | Description   |
+| :---: | :----: | :------------ |
+| error | String | Error Message |
+
+---
+
+# User unfollow API
+
+> Authorization
+
+-   **End Point:**&nbsp; `/user/follow`
+-   **Method:**&nbsp; `DELETE`
+-   **Request Headers**
+
+|     Field     |  Type  | Description                      |
+| :-----------: | :----: | :------------------------------- |
+| Authorization | String | Access token preceding `Bearer`. |
+|  followerId   | String | Follower's id in BSON format     |
 
 -   **Success Response: 200**
 

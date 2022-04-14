@@ -113,7 +113,9 @@ const subscribe = async (req, res) => {
 };
 
 const follow = async (req, res) => {
-    const { followerId, userId } = req.body;
+    const { followerId } = req.body;
+    const { userId } = req.user;
+
     if (!followerId) {
         res.status(400).json({ error: 'FollowerId is required.' });
         return;

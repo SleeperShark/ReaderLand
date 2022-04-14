@@ -75,6 +75,11 @@ const getUserDetail = async (email, roleId) => {
 };
 
 const follow = async (userId, followerId) => {
+    // check if userId equals to follower
+    if (userId.toString() === followerId) {
+        return { error: "User can't follow itself", status: 400 };
+    }
+
     // validate whether followerId match BSON format
     try {
         followerId = ObjectId(followerId);
@@ -91,7 +96,7 @@ const follow = async (userId, followerId) => {
 
         // push followerId to user's follower array
         // check if already follow
-        const follow = await User.countDocuments({ _id: userId, follower: { $elemMatch: followerId } });
+        const follow = await User.countDocuments({ _id: userId, follower: { $elemMatch: { $eq: followerId } } });
         if (!follow) {
             // not exist => push followerId to user's follower array
             await User.findByIdAndUpdate(userId, { $push: { follower: followerId } });
@@ -101,7 +106,8 @@ const follow = async (userId, followerId) => {
         }
 
         // push userId to follower's followee array
-        let followed = await User.countDocuments({ _id: followerId, followee: { $elemMatch: userId } });
+        // check if already followed
+        let followed = await User.countDocuments({ _id: followerId, followee: { $elemMatch: { $eq: userId } } });
         if (!followed) {
             // not exist => push userId to follower's followee list
             await User.findByIdAndUpdate(followerId, { $push: { followee: userId } });

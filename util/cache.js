@@ -1,6 +1,7 @@
 require('dotenv').config();
 const Redis = require('ioredis');
-const { CACHE_HOST, CACHE_PORT, CACHE_USER, CACHE_PASSWORD } = process.env;
+const { CACHE_HOST, CACHE_PORT, CACHE_USER, CACHE_PASSWORD, NODE_ENV } = process.env;
+const retryTimes = NODE_ENV === 'development' ? 1 : 5;
 
 const redisClient = new Redis({
     port: CACHE_PORT,
@@ -9,7 +10,7 @@ const redisClient = new Redis({
     password: CACHE_PASSWORD,
     retryStrategy(times) {
         const delay = Math.min(times * 500, 100000);
-        if (times >= 5) {
+        if (times >= retryTimes) {
             return 'stop connect';
         }
         return delay;

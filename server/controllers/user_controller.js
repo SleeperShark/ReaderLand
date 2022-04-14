@@ -130,10 +130,30 @@ const follow = async (req, res) => {
     res.status(200).json({ data: 'OK' });
 };
 
+const unfollow = async (req, res) => {
+    const { followerId } = req.body;
+    const { userId } = req.user;
+
+    if (!followerId) {
+        res.status(400).json({ error: 'followerId is required' });
+        return;
+    }
+
+    const result = await User.unfollow(userId, followerId);
+
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: 'Ok' });
+};
+
 module.exports = {
     getUserProfile,
     signUp,
     signIn,
     subscribe,
     follow,
+    unfollow,
 };

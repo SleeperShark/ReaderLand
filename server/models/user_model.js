@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
+const res = require('express/lib/response');
 
 const USER_ROLE = {
     ALL: -1,
@@ -28,7 +29,7 @@ const signUp = async (name, email, password) => {
 
         return { user };
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return { error };
     }
 };
@@ -56,7 +57,7 @@ const nativeSignIn = async (email, password) => {
 
         return { user };
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return { error };
     }
 };
@@ -69,7 +70,7 @@ const getUserDetail = async (email, roleId) => {
             return { user: await User.findOne({ email }) };
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return { error: error.message };
     }
 };
@@ -77,7 +78,7 @@ const getUserDetail = async (email, roleId) => {
 const follow = async (userId, followerId) => {
     // check if userId equals to follower
     if (userId.toString() === followerId) {
-        return { error: "User can't follow itself", status: 400 };
+        return { error: "User can't be follower itself", status: 400 };
     }
 
     // validate whether followerId match BSON format
@@ -118,9 +119,37 @@ const follow = async (userId, followerId) => {
 
         return { follow: 1 };
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return { error: 'Server Error', status: 500 };
     }
+};
+
+const unfollow = async (userId, followerId) => {
+    // check if userId equals to follower
+    if (userId.toString() === followerId) {
+        return { error: "User can't be follower itself", status: 400 };
+    }
+
+    // validate whether followerId follow the BSON format
+    try {
+        followerId = ObjectId(followerId);
+    } catch (error) {
+        return { error: 'followerId format error', status: 400 };
+    }
+
+    try {
+        // remove followerId from user's follower list
+        await User.findByIdAndUpdate(userId, { $pull: { follower: followerId } });
+        console.log("Remove followerId from user's follower list...");
+
+        // remove userId from follower's followee list
+        await User.findByIdAndUpdate(followerId, { $pull: { followee: userId } });
+        console.log("Remove userId from follower's followee list...");
+    } catch (error) {
+        console.error(error);
+        return { status: 500, error: 'Server error' };
+    }
+    return { unfollow: 1 };
 };
 
 module.exports = {
@@ -129,4 +158,5 @@ module.exports = {
     signUp,
     getUserDetail,
     follow,
+    unfollow,
 };

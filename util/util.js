@@ -41,6 +41,7 @@ const authentication = (roleId) => {
                     res.status(403).json({ error: 'Forbidden' });
                 } else {
                     const userDetail = result.user;
+                    console.log(`User ${req.user.name} pass authentication...`);
                     req.user.userId = userDetail._id;
                     req.user.roleId = userDetail.role;
                     next();

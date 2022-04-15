@@ -8,8 +8,11 @@ const fs = require('fs');
 
 const createArticle = async (articleInfo) => {
     try {
+        // create article
         const article = await Article.create(articleInfo);
         console.log(article);
+
+        // push this new article to the author's followee
 
         return { article };
     } catch (error) {

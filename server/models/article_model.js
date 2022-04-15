@@ -100,7 +100,7 @@ const getFullArticle = async (articleId) => {
     }
 };
 
-const generateNewsFeed = async (userId) => {
+const generateNewsFeed = async (userId, lastArticleId) => {
     try {
         // acquire user's follower and subscribe categories
         console.log(userId);
@@ -109,11 +109,18 @@ const generateNewsFeed = async (userId) => {
         let { follower, subscribe } = userPreference;
 
         const newsfeedMaterial = [];
-        let skip = 0;
+        let skip;
+        if (lastArticleId) {
+            skip = await Article.find({ _id: { $gte: ObjectId(lastArticleId) } }).count();
+        } else {
+            skip = 0;
+        }
         const limitInterval = 100;
 
         // collect over 200 prefered article
+        let zeroSearchCount = 0;
         while (newsfeedMaterial.length < 200) {
+            console.log(`Skip for the newsfeed retrieval: ${skip}`);
             const feeds = await Article.aggregate([
                 {
                     $sort: { _id: -1 },
@@ -148,6 +155,14 @@ const generateNewsFeed = async (userId) => {
                     },
                 },
             ]);
+
+            //* exam whether feeds is empty
+            zeroSearchCount += feeds.length === 0 ? 1 : 0;
+            if (zeroSearchCount === 3) {
+                skip = 0;
+                zeroSearchCount = 0;
+                continue;
+            }
 
             newsfeedMaterial.push(...feeds);
             skip += limitInterval;
@@ -203,4 +218,31 @@ const generateNewsFeed = async (userId) => {
     // fs.writeFileSync('weightRecord.json', JSON.stringify(weightRecord));
 };
 
-module.exports = { createArticle, getFullArticle, generateNewsFeed };
+// TODO: get articles preview from customized newsfeed
+const getNewsFeed = async (userId) => {
+    try {
+        //* get 50 feeds back from cache
+        const luaScript = `
+        local feeds = redis.call('lrange', KEYS[1], 0, 24);
+        redis.call('ltrim', KEYS[1], 25, -1);
+
+        local left = redis.call('lrange', KEYS[1], 0, -1);
+        return {feeds, #left};
+        `;
+        const [feeds, left] = await Cache.eval(luaScript, 1, userId + '_newsfeed');
+
+        if (left < 25) {
+            const lastArticleId = feeds[feeds.length - 1];
+            generateNewsFeed(userId, lastArticleId);
+        }
+
+        // TODO: get articles preview from articleId
+
+        return;
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
+module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed };

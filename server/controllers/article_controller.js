@@ -46,6 +46,7 @@ const getNewsFeed = async (req, res) => {
         const userId = req.user.userId;
         let cacheKey = `${userId}_newsfeed`;
 
+        // TODO: Check if newsfeed cache exist
         if (!Cache.ready || (await Cache.exists(cacheKey)) === 0) {
             // no feeds in cache
             const result = await Article.generateNewsFeed(userId);
@@ -57,16 +58,9 @@ const getNewsFeed = async (req, res) => {
             }
         }
 
-        const luaScript = `
-        local result = redis.call('lrange', KEYS[1], 0, 24);
-        redis.call('ltrim', KEYS[1], 25, -1);
-        return result;
-        `;
+        const newsfeed = await Article.getNewsFeed(userId);
 
-        let feeds = await Cache.eval(luaScript, 1, cacheKey);
-        // feeds = feeds.map((elem) => JSON.parse(elem));
-
-        res.status(200).json({ data: feeds });
+        res.status(200).json({ data: 'test' });
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Server Error' });

@@ -52,7 +52,8 @@ const getNewsFeed = async (req, res) => {
             const result = await Article.generateNewsFeed(userId);
             if (result.error) {
                 res.status(500).json({ error: 'Server Error' });
-            } else if (Array.isArray(result.feeds)) {
+                return;
+            } else if (result.feeds) {
                 res.status(200).json({ data: result.feeds });
                 return;
             }
@@ -60,7 +61,7 @@ const getNewsFeed = async (req, res) => {
 
         const newsfeed = await Article.getNewsFeed(userId);
 
-        res.status(200).json({ data: 'test' });
+        res.status(200).json({ data: newsfeed });
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Server Error' });

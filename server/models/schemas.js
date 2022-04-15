@@ -84,6 +84,10 @@ const articleSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    preview: {
+        type: String,
+        maxLength: 200,
+    },
     createdAt: {
         type: Date,
         immutable: true,
@@ -99,6 +103,12 @@ const articleSchema = mongoose.Schema({
 });
 
 articleSchema.index({ title: 1, author: 1 }, { unique: true });
+articleSchema.pre('save', function (next) {
+    if (!this.preview) {
+        this.preview = this.context.slice(0, 150);
+    }
+    next();
+});
 
 module.exports = {
     User: mongoose.model('User', userSchema, 'User'),

@@ -139,16 +139,18 @@ const generateNewsFeed = async (userId, lastArticleId) => {
                         from: 'User',
                         localField: 'author',
                         foreignField: '_id',
-                        pipeline: [{ $project: { _id: 0, name: 1 } }],
+                        pipeline: [{ $project: { _id: 1, name: 1, picture: 1 } }],
                         as: 'author',
                     },
                 },
                 {
                     $project: {
                         _id: 1,
+                        title: 1,
                         author: { $arrayElemAt: ['$author', 0] },
-                        readCount: 1,
                         createdAt: 1,
+                        preview: 1,
+                        readCount: 1,
                         likeCount: { $size: '$likes' },
                         commentCount: { $size: '$comments' },
                         category: 1,
@@ -161,6 +163,7 @@ const generateNewsFeed = async (userId, lastArticleId) => {
             if (zeroSearchCount === 3) {
                 skip = 0;
                 zeroSearchCount = 0;
+                console.log('Touch article limit, retry from the top...');
                 continue;
             }
 
@@ -206,7 +209,7 @@ const generateNewsFeed = async (userId, lastArticleId) => {
 
             return { cache: 1 };
         } else {
-            console.log('Cache failed, return top 50 articles according to weight');
+            console.log('Cache failed, return top 100 articles according to weight');
             newsfeedMaterial.sort((a, b) => b.weight - a.weight);
             return { feeds: newsfeedMaterial.slice(0, 100) };
         }
@@ -229,16 +232,52 @@ const getNewsFeed = async (userId) => {
         local left = redis.call('lrange', KEYS[1], 0, -1);
         return {feeds, #left};
         `;
-        const [feeds, left] = await Cache.eval(luaScript, 1, userId + '_newsfeed');
+        let [feedsId, left] = await Cache.eval(luaScript, 1, userId + '_newsfeed');
 
+        // if the rest less than 25 articles => retrieve more articles to news feed
         if (left < 25) {
-            const lastArticleId = feeds[feeds.length - 1];
+            const lastArticleId = feedsId[feedsId.length - 1];
             generateNewsFeed(userId, lastArticleId);
         }
 
         // TODO: get articles preview from articleId
+        feedsId = feedsId.map((elem) => ObjectId(elem));
+        let feeds = await Article.aggregate([
+            {
+                $match: { _id: { $in: feedsId } },
+            },
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'author',
+                    foreignField: '_id',
+                    pipeline: [{ $project: { _id: 1, name: 1, picture: 1 } }],
+                    as: 'author',
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    title: 1,
+                    author: { $arrayElemAt: ['$author', 0] },
+                    preview: 1,
+                    createdAt: 1,
+                    readCount: 1,
+                    likeCount: { $size: '$likes' },
+                    commentCount: { $size: '$comments' },
+                    category: 1,
+                },
+            },
+        ]);
 
-        return;
+        //TODO: organize article preview to customized feed order
+        const temp = {};
+        feeds.forEach((elem) => {
+            temp[elem._id.toString()] = elem;
+        });
+        feeds = feedsId.map((elem) => temp[elem.toString()]);
+
+        return feeds;
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

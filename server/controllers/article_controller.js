@@ -5,7 +5,7 @@ const createArticle = async (req, res) => {
     try {
         const articleInfo = {
             title: req.body.title,
-            author: req.user._id,
+            author: req.user.userId,
             context: req.body.context,
         };
 
@@ -14,8 +14,6 @@ const createArticle = async (req, res) => {
         }
 
         articleInfo.category = req.body.categories;
-
-        console.log(articleInfo);
 
         const result = await Article.createArticle(articleInfo);
 
@@ -26,8 +24,6 @@ const createArticle = async (req, res) => {
         }
 
         const article = result.article;
-        console.log(article);
-
         res.status(200).json({ data: { _id: article._id } });
         return;
     } catch (error) {}
@@ -47,7 +43,7 @@ const getFullArticle = async (req, res) => {
 
 const getNewsFeed = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.userId;
         let cacheKey = `${userId}_newsfeed`;
 
         if (!Cache.ready || (await Cache.exists(cacheKey)) === 0) {
@@ -68,7 +64,7 @@ const getNewsFeed = async (req, res) => {
         `;
 
         let feeds = await Cache.eval(luaScript, 1, cacheKey);
-        feeds = feeds.map((elem) => JSON.parse(elem));
+        // feeds = feeds.map((elem) => JSON.parse(elem));
 
         res.status(200).json({ data: feeds });
     } catch (error) {

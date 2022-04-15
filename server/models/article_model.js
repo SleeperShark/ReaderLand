@@ -1,18 +1,40 @@
 require('dotenv').config();
 const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION } = process.env;
-const { Article, ObjectId, User } = require('./schemas');
+const { Article, ObjectId, User, Category } = require('./schemas');
 const { timeDecayer } = require('../../util/util');
 const Cache = require('../../util/cache');
 
 const fs = require('fs');
 
+const pushToNewsfeed = async (article) => {
+    //TODO: get author's followee list
+    const followeeList = await User.findById(article.author, { _id: 0, followee: 1 });
+
+    // followeeList.forEach((userId) => {
+    //     const cacheKey = `${userId.toString()}_newsfeed`;
+    //     console.log(cacheKey)
+    //     await Cache.
+    // });
+};
+
 const createArticle = async (articleInfo) => {
     try {
+        // articleInfo: title, author, context, category
+        //TODO: Validate all categories of the article are valid
+        let categories = await Category.find({}, { category: 1, _id: 0 });
+        categories = categories.map((elem) => elem.category);
+        for (let cat of articleInfo.category) {
+            if (!categories.includes(cat)) {
+                return { error: `Invalid category: ${cat}`, status: 400 };
+            }
+        }
+
         // create article
         const article = await Article.create(articleInfo);
         console.log(article);
 
-        // push this new article to the author's followee
+        // TODO: Insert the new article to followee's newsfeed Queue
+        await pushToNewsfeed(article);
 
         return { article };
     } catch (error) {
@@ -57,7 +79,9 @@ const getFullArticle = async (articleId) => {
 const generateNewsFeed = async (userId) => {
     try {
         // acquire user's follower and subscribe categories
+        console.log(userId);
         const userPreference = await User.findById(userId, { subscribe: 1, follower: 1, _id: 0 });
+
         let { follower, subscribe } = userPreference;
 
         const newsfeedMaterial = [];
@@ -84,7 +108,7 @@ const generateNewsFeed = async (userId) => {
                         from: 'User',
                         localField: 'author',
                         foreignField: '_id',
-                        pipeline: [{ $project: { _id: 1, name: 1, picture: 1 } }],
+                        pipeline: [{ $project: { _id: 0, name: 1 } }],
                         as: 'author',
                     },
                 },
@@ -95,7 +119,6 @@ const generateNewsFeed = async (userId) => {
                         readCount: 1,
                         createdAt: 1,
                         likeCount: { $size: '$likes' },
-                        preview: { $substr: ['$context', 0, 150] },
                         commentCount: { $size: '$comments' },
                         category: 1,
                     },
@@ -107,53 +130,41 @@ const generateNewsFeed = async (userId) => {
         }
 
         const currTime = new Date();
-        // const weightRecord = [];
 
         // Caclulate weight for each article in newsfeedMaterial
         newsfeedMaterial.forEach(({ author, likeCount, commentCount, readCount, category, createdAt }, idx, arr) => {
-            // temp is for recording result to weightRecord.json
-            // const temp = {};
             let weight = 0;
             weight += category.reduce((prev, curr) => prev + (subscribe[curr] || 0), 1);
 
-            // temp['category_weight'] = weight;
-            // console.log(weight);
-
             weight *= follower.includes(author._id) ? 3 : 1;
-            // temp['weight_with_author'] = weight;
 
             weight *= Math.pow(READ_WEIGHT, Math.floor(readCount / READ_DIVISION));
             weight *= Math.pow(LIKE_WEIGHT, Math.floor(likeCount / LIKE_DIVISION));
             weight *= Math.floor(COMMENT_WEIGHT, Math.floor(commentCount / COMMENT_DIVISION));
 
-            // temp['affinity'] = [readCount, likeCount, commentCount];
-            // temp['weight_with_affinity'] = weight;
-
-            // const timeDecayInMilli = new Date().getTime() - new Date(createdAt).getTime();
-            // const timeDecayInMin = Math.floor(timeDecayInMilli / 1000 / 60);
-            // const timeDecayInHour = Math.floor(timeDecayInMin / 60);
-            // const timeDecayInDay = Math.floor(timeDecayInHour / 24);
-            // temp['hour_decay'] = timeDecayInHour;
-
             const decayWeight = timeDecayer(currTime, createdAt);
-            // temp['decayWeight'] = decayWeight;
 
             weight = (weight / decayWeight).toFixed(3);
-            // temp['finalWeight'] = weight;
 
-            // weightRecord.push(temp);
             arr[idx]['weight'] = weight;
         });
 
         if (Cache.ready) {
             const cacheFeed = [];
+            // const record = [];
             for (let i = 0; i < newsfeedMaterial.length; i += 50) {
                 const temp = newsfeedMaterial.slice(i, 50 + i);
                 temp.sort((a, b) => b.weight - a.weight);
-                cacheFeed.push(...temp.map((elem) => JSON.stringify(elem)));
+
+                // record.push(...temp);
+                cacheFeed.push(...temp.map((elem) => elem._id));
             }
 
+            // console.log(cacheFeed);
+
             await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
+            // fs.writeFileSync('NewsFeed.json', JSON.stringify(record));
+
             return { cache: 1 };
         } else {
             console.log('Cache failed, return top 50 articles according to weight');
@@ -166,7 +177,6 @@ const generateNewsFeed = async (userId) => {
     }
 
     // fs.writeFileSync('weightRecord.json', JSON.stringify(weightRecord));
-    // fs.writeFileSync('NewsFeed.json', JSON.stringify(newsfeed));
 };
 
 module.exports = { createArticle, getFullArticle, generateNewsFeed };

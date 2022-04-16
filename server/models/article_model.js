@@ -8,39 +8,48 @@ const fs = require('fs');
 const res = require('express/lib/response');
 
 const pushToNewsfeed = async (article) => {
-    //TODO: get author's followee list
-    const queryResult = await User.findById(article.author, { _id: 0, followee: 1 });
-    let followee = queryResult.followee;
-    if (!followee.length) {
+    try {
+        //TODO: get author's followee list
+        const queryResult = await User.findById(article.author, { _id: 0, followee: 1 });
+        let followee = queryResult.followee;
+        if (!followee.length) {
+            return;
+        }
+        const followeeNum = followee.length;
+        //TODO: make followee list match lua format
+        followee = followee.map((elem) => elem.toString() + '_newsfeed');
+        // console.log(followee);
+        const articleId = article._id.toString();
+        // console.log(articleId);
+
+        //TODO: push article id to followee's newsfeed
+        const keys = ['articleId', 'followeeNum', 'randNom', ...new Array(followeeNum).fill('')];
+        const argv = [articleId, followeeNum, Math.floor(Math.random() * 1000), ...followee];
+        const luaScript = `
+            local articleId = ARGV[1];
+            local followeeNum = tonumber(ARGV[2]);
+            local randseed = tonumber(ARGV[3]);
+            
+            math.randomseed(randseed);
+            
+            for i = 4, followeeNum+3 do
+                if (redis.call("EXISTS", ARGV[i]) == 1) then
+                    local randIdx = math.random(1, 20)
+                    local temp = redis.call("LRANGE", ARGV[i], randIdx, randIdx);
+                    redis.call("LINSERT", ARGV[i], "BEFORE", temp[1], articleId);
+                end
+            end
+            
+            return;
+        `;
+
+        await Cache.eval(luaScript, keys.length, ...keys, ...argv);
+        console.log('Successfully push newsfeed to followees...');
+        return;
+    } catch (error) {
+        console.error(error);
         return;
     }
-    const followeeNum = followee.length;
-    // * make followee list match lua format
-    followee = followee.map((elem) => elem.toString() + '_newsfeed');
-    console.log(followee);
-    const articleId = article._id.toString();
-    console.log(articleId);
-    const keys = ['articleId', 'followeeNum', 'randNom', ...new Array(followeeNum).fill('')];
-    const argv = [articleId, followeeNum, Math.floor(Math.random() * 1000), ...followee];
-    const luaScript = `
-        local articleId = ARGV[1];
-        local followeeNum = tonumber(ARGV[2]);
-        local randseed = tonumber(ARGV[3]);
-        
-        math.randomseed(randseed);
-        
-        for i = 4, followeeNum+3 do
-            if (redis.call("EXISTS", ARGV[i]) == 1) then
-                local randIdx = math.random(1, 20)
-                local temp = redis.call("LRANGE", ARGV[i], randIdx, randIdx);
-                redis.call("LINSERT", ARGV[i], "BEFORE", temp[1], articleId);
-            end
-        end
-        
-        return;
-    `;
-
-    await Cache.eval(luaScript, keys.length, ...keys, ...argv);
 };
 
 const createArticle = async (articleInfo) => {
@@ -56,7 +65,7 @@ const createArticle = async (articleInfo) => {
         }
 
         const article = await Article.create(articleInfo);
-        // console.log(article);
+        console.log(`Successfully create article: ${article._id}`);
 
         // TODO: Insert the new article to followee's newsfeed Queue
         pushToNewsfeed(article);

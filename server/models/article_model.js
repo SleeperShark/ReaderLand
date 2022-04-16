@@ -5,6 +5,7 @@ const { timeDecayer } = require('../../util/util');
 const Cache = require('../../util/cache');
 
 const fs = require('fs');
+const res = require('express/lib/response');
 
 const pushToNewsfeed = async (article) => {
     //TODO: get author's followee list
@@ -284,4 +285,41 @@ const getNewsFeed = async (userId) => {
     }
 };
 
-module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed };
+// TODO: push userId to Article.likes array
+const pushArticleLikes = async (userId, articleId) => {
+    //* examine the articleId format
+    try {
+        articleId = ObjectId(articleId);
+    } catch (error) {
+        console.error(error);
+        return { error: 'ArticleId format error', status: 400 };
+    }
+
+    try {
+        //* Check if Article exist
+        const exist = await Article.countDocuments({ _id: articleId });
+        if (!exist) {
+            return { error: "Article doesn't exist.", status: 400 };
+        }
+
+        await Article.updateOne({ _id: articleId }, [
+            {
+                $set: {
+                    likes: {
+                        $cond: {
+                            if: { $in: [userId, '$likes'] },
+                            then: '$likes',
+                            else: { $concatArrays: ['$likes', [userId]] },
+                        },
+                    },
+                },
+            },
+        ]);
+        return { like: 1 };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
+module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed, pushArticleLikes };

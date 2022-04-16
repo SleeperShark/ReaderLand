@@ -69,4 +69,17 @@ const getNewsFeed = async (req, res) => {
     }
 };
 
-module.exports = { createArticle, getFullArticle, getNewsFeed };
+const pushArticleLikes = async (req, res) => {
+    const { articleId } = req.params;
+    const { userId } = req.user;
+
+    const result = await Article.pushArticleLikes(userId, articleId);
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: 'OK' });
+};
+
+module.exports = { createArticle, getFullArticle, getNewsFeed, pushArticleLikes };

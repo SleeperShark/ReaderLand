@@ -69,17 +69,32 @@ const getNewsFeed = async (req, res) => {
     }
 };
 
-const pushArticleLikes = async (req, res) => {
+const likeArticle = async (req, res) => {
     const { articleId } = req.params;
     const { userId } = req.user;
 
-    const result = await Article.pushArticleLikes(userId, articleId);
+    const result = await Article.likeArticle(userId, articleId);
+
     if (result.error) {
         res.status(result.status).json({ error: result.error });
         return;
     }
 
-    res.status(200).json({ data: 'OK' });
+    res.status(200).json({ data: 'Ok' });
 };
 
-module.exports = { createArticle, getFullArticle, getNewsFeed, pushArticleLikes };
+const unlikeArticle = async (req, res) => {
+    const { articleId } = req.params;
+    const { userId } = req.user;
+
+    const result = await Article.unlikeArticle(userId, articleId);
+
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: 'Ok' });
+};
+
+module.exports = { createArticle, getFullArticle, getNewsFeed, likeArticle, unlikeArticle };

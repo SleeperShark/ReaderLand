@@ -10,6 +10,17 @@ mongoose.connect(
     }
 );
 
+const favoriteSchema = mongoose.Schema({
+    createdAt: {
+        type: Date,
+        immutable: true,
+    },
+    articleId: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'Article',
+    },
+});
+
 const userSchema = mongoose.Schema({
     name: String,
     role: {
@@ -39,7 +50,7 @@ const userSchema = mongoose.Schema({
     },
     follower: [mongoose.SchemaTypes.ObjectId],
     followee: [mongoose.SchemaTypes.ObjectId],
-    favorite: [mongoose.SchemaTypes.ObjectId],
+    favorite: [favoriteSchema],
     subscribe: Object,
 });
 

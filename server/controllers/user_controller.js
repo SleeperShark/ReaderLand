@@ -204,7 +204,25 @@ const favorite = async (req, res) => {
 
     return res.status(200).json({ data: 'Ok' });
 };
-const unfavorite = async (req, res) => {};
+
+const unfavorite = async (req, res) => {
+    const { articleId } = req.body;
+    const { userId } = req.user;
+
+    if (!articleId) {
+        res.status(400).json({ error: 'ArticleId is required.' });
+        return;
+    }
+
+    const result = await User.unfavorite(userId, articleId);
+
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: 'Ok' });
+};
 
 module.exports = {
     getUserProfile,

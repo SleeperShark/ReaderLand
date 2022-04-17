@@ -196,7 +196,7 @@ const unsubscribe = async (userId, category) => {
     }
 };
 
-// TODO: add favorite article's id to user's favorite array
+// TODO: add articleId to user's favorite array
 const favorite = async (userId, articleId) => {
     //TODO: validate articleId
     try {
@@ -238,6 +238,40 @@ const favorite = async (userId, articleId) => {
     }
 };
 
+// TODO: remove articleId from user's favorite array
+const unfavorite = async (userId, articleId) => {
+    // format validation
+    try {
+        articleId = ObjectId(articleId);
+    } catch (error) {
+        return { status: 400, error: 'Invalid articleId' };
+    }
+
+    try {
+        const exist = await Article.countDocuments({ _id: articleId });
+        if (!exist) {
+            return { error: "Article does'nt exist.", status: 400 };
+        }
+
+        await User.updateOne(
+            { _id: userId },
+            {
+                $pull: {
+                    favorite: {
+                        articleId,
+                    },
+                },
+            }
+        );
+        console.log('Successfully remove article from favorite list...');
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+
+    return {};
+};
+
 module.exports = {
     USER_ROLE,
     nativeSignIn,
@@ -248,4 +282,5 @@ module.exports = {
     subscribe,
     unsubscribe,
     favorite,
+    unfavorite,
 };

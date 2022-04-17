@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { wrapAsync, authentication } = require('../../util/util');
-const { signUp, signIn, getUserProfile, subscribe, follow, unfollow, unsubscribe } = require('../controllers/user_controller');
+const { signUp, signIn, getUserProfile, subscribe, follow, unfollow, unsubscribe, favorite, unfavorite } = require('../controllers/user_controller');
 const { USER_ROLE } = require('../models/user_model');
 
 router.route('/user/signup').post(wrapAsync(signUp));
@@ -12,5 +12,8 @@ router.route('/user/subscribe').delete(authentication(USER_ROLE.ALL), wrapAsync(
 
 router.route('/user/follow').post(authentication(USER_ROLE.ALL), wrapAsync(follow));
 router.route('/user/follow').delete(authentication(USER_ROLE.ALL), wrapAsync(unfollow));
+
+router.route('/user/favorite').post(authentication(USER_ROLE.ALL), wrapAsync(favorite));
+router.route('/user/favorite').delete(authentication(USER_ROLE.ALL), wrapAsync(unfavorite));
 
 module.exports = router;

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { User, ObjectId, Category } = require('./schemas');
+const { User, ObjectId, Category, Article } = require('./schemas');
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET } = process.env;
 const bcrypt = require('bcrypt');
@@ -196,6 +196,48 @@ const unsubscribe = async (userId, category) => {
     }
 };
 
+// TODO: add favorite article's id to user's favorite array
+const favorite = async (userId, articleId) => {
+    //TODO: validate articleId
+    try {
+        articleId = ObjectId(articleId);
+    } catch (error) {
+        return { error: 'Invalid articleId', status: 400 };
+    }
+
+    try {
+        const exist = await Article.countDocuments({ _id: articleId });
+        if (!exist) {
+            return { error: "article does't exist.", status: 400 };
+        }
+
+        const user = await User.findById({ _id: userId });
+        const timestamp = new Date().toISOString();
+        let updated = false;
+        const favorite = { articleId, createdAt: timestamp };
+
+        const favoriteLength = user.favorite.length;
+        for (let i = 0; i < favoriteLength; i++) {
+            if (user.favorite[i].articleId.toString() == articleId.toString()) {
+                updated = true;
+                user.favorite = [favorite, ...user.favorite.slice(0, i), ...user.favorite.slice(i + 1, favoriteLength)];
+                break;
+            }
+        }
+        if (!updated) {
+            user.favorite = [{ articleId, createdAt: timestamp }, ...user.favorite];
+        }
+
+        await user.save();
+        console.log('Successfully add article to favorite list...');
+
+        return { favorite: 1 };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 module.exports = {
     USER_ROLE,
     nativeSignIn,
@@ -205,4 +247,5 @@ module.exports = {
     unfollow,
     subscribe,
     unsubscribe,
+    favorite,
 };

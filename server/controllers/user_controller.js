@@ -186,6 +186,26 @@ const unsubscribe = async (req, res) => {
     res.status(200).json({ data: 'Ok' });
 };
 
+const favorite = async (req, res) => {
+    const { userId } = req.user;
+    const { articleId } = req.body;
+
+    if (!articleId) {
+        res.status(400).json({ error: 'articleId is required.' });
+        return;
+    }
+
+    const result = await User.favorite(userId, articleId);
+
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    return res.status(200).json({ data: 'Ok' });
+};
+const unfavorite = async (req, res) => {};
+
 module.exports = {
     getUserProfile,
     signUp,
@@ -194,4 +214,6 @@ module.exports = {
     unfollow,
     subscribe,
     unsubscribe,
+    favorite,
+    unfavorite,
 };

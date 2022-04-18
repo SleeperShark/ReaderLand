@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION } = process.env;
+const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
 const { timeDecayer } = require('../../util/util');
 const Cache = require('../../util/cache');
@@ -221,7 +221,12 @@ const generateNewsFeed = async (userId, lastArticleId) => {
         } else {
             console.log('Cache failed, return top 100 articles according to weight');
             newsfeedMaterial.sort((a, b) => b.weight - a.weight);
-            return { feeds: newsfeedMaterial.slice(0, 100) };
+            feeds = newsfeedMaterial.slice(0, 100).map((article) => {
+                article.author.picture = `${process.env.IMAGE_URL}/avatar/${article.author.picture}`;
+                return article;
+            });
+            console.log(feeds[0]);
+            return { feeds };
         }
     } catch (error) {
         console.log(error);
@@ -273,8 +278,8 @@ const getNewsFeed = async (userId) => {
                     preview: 1,
                     createdAt: 1,
                     readCount: 1,
-                    likeCount: { $size: '$likes' },
-                    commentCount: { $size: '$comments' },
+                    likes: 1,
+                    comments: 1,
                     category: 1,
                 },
             },
@@ -282,8 +287,42 @@ const getNewsFeed = async (userId) => {
 
         //TODO: organize article preview to customized feed order
         const temp = {};
+        let result = await User.findById(userId, { _id: 0, favorite: { articleId: 1 } });
+        const favorite = result.favorite.map((elem) => elem.articleId.toString());
+
         feeds.forEach((elem) => {
+            // making {id: article} Object
             temp[elem._id.toString()] = elem;
+
+            // processing article data
+            elem.author.picture = `${IMAGE_URL}/avatar/${elem.author.picture}`;
+
+            // check favorited
+            if (favorite.includes(elem._id.toString())) {
+                elem.favorited = true;
+            }
+
+            // check liked
+            for (let likeUser of elem.likes) {
+                if (likeUser.toString() == userId.toString()) {
+                    {
+                        elem.liked = true;
+                        break;
+                    }
+                }
+            }
+            elem.likeCount = elem.likes.length;
+            delete elem.likes;
+
+            // check commented
+            for (let comment of elem.comments) {
+                if (comment.reader.toString() == userId.toString()) {
+                    elem.commented = true;
+                    break;
+                }
+            }
+            elem.commentCount = elem.comments.length;
+            delete elem.comment;
         });
         feeds = feedsId.map((elem) => temp[elem.toString()]);
 

@@ -53,6 +53,7 @@ const userSchema = mongoose.Schema({
 });
 
 const commentSchema = mongoose.Schema({
+    _id: false,
     context: String,
     createdAt: {
         type: Date,

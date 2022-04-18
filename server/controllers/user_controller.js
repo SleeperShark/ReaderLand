@@ -2,6 +2,13 @@ require('dotenv').config();
 const validator = require('validator');
 const User = require('../models/user_model');
 
+const getUserInfo = async (req, res) => {
+    let { name, email, picture } = req.user;
+    picture = `${process.env.IMAGE_URL}/avatar/${picture}`;
+    res.status(200).json({ data: { name, email, picture } });
+    return;
+};
+
 const signUp = async (req, res) => {
     let { name } = req.body;
     const { email, password } = req.body;
@@ -224,6 +231,20 @@ const unfavorite = async (req, res) => {
     res.status(200).json({ data: 'Ok' });
 };
 
+const getSubscription = async (req, res) => {
+    const { userId } = req.user;
+    const result = await User.getSubscription(userId);
+
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: result.subscribe });
+
+    return;
+};
+
 module.exports = {
     getUserProfile,
     signUp,
@@ -234,4 +255,6 @@ module.exports = {
     unsubscribe,
     favorite,
     unfavorite,
+    getUserInfo,
+    getSubscription,
 };

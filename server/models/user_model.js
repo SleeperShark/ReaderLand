@@ -159,6 +159,17 @@ const unfollow = async (userId, followerId) => {
     return { unfollow: 1 };
 };
 
+const getSubscription = async (userId) => {
+    try {
+        const result = await User.findById(userId, { subscribe: 1, _id: 0 });
+
+        return { subscribe: result.subscribe };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 const subscribe = async (userId, category, weight) => {
     try {
         // verify if category in Cateogry schema
@@ -284,4 +295,5 @@ module.exports = {
     unsubscribe,
     favorite,
     unfavorite,
+    getSubscription,
 };

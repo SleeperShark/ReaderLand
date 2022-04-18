@@ -1,0 +1,163 @@
+main {
+    margin-top: 80px;
+    background-color: black;
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#articles {
+    width: 60vw;
+    padding-bottom: 25px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.article {
+    width: 90%;
+    margin-top: 15px;
+    background-color: rgb(41, 40, 40);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.871);
+    padding: 10px 20px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.article > * {
+    margin-top: 10px;
+}
+
+.article-header {
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+}
+
+.article-header > * {
+    height: 100%;
+}
+
+.author-picture {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    /* border: 3px solid grey; */
+}
+
+.details {
+    margin-left: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.favorite {
+    font-size: 1.5rem;
+    margin: auto 10px auto auto;
+    cursor: pointer;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: bolder;
+    letter-spacing: 3px;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+}
+.title:hover {
+    color: rgb(101, 96, 255);
+}
+
+.category {
+    margin-right: 10px;
+    background-color: rgb(90, 95, 100);
+    color: rgba(255, 255, 255, 0.649);
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bolder;
+}
+
+.preview {
+    padding-top: 15px;
+    font-size: 1.2rem;
+}
+
+.article-footer {
+    font-size: 1.3rem;
+    padding-top: 10px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.feedback {
+    margin-right: 25px;
+}
+
+.fa-heart {
+    /* color: red; */
+}
+
+#subscribe-list {
+    /* border: 1px white solid; */
+    position: fixed;
+    top: 100px;
+    left: 15px;
+    color: white;
+    background-color: rgb(41, 40, 40);
+    border-radius: 5px;
+
+    width: 18vw;
+    height: 300px;
+    padding: 10px 5px;
+}
+
+#subscribe-header {
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    padding-left: 15px;
+}
+
+#category-container {
+    overflow-y: scroll;
+    /* scroll */
+    height: calc(100% - 50px);
+    /* background-color: aqua; */
+}
+
+.subscribe-category {
+    margin-top: 12px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    height: 40px;
+
+    display: flex;
+    padding-left: 15px;
+    padding-right: 15px;
+    justify-content: space-between;
+}
+
+.subscribe-category:hover {
+    background-color: dimgray;
+    font-weight: bolder;
+}
+
+.category-name {
+}
+
+.category-weight {
+}
+
+.favored {
+    color: red;
+}

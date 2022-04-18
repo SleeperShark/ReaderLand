@@ -1,0 +1,98 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+header {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100vw;
+    height: 80px;
+    padding: 5px 15px;
+
+    background-color: rgb(23, 23, 23);
+    color: white;
+    border-bottom: 10px solid black;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#header-left {
+    height: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#header-left > * {
+    margin-left: 10px;
+    font-size: 3.4rem;
+}
+
+#header-right {
+    padding-right: 30px;
+    height: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* border: 1px solid white; */
+}
+
+#header-right > * {
+    margin-right: 25px;
+}
+/* for authentication */
+#create-article {
+    display: inline-block;
+    height: 100%;
+    /* background-color: aliceblue; */
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bolder;
+    text-decoration: none;
+    border-radius: 10px;
+    border: solid 2px rgb(20, 218, 225);
+    color: rgb(20, 218, 225);
+
+    padding-left: 10px;
+    padding-right: 10px;
+
+    display: flex;
+    align-items: center;
+}
+
+#notification {
+    color: white;
+    font-size: 2rem;
+}
+
+#user-avatar {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
+
+/* for stranger */
+#login-btn {
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.507);
+    border: 1px solid rgba(255, 255, 255, 0.62);
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    height: 35px;
+    width: 70px;
+    margin-top: auto;
+    padding-top: 3px;
+}
+
+#login-btn:hover {
+    color: rgba(255, 255, 255);
+    border: 1px solid rgba(255, 255, 255);
+    transform: scale(1.1);
+}

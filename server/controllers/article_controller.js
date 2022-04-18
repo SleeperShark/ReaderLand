@@ -97,4 +97,15 @@ const unlikeArticle = async (req, res) => {
     res.status(200).json({ data: 'Ok' });
 };
 
-module.exports = { createArticle, getFullArticle, getNewsFeed, likeArticle, unlikeArticle };
+const getCategories = async (req, res) => {
+    const result = await Article.getCategories();
+
+    if (result.error) {
+        res.status(result.status).json({ error: result.error });
+        return;
+    }
+
+    res.status(200).json({ data: result.categories });
+};
+
+module.exports = { createArticle, getFullArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories };

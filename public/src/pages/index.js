@@ -104,7 +104,7 @@ function appendArticle(article) {
     return;
 }
 
-async function loadingArticles(auth) {
+async function rendergArticles(auth) {
     if (auth) {
         // User's newsfeed loading
         let res = await fetch('/api/articles/NewsFeed', {
@@ -125,6 +125,7 @@ async function loadingArticles(auth) {
         }
     } else {
         // latest article loading
+        let res = await fetch('/api/articles/latest');
     }
 }
 
@@ -145,6 +146,7 @@ function appendCategories(subscription) {
 
 async function renderCategories(auth) {
     if (auth) {
+        document.getElementById('subscribe-header').innerText = '#訂閱主題';
         let res = await fetch('/api/user/subscribe', {
             method: 'GET',
             headers: {
@@ -158,7 +160,17 @@ async function renderCategories(auth) {
             appendCategories(subscription);
         }
     } else {
-        // let res = await fetch('/api/articles/categories');
+        document.getElementById('subscribe-header').innerText = '#主題列表';
+        let res = await fetch('/api/articles/categories');
+        if (res.status == 200) {
+            res = await res.json();
+            const categories = {};
+            res.data.forEach((cat) => {
+                categories[cat] = '';
+            });
+
+            appendCategories(categories);
+        }
     }
 }
 
@@ -166,6 +178,7 @@ async function main() {
     const auth = await authenticate();
     await renderHeader(auth);
     await renderCategories(auth);
+    await renderArticles(auth);
 }
 
 main();

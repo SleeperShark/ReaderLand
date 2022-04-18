@@ -397,4 +397,15 @@ const unlikeArticle = async (userId, articleId) => {
     }
 };
 
-module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle };
+const getCategories = async () => {
+    try {
+        let categories = await Category.find({}, { _id: 0, category: 1 });
+        categories = categories.map((elem) => elem.category);
+        return { categories };
+    } catch (error) {
+        console.error(error);
+        return { status: 500, error: error.message };
+    }
+};
+
+module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories };

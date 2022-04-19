@@ -22,9 +22,9 @@ const signUp = async (name, email, password) => {
             password: await hashAsync(password, salt),
         };
 
-        const user = await User.create(userInfo);
-        await user.save();
-        console.log(`A new user ${user.name} has registered!`);
+        await User.create(userInfo);
+        console.log(`A new user ${name} has registered!`);
+        const { user } = await nativeSignIn(email, password);
 
         return { user };
     } catch (error) {

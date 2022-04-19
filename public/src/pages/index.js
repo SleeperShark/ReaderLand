@@ -63,10 +63,15 @@ function appendArticle(article, auth) {
 
     const { favorited, liked, commented } = article;
     let bookmark = '';
+
+    console.log(auth);
+
     if (auth) {
         let bookmarkClass = favorited ? 'fas fa-bookmark favored favorite' : 'far fa-bookmark favorite';
-        bookmark = `<i class="${bookmark}" onclick="favoriteArticle(this)"></i>`;
+        bookmark = `<i class="${bookmarkClass}" onclick="favoriteArticle(this)"></i>`;
     }
+
+    console.log(bookmark);
 
     articleElem.innerHTML = ` 
 <div class="article-header">
@@ -123,7 +128,7 @@ async function renderArticles(auth) {
             const articles = res.data;
 
             articles.forEach((article) => {
-                appendArticle(article);
+                appendArticle(article, auth);
             });
         }
     } else {

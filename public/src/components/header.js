@@ -5,6 +5,7 @@ async function authenticate() {
     if (!token) {
         return false;
     }
+
     const res = await fetch('/api/user/info', {
         method: 'GET',
         headers: {
@@ -17,6 +18,8 @@ async function authenticate() {
         user = (await res.json()).data;
         return true;
     } else {
+        // token fail, remove token
+        localStorage.removeItem('ReaderLandToken');
         return false;
     }
 }

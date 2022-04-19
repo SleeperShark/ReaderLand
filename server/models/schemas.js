@@ -32,7 +32,10 @@ const userSchema = mongoose.Schema({
         default: new Date().toISOString(),
     },
     password: String,
-    picture: String,
+    picture: {
+        type: String,
+        default: 'default-0.jpg',
+    },
     provider: {
         type: String,
         default: 'native',

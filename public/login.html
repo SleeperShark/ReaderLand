@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ReaderLand</title>
+        <link rel="stylesheet" href="src/components/header.css" />
+        <link rel="stylesheet" href="src/pages/login.css" />
+        <script src="https://kit.fontawesome.com/b9edaa44c7.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <header></header>
+        <main>
+            <div id="container">
+                <!-- <div id="container-header">
+                    <i class="fas fa-book-open" id="book-logo"></i>
+                    <span>ReaderLand</span>
+                </div> -->
+                <div class="field-container hide" id="name">
+                    <span class="field">用戶暱稱</span>
+                    <input type="text" id="name-input" />
+                </div>
+                <div class="field-container" id="email">
+                    <span class="field">信箱</span>
+                    <input type="email" id="email-input" />
+                </div>
+                <div class="field-container" id="password">
+                    <span class="field">密碼</span>
+                    <input type="password" id="password-input" />
+                </div>
+                <div class="field-container hide" id="repeat-password">
+                    <span class="field">確認密碼</span>
+                    <input type="password" id="repeat-password-input" />
+                </div>
+                <div id="switch" data-state="sign-in">尚未註冊?</div>
+                <button id="submit-btn">登入</button>
+            </div>
+        </main>
+        <script src="/src/components/header.js"></script>
+        <script src="/src/pages/login.js"></script>
+    </body>
+</html>

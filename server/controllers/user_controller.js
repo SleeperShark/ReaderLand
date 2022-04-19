@@ -38,7 +38,16 @@ const signUp = async (req, res) => {
     }
 
     res.status(200).json({
-        data: { user: { id: user._id, name: user.name, email: user.email } },
+        data: {
+            accessToken: user.accessToken,
+            user: {
+                id: user._id,
+                provider: user.provider,
+                name: user.name,
+                email: user.email,
+                picture: user.picture,
+            },
+        },
     });
 };
 
@@ -55,6 +64,7 @@ const nativeSignIn = async (email, password) => {
 
 const signIn = async (req, res) => {
     const data = req.body;
+    console.log(data);
     let result;
 
     switch (data.provider) {

@@ -10,11 +10,15 @@ const wrapAsync = (fn) => {
     };
 };
 
-const authentication = (roleId) => {
+const authentication = (roleId, required = true) => {
     return async function (req, res, next) {
         let accessToken = req.get('Authorization');
 
         if (!accessToken) {
+            if (!required) {
+                return next();
+            }
+
             res.status(401).json({ error: 'Unauthorized' });
             return;
         }

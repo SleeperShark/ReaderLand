@@ -55,15 +55,18 @@ function timeTransformer(ISODateString) {
     return ISODateString.split('T')[0];
 }
 
-function appendArticle(article) {
+function appendArticle(article, auth) {
     const categoryHTML = article.category.map((elem) => `<span class="category">${elem}</span>`).join(' ');
     const articleElem = document.createElement('article');
     articleElem.classList.add('article');
     articleElem.dataset.id = article._id;
 
     const { favorited, liked, commented } = article;
-
-    let bookmark = favorited ? 'fas fa-bookmark favored favorite' : 'far fa-bookmark favorite';
+    let bookmark = '';
+    if (auth) {
+        let bookmarkClass = favorited ? 'fas fa-bookmark favored favorite' : 'far fa-bookmark favorite';
+        bookmark = `<i class="${bookmark}" onclick="favoriteArticle(this)"></i>`;
+    }
 
     articleElem.innerHTML = ` 
 <div class="article-header">
@@ -72,7 +75,7 @@ function appendArticle(article) {
         <span class="author">${article.author.name}</span>
         <span class="date">${timeTransformer(article.createdAt)}</span>
     </div>
-    <i class="${bookmark}" onclick="favoriteArticle(this)"></i>
+    ${bookmark}
 </div>
 
 <a href="/article.html?id=${article._id}" class="title">${article.title}</a>
@@ -104,7 +107,7 @@ function appendArticle(article) {
     return;
 }
 
-async function rendergArticles(auth) {
+async function renderArticles(auth) {
     if (auth) {
         // User's newsfeed loading
         let res = await fetch('/api/articles/NewsFeed', {
@@ -126,6 +129,14 @@ async function rendergArticles(auth) {
     } else {
         // latest article loading
         let res = await fetch('/api/articles/latest');
+        if (res.status == 200) {
+            res = await res.json();
+
+            const articles = res.data;
+            articles.forEach((article) => {
+                appendArticle(article, auth);
+            });
+        }
     }
 }
 

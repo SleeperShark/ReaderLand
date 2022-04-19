@@ -1,3 +1,15 @@
+::-webkit-scrollbar {
+    width: 9px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background-color: rgba(155, 155, 155, 0.5);
+    border-radius: 20px;
+    border: transparent;
+}
+
 main {
     margin-top: 80px;
     background-color: black;
@@ -127,8 +139,9 @@ main {
 }
 
 #category-container {
-    overflow-y: scroll;
     /* scroll */
+    overflow-y: auto;
+    margin-right: 10px;
     height: calc(100% - 50px);
     /* background-color: aqua; */
 }

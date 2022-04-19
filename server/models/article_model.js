@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
-const { timeDecayer } = require('../../util/util');
+const { timeDecayer, authentication } = require('../../util/util');
 const Cache = require('../../util/cache');
 
 const fs = require('fs');
@@ -236,6 +236,52 @@ const generateNewsFeed = async (userId, lastArticleId) => {
     // fs.writeFileSync('weightRecord.json', JSON.stringify(weightRecord));
 };
 
+// TODO: process articles (image url, favorited, liked, commentd)
+async function processArticles(articles, userId) {
+    let favorites;
+    let uidString;
+    if (userId) {
+        uidString = userId.toString();
+        // Get favorited articles list
+        let result = await User.findById(userId, { _id: 0, favorite: { articleId: 1 } });
+        favorites = result.favorite.map((elem) => elem.articleId.toString());
+    }
+
+    articles.forEach((article) => {
+        // image url
+        article.author.picture = `${IMAGE_URL}/avatar/${article.author.picture}`;
+
+        if (userId) {
+            // liked
+            for (let likeUser of article.likes) {
+                if (likeUser.toString() == uidString) {
+                    article.liked = true;
+                    break;
+                }
+            }
+
+            // commented
+            for (let comment of article.comments) {
+                if (comment.reader.toString() == uidString) {
+                    article.commented = true;
+                    break;
+                }
+            }
+
+            //favorited
+            if (favorites.includes(article._id.toString())) {
+                article.favorited = true;
+            }
+        }
+
+        article.likeCount = article.likes.length;
+        delete article.likes;
+
+        article.commentCount = article.comments.length;
+        delete article.comments;
+    });
+}
+
 // TODO: get articles preview from customized newsfeed
 const getNewsFeed = async (userId) => {
     try {
@@ -285,44 +331,12 @@ const getNewsFeed = async (userId) => {
             },
         ]);
 
-        //TODO: organize article preview to customized feed order
+        await processArticles(feeds, userId);
+
+        // organize article in newsfeed order
         const temp = {};
-        let result = await User.findById(userId, { _id: 0, favorite: { articleId: 1 } });
-        const favorite = result.favorite.map((elem) => elem.articleId.toString());
-
-        feeds.forEach((elem) => {
-            // making {id: article} Object
-            temp[elem._id.toString()] = elem;
-
-            // processing article data
-            elem.author.picture = `${IMAGE_URL}/avatar/${elem.author.picture}`;
-
-            // check favorited
-            if (favorite.includes(elem._id.toString())) {
-                elem.favorited = true;
-            }
-
-            // check liked
-            for (let likeUser of elem.likes) {
-                if (likeUser.toString() == userId.toString()) {
-                    {
-                        elem.liked = true;
-                        break;
-                    }
-                }
-            }
-            elem.likeCount = elem.likes.length;
-            delete elem.likes;
-
-            // check commented
-            for (let comment of elem.comments) {
-                if (comment.reader.toString() == userId.toString()) {
-                    elem.commented = true;
-                    break;
-                }
-            }
-            elem.commentCount = elem.comments.length;
-            delete elem.comment;
+        feeds.forEach((article) => {
+            temp[article._id.toString()] = article;
         });
         feeds = feedsId.map((elem) => temp[elem.toString()]);
 
@@ -330,6 +344,45 @@ const getNewsFeed = async (userId) => {
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };
+    }
+};
+
+const getLatestArticles = async (token) => {
+    try {
+        let articles = await Article.aggregate([
+            { $sort: { _id: -1 } },
+            { $limit: 100 },
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'author',
+                    foreignField: '_id',
+                    pipeline: [{ $project: { _id: 1, name: 1, picture: 1 } }],
+                    as: 'author',
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    title: 1,
+                    author: { $arrayElemAt: ['$author', 0] },
+                    preview: 1,
+                    createdAt: 1,
+                    readCount: 1,
+                    likes: 1,
+                    comments: 1,
+                    category: 1,
+                },
+            },
+        ]);
+
+        // * organize article data
+        await processArticles(articles);
+
+        return { latestArticles: articles };
+    } catch (error) {
+        console.error(error);
+        return { status: 500, error: 'Server error' };
     }
 };
 
@@ -408,4 +461,4 @@ const getCategories = async () => {
     }
 };
 
-module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories };
+module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles };

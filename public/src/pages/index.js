@@ -64,22 +64,34 @@ function appendArticle(article, auth) {
     const { favorited, liked, commented } = article;
     let bookmark = '';
 
-    console.log(auth);
-
     if (auth) {
         let bookmarkClass = favorited ? 'fas fa-bookmark favored favorite' : 'far fa-bookmark favorite';
         bookmark = `<i class="${bookmarkClass}" onclick="favoriteArticle(this)"></i>`;
     }
 
-    console.log(bookmark);
-
     articleElem.innerHTML = ` 
 <div class="article-header">
-    <img class="author-picture" src="${article.author.picture}" alt="" />
+    <div class='author-info'>
+        <img class="author-picture" src="${article.author.picture}" alt="" />
+
+        <div class='author-profile'>
+            <img class="profile-picture" src="${article.author.picture}" alt="" />
+            <div class="profile-name">${article.author.name}</div>
+            <div class='profile-bio'>
+                ${article.author.bio || ''}
+            </div>
+            <button class='profile-follow-btn'>
+            追蹤
+            </button>
+        </div>
+
+    </div>
+
     <div class="details" data-id="${article.author._id}">
         <span class="author">${article.author.name}</span>
         <span class="date">${timeTransformer(article.createdAt)}</span>
     </div>
+
     ${bookmark}
 </div>
 
@@ -143,6 +155,28 @@ async function renderArticles(auth) {
             });
         }
     }
+
+    document.querySelectorAll('.author-picture').forEach((elem) => {
+        const profile = elem.nextSibling.nextSibling;
+        profile.addEventListener('mouseover', () => {
+            profile.dataset.status = 'show';
+        });
+        profile.addEventListener('mouseleave', () => {
+            profile.dataset.status = 'hide';
+            profile.style.display = 'none';
+        });
+        elem.addEventListener('mouseover', () => {
+            profile.style.display = 'flex';
+        });
+        elem.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+                if (profile.dataset.status === 'hide') {
+                    console.log('test');
+                    profile.style.display = 'none';
+                }
+            }, 600);
+        });
+    });
 }
 
 function appendCategories(subscription) {

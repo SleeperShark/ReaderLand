@@ -54,6 +54,49 @@ main {
     height: 100%;
 }
 
+.author-info {
+    position: relative;
+}
+
+.author-profile {
+    z-index: 99;
+    position: absolute;
+    top: 60px;
+    left: -100px;
+
+    width: 250px;
+    background-color: blueviolet;
+
+    display: none;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 15px 30px 0px;
+
+    border-radius: 5px;
+    background-color: rgb(41, 40, 40);
+    border: 2px solid silver;
+}
+
+.author-profile > * {
+    margin-bottom: 15px;
+}
+
+.profile-name {
+    font-size: 1.3rem;
+    font-weight: bolder;
+}
+
+.profile-picture {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+.profile-follow-btn {
+    width: 100%;
+}
+
 .author-picture {
     border-radius: 50%;
     width: 50px;

@@ -34,7 +34,20 @@ async function renderHeader(auth) {
     <span>建立貼文</span>
 </a>
 <i id="notification" class="fas fa-bell"></i>
-<img id="user-avatar" src="${user.picture}" alt="user avatar" />
+<div id="user-avatar">
+    <img id="avatar" src="${user.picture}" alt="user avatar" />
+    
+    <div id="user-actions" data-status="hide" class="hide">
+        <div class="action" id="action-profile">
+            <span id="profile">${user.name}<span>
+        </div>
+        <div class="divider"></div>
+        <div class='action' id="action-signout">
+            <span>Sign Out</span>
+        </div>
+    </div>
+
+</div>
         `;
     } else {
         rightElementHTML = `
@@ -51,4 +64,29 @@ async function renderHeader(auth) {
     ${rightElementHTML}
 </div>
     `;
+
+    document.querySelector('#header-left').addEventListener('click', () => {
+        window.location.href = '/index.html';
+    });
+
+    if (auth) {
+        document.getElementById('user-avatar').addEventListener('click', () => {
+            const userActions = document.getElementById('user-actions');
+            switch (userActions.dataset.status) {
+                case 'hide':
+                    userActions.classList.remove('hide');
+                    userActions.dataset.status = 'show';
+                    break;
+                case 'show':
+                    userActions.classList.add('hide');
+                    userActions.dataset.status = 'hide';
+            }
+        });
+
+        document.getElementById('action-signout').addEventListener('click', () => {
+            localStorage.removeItem('ReaderLandToken');
+            alert('已成功登出 🚪');
+            window.location.href = '/index.html';
+        });
+    }
 }

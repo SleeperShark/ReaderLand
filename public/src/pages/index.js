@@ -61,7 +61,13 @@ function appendArticle(article, auth) {
     articleElem.classList.add('article');
     articleElem.dataset.id = article._id;
 
-    const { favorited, liked, commented } = article;
+    const {
+        favorited,
+        liked,
+        commented,
+        author: { followed },
+    } = article;
+
     let bookmark = '';
 
     if (auth) {
@@ -80,12 +86,12 @@ function appendArticle(article, auth) {
             <div class='profile-bio'>
                 ${article.author.bio || ''}
             </div>
-            <button class='profile-follow-btn'>
-            <span class="unfollow" >
+            <button class='profile-follow-btn${followed ? ' followed' : ' nofollow'} data-authorId="${article.author._id}"'>
+            <span class="nofollow-text" >
                 <i class="fas fa-thumbs-up"></i>
                 追蹤
             </span>
-            <span class="follow" >
+            <span class="followed-text" >
                 <i class="far fa-check-square"></i>                
                 已追蹤
             </span>
@@ -128,6 +134,7 @@ function appendArticle(article, auth) {
     `;
 
     document.getElementById('articles').appendChild(articleElem);
+
     return;
 }
 
@@ -164,25 +171,25 @@ async function renderArticles(auth) {
     }
 
     document.querySelectorAll('.author-picture').forEach((elem) => {
-        // const profile = elem.nextSibling.nextSibling;
-        // profile.addEventListener('mouseover', () => {
-        //     profile.dataset.status = 'show';
-        // });
-        // profile.addEventListener('mouseleave', () => {
-        //     profile.dataset.status = 'hide';
-        //     profile.style.display = 'none';
-        // });
-        // elem.addEventListener('mouseover', () => {
-        //     profile.style.display = 'flex';
-        // });
-        // elem.addEventListener('mouseleave', () => {
-        //     setTimeout(() => {
-        //         if (profile.dataset.status === 'hide') {
-        //             console.log('test');
-        //             profile.style.display = 'none';
-        //         }
-        //     }, 600);
-        // });
+        const profile = elem.nextSibling.nextSibling;
+        profile.addEventListener('mouseover', () => {
+            profile.dataset.status = 'show';
+        });
+        profile.addEventListener('mouseleave', () => {
+            profile.dataset.status = 'hide';
+            profile.style.display = 'none';
+        });
+        elem.addEventListener('mouseover', () => {
+            profile.style.display = 'flex';
+        });
+        elem.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+                if (profile.dataset.status === 'hide') {
+                    console.log('test');
+                    profile.style.display = 'none';
+                }
+            }, 600);
+        });
     });
 }
 

@@ -113,7 +113,7 @@ const getFullArticle = async (articleId) => {
 const generateNewsFeed = async (userId, lastArticleId) => {
     try {
         // acquire user's follower and subscribe categories
-        console.log(userId);
+        // console.log(userId);
         const userPreference = await User.findById(userId, { subscribe: 1, follower: 1, _id: 0 });
 
         let { follower, subscribe } = userPreference;
@@ -225,7 +225,7 @@ const generateNewsFeed = async (userId, lastArticleId) => {
                 article.author.picture = `${process.env.IMAGE_URL}/avatar/${article.author.picture}`;
                 return article;
             });
-            console.log(feeds[0]);
+            // console.log(feeds[0]);
             return { feeds };
         }
     } catch (error) {
@@ -240,11 +240,14 @@ const generateNewsFeed = async (userId, lastArticleId) => {
 async function processArticles(articles, userId) {
     let favorites;
     let uidString;
+    let followers;
+
     if (userId) {
         uidString = userId.toString();
         // Get favorited articles list
-        let result = await User.findById(userId, { _id: 0, favorite: { articleId: 1 } });
+        let result = await User.findById(userId, { _id: 0, favorite: { articleId: 1 }, follower: 1 });
         favorites = result.favorite.map((elem) => elem.articleId.toString());
+        followers = result.follower.map((elem) => elem.toString());
     }
 
     articles.forEach((article) => {
@@ -272,6 +275,12 @@ async function processArticles(articles, userId) {
             if (favorites.includes(article._id.toString())) {
                 article.favorited = true;
             }
+
+            //followed
+            if (followers.includes(article.author._id.toString())) {
+                article.author.followed = true;
+            }
+            // console.log(article);
         }
 
         article.likeCount = article.likes.length;

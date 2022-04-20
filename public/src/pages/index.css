@@ -67,8 +67,8 @@ main {
     width: 250px;
     background-color: blueviolet;
 
-    /* display: none; */
-    display: flex;
+    display: none;
+    /* display: flex; */
     flex-direction: column;
     align-items: center;
 
@@ -111,17 +111,20 @@ main {
     transform: scale(0.95);
 }
 
-.profile-follow-btn.follow-state {
+.profile-follow-btn.followed {
     background-color: rgb(19, 144, 253);
     opacity: 1;
     color: white;
 }
 
-span.unfollow {
-    /* display: none; */
+.profile-follow-btn.followed > span.nofollow-text {
+    display: none;
 }
-
-span.follow {
+.profile-follow-btn.followed > span.followed-text {
+}
+.profile-follow-btn.nofollow > span.nofollow-text {
+}
+.profile-follow-btn.nofollow > span.followed-text {
     display: none;
 }
 
@@ -248,4 +251,8 @@ span.follow {
 
 .favored {
     color: red;
+}
+
+.hide {
+    display: none;
 }

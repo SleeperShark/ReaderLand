@@ -253,6 +253,10 @@ main {
     color: red;
 }
 
+i.fa-comment-dots.favored {
+    color: rgb(0, 174, 255);
+}
+
 .hide {
     display: none;
 }

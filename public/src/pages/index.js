@@ -86,7 +86,7 @@ function appendArticle(article, auth) {
             <div class='profile-bio'>
                 ${article.author.bio || ''}
             </div>
-            <button class='profile-follow-btn${followed ? ' followed' : ' nofollow'} data-authorId="${article.author._id}"'>
+            <button class='profile-follow-btn${followed ? ' followed' : ' nofollow'}' data-authorid="${article.author._id}">
             <span class="nofollow-text" >
                 <i class="fas fa-thumbs-up"></i>
                 追蹤
@@ -138,6 +138,14 @@ function appendArticle(article, auth) {
     return;
 }
 
+function changeFollowerState({ authorId, remove, add }) {
+    document.querySelectorAll(`button.profile-follow-btn[data-authorid="${authorId}"]`).forEach((btn) => {
+        btn.classList.remove(remove);
+        btn.classList.add(add);
+        console.log('change state...');
+    });
+}
+
 async function renderArticles(auth) {
     if (auth) {
         // User's newsfeed loading
@@ -170,6 +178,7 @@ async function renderArticles(auth) {
         }
     }
 
+    //TODO: profile presentation when hover
     document.querySelectorAll('.author-picture').forEach((elem) => {
         const profile = elem.nextSibling.nextSibling;
         profile.addEventListener('mouseover', () => {
@@ -189,6 +198,48 @@ async function renderArticles(auth) {
                     profile.style.display = 'none';
                 }
             }, 600);
+        });
+    });
+
+    //TODO: follow/unfollow user EventListener
+    document.querySelectorAll('.profile-follow-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const authorId = btn.dataset.authorid;
+
+            // check follow state
+
+            if (btn.classList.contains('followed')) {
+                // TODO: UNFOLLOW the author
+                const res = await fetch('/api/user/follow', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'Application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ followerId: authorId }),
+                });
+
+                if (res.status == 200) {
+                    changeFollowerState({ authorId, remove: 'followed', add: 'nofollow' });
+                } else {
+                    console.log('系統異常，請稍後再試');
+                }
+            } else {
+                // TODO: FOLLOW the user
+                const res = await fetch('/api/user/follow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'Application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ followerId: authorId }),
+                });
+                if (res.status == 200) {
+                    changeFollowerState({ authorId, add: 'followed', remove: 'nofollow' });
+                } else {
+                    console.log('系統異常，請稍後再試');
+                }
+            }
         });
     });
 }

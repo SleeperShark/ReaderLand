@@ -31,7 +31,8 @@ const createArticle = async (req, res) => {
 
 const getFullArticle = async (req, res) => {
     const articleId = req.params.articleId;
-    const result = await Article.getFullArticle(articleId);
+    const userId = req.user?.userId;
+    const result = await Article.getFullArticle(articleId, userId);
 
     if (result.error) {
         res.status(result.status).json({ error: result.error });

@@ -12,6 +12,6 @@ router.route('/articles/categories').get(wrapAsync(getCategories));
 router.route('/articles/:articleId/like').post(authentication(USER_ROLE.ALL), wrapAsync(likeArticle));
 router.route('/articles/:articleId/like').delete(authentication(USER_ROLE.ALL), wrapAsync(unlikeArticle));
 
-router.route('/articles/:articleId').get(wrapAsync(getFullArticle));
+router.route('/articles/:articleId').get(authentication(USER_ROLE.ALL, false), wrapAsync(getFullArticle));
 
 module.exports = router;

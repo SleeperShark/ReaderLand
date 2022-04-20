@@ -82,27 +82,72 @@ const createArticle = async (articleInfo) => {
     }
 };
 
-const getFullArticle = async (articleId) => {
+const getFullArticle = async (articleId, userId = '') => {
     try {
-        const article = await Article.aggregate([
+        const [article] = await Article.aggregate([
             { $match: { _id: new ObjectId(articleId) } },
             {
                 $lookup: {
                     from: 'User',
                     localField: 'author',
                     foreignField: '_id',
-                    pipeline: [{ $project: { _id: 0, name: 1, picture: 1 } }],
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                picture: 1,
+                                followed: {
+                                    $cond: {
+                                        if: { $in: [userId, '$followee'] },
+                                        then: true,
+                                        else: false,
+                                    },
+                                },
+                            },
+                        },
+                    ],
                     as: 'author',
                 },
             },
-            // { $project: { title: 1, author: '$author_info.name', context: 1, createdDate: 1 } },
-            // { $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$author', 0] }, '$$ROOT'] } } },
-            { $project: { author: 1, title: 1, context: 1, createdAt: 1, readCount: 1, likes: 1, category: 1, comments: 1 } },
+            { $project: { _id: 0, author: { $arrayElemAt: ['$author', 0] }, title: 1, context: 1, createdAt: 1, readCount: 1, likes: 1, category: 1, comments: 1 } },
         ]);
-        console.log(article);
-        if (!article.length) {
+
+        if (!article) {
             return { error: 'No matched article.', status: 400 };
         }
+
+        if (userId) {
+            //TODO: check liked
+            const uidString = userId.toString();
+            for (let likeId of article.likes) {
+                if (likeId.toString() == uidString) {
+                    article.liked = true;
+                    break;
+                }
+            }
+
+            //TODO: check commented
+            for (let { reader } of article.comments) {
+                if (reader.toString() == uidString) {
+                    article.commented = true;
+                    break;
+                }
+            }
+
+            //TODO: check favorited
+            const { favorite } = await User.findById(userId, { _id: 0, favorite: 1 });
+            for (let favoretedArticle of favorite) {
+                if (favoretedArticle.articleId.toString() == articleId.toString()) {
+                    article.favorited = true;
+                    break;
+                }
+            }
+        }
+
+        //TODO: image url
+        article.author.picture = `${IMAGE_URL}/avatar/${article.author.picture}`;
+
         return { article };
     } catch (error) {
         console.log(error);

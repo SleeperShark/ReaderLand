@@ -93,15 +93,16 @@ article {
 }
 
 #context {
-    margin-top: 18px;
+    margin-top: 25px;
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 90px;
 }
 
 .paragraph {
-    margin-top: 30px;
+    margin-top: 35px;
     font-size: 1.5rem;
+    line-height: 40px;
 }
 
 footer {
@@ -132,6 +133,14 @@ footer {
     position: relative;
 }
 
+.favored {
+    color: red;
+}
+
+.commented {
+    color: rgb(0, 174, 255);
+}
+
 .count {
     margin-left: -4px;
     font-size: 1.5rem;
@@ -141,12 +150,4 @@ footer {
     right: -30px;
     color: white;
     font-weight: 100;
-}
-
-.favored {
-    color: red;
-}
-
-.fa-comment-dots.favored {
-    color: rgb(0, 174, 255);
 }

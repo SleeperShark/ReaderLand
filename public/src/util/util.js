@@ -70,3 +70,16 @@ const favoriteArticleAPI = (userToken, articleId) => {
         body: JSON.stringify({ articleId }),
     });
 };
+
+const getFullArticleAPI = (articleId, userToken) => {
+    if (userToken) {
+        return fetchHandler(`api/articles/${articleId}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${userToken}`,
+            },
+        });
+    } else {
+        return fetchHandler(`api/articles/${articleId}`);
+    }
+};

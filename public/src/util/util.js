@@ -54,3 +54,19 @@ const getUserSubscription = async (userToken) => {
 const getCategories = async () => {
     return fetchHandler('/api/articles/categories');
 };
+
+const unFavoriteArticleAPI = (userToken, articleId) => {
+    return fetchHandler('/api/user/favorite', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${userToken}` },
+        body: JSON.stringify({ articleId }),
+    });
+};
+
+const favoriteArticleAPI = (userToken, articleId) => {
+    return fetchHandler('/api/user/favorite', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${userToken}` },
+        body: JSON.stringify({ articleId }),
+    });
+};

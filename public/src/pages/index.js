@@ -1,37 +1,25 @@
 async function favoriteArticle(e) {
-    async function favoriteArticle(method) {
-        return await fetch('/api/user/favorite', {
-            method,
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                articleId,
-            }),
-        });
-    }
-
-    const articleId = e.parentElement.parentElement.dataset.id;
+    const articleId = e.dataset.id;
     if (e.classList.contains('favored')) {
         // TODO: Unfavorite the article
-        const res = await favoriteArticle('DELETE');
+        const result = await unFavoriteArticleAPI(token, articleId);
 
-        if (res.status == 200) {
+        if (result.data) {
             e.className = 'far fa-bookmark favorite';
             console.log('移除成功');
         } else {
-            alert('取消珍藏失敗，請稍後再試W');
+            console.log(result);
+            alert('取消珍藏失敗，請稍後再試');
         }
     } else {
         // TODO: Favorite the article
+        const result = await favoriteArticleAPI(token, articleId);
 
-        const res = await favoriteArticle('POST');
-
-        if (res.status == 200) {
+        if (result.data) {
             e.className = 'fas fa-bookmark favored favorite';
             console.log('新增成功');
         } else {
+            console.log(result);
             alert('珍藏文章失敗，請再試一次');
         }
     }
@@ -72,7 +60,7 @@ function appendArticle(article, auth) {
 
     if (auth) {
         let bookmarkClass = favorited ? 'fas fa-bookmark favored favorite' : 'far fa-bookmark favorite';
-        bookmark = `<i class="${bookmarkClass}" onclick="favoriteArticle(this)"></i>`;
+        bookmark = `<i class="${bookmarkClass}" onclick="favoriteArticle(this)" data-id="${article._id}"></i>`;
     }
 
     articleElem.innerHTML = ` 
@@ -249,16 +237,7 @@ async function renderCategories(auth) {
         }
     } else {
         document.getElementById('subscribe-header').innerText = '#主題列表';
-        // let res = await fetch('/api/articles/categories');
-        // if (res.status == 200) {
-        //     res = await res.json();
-        //     const categories = {};
-        //     res.data.forEach((cat) => {
-        //         categories[cat] = '';
-        //     });
 
-        //     appendCategories(categories);
-        // }
         const result = await getCategories();
         if (result.data) {
             const categories = {};

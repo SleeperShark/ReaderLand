@@ -194,7 +194,7 @@ async function renderArticles(auth) {
             if (btn.classList.contains('followed')) {
                 // TODO: UNFOLLOW the author
 
-                const result = await unFollowerAuthor(token, authorId);
+                const result = await unFollowAuthorAPI(token, authorId);
 
                 if (result.data) {
                     changeFollowerState({ authorId, remove: 'followed', add: 'nofollow' });
@@ -204,7 +204,7 @@ async function renderArticles(auth) {
                 }
             } else {
                 // TODO: FOLLOW the user
-                const result = await followerAuthor(token, authorId);
+                const result = await followAuthorAPI(token, authorId);
                 if (result.data) {
                     changeFollowerState({ authorId, add: 'followed', remove: 'nofollow' });
                 } else {

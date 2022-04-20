@@ -470,9 +470,12 @@ const likeArticle = async (userId, articleId) => {
                 },
             },
         ]);
+
         console.log("Push userId to article's likes array...");
 
-        return { like: 1 };
+        const { likes } = await Article.findById(articleId, { _id: 0, likes: 1 });
+
+        return { data: likes };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };
@@ -497,7 +500,9 @@ const unlikeArticle = async (userId, articleId) => {
 
         await Article.findByIdAndUpdate(articleId, { $pull: { likes: userId } });
         console.log("Remove userId from article's likes array...");
-        return { unlike: 1 };
+
+        const { likes } = await Article.findById(articleId, { _id: 0, likes: 1 });
+        return { data: likes };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

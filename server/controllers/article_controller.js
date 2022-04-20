@@ -81,7 +81,7 @@ const likeArticle = async (req, res) => {
         return;
     }
 
-    res.status(200).json({ data: 'Ok' });
+    res.status(200).json({ data: result.data });
 };
 
 const unlikeArticle = async (req, res) => {
@@ -95,7 +95,7 @@ const unlikeArticle = async (req, res) => {
         return;
     }
 
-    res.status(200).json({ data: 'Ok' });
+    res.status(200).json({ data: result.data });
 };
 
 const getCategories = async (req, res) => {

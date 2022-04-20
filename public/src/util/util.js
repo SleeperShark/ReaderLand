@@ -17,16 +17,16 @@ const fetchHandler = async (url, init = { method: 'GET', headers: {} }) => {
     }
 };
 
-const followerAuthor = async (userToken, authorId) => {
-    return await fetchHandler(`/api/user/follow`, {
+const followAuthorAPI = (userToken, authorId) => {
+    return fetchHandler(`/api/user/follow`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${userToken}` },
         body: JSON.stringify({ followerId: authorId }),
     });
 };
 
-const unFollowerAuthor = async (userToken, authorId) => {
-    return await fetchHandler(`/api/user/follow`, {
+const unFollowAuthorAPI = (userToken, authorId) => {
+    return fetchHandler(`/api/user/follow`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${userToken}` },
         body: JSON.stringify({ followerId: authorId }),
@@ -82,4 +82,22 @@ const getFullArticleAPI = (articleId, userToken) => {
     } else {
         return fetchHandler(`api/articles/${articleId}`);
     }
+};
+
+const unlikeArticleAPI = (userToken, articleId) => {
+    return fetchHandler(`/api/articles/${articleId}/like`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+    });
+};
+
+const likeArticleAPI = (userToken, articleId) => {
+    return fetchHandler(`/api/articles/${articleId}/like`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+    });
 };

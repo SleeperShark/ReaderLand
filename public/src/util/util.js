@@ -1,4 +1,4 @@
-const fetchHandler = async (url, init) => {
+const fetchHandler = async (url, init = { method: 'GET', headers: {} }) => {
     init.headers['Content-Type'] = 'Application/json';
 
     try {
@@ -31,4 +31,15 @@ const unFollowerAuthor = async (userToken, authorId) => {
         headers: { Authorization: `Bearer ${userToken}` },
         body: JSON.stringify({ followerId: authorId }),
     });
+};
+
+const getNewsfeed = async (userToken) => {
+    return fetchHandler('/api/articles/newsfeed', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
+
+const getLatestArticles = () => {
+    return fetchHandler('/api/articles/latest');
 };

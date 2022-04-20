@@ -148,32 +148,20 @@ function changeFollowerState({ authorId, remove, add }) {
 
 async function renderArticles(auth) {
     if (auth) {
-        // User's newsfeed loading
-        let res = await fetch('/api/articles/NewsFeed', {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-        });
+        // TODO: Get customized newsfeed
+        const result = await getNewsfeed(token);
 
-        if (res.status == 200) {
-            res = await res.json();
-            const articles = res.data;
-
-            articles.forEach((article) => {
+        if (result.data) {
+            result.data.forEach((article) => {
                 appendArticle(article, auth);
             });
         }
     } else {
-        // latest article loading
-        let res = await fetch('/api/articles/latest');
-        if (res.status == 200) {
-            res = await res.json();
-
-            const articles = res.data;
-            articles.forEach((article) => {
-                appendArticle(article, auth);
+        //TODO: Get latest article
+        const result = await getLatestArticles();
+        if (result.data) {
+            result.data.forEach((article) => {
+                appendArticle(article);
             });
         }
     }
@@ -210,36 +198,22 @@ async function renderArticles(auth) {
 
             if (btn.classList.contains('followed')) {
                 // TODO: UNFOLLOW the author
-                // const res = await fetch('/api/user/follow', {
-                //     method: 'DELETE',
-                //     headers: {
-                //         'Content-Type': 'Application/json',
-                //         Authorization: `Bearer ${token}`,
-                //     },
-                //     body: JSON.stringify({ followerId: authorId }),
-                // });
 
-                const res = await unFollowerAuthor(token, authorId);
-                console.log(res);
+                const result = await unFollowerAuthor(token, authorId);
 
-                if (res.data) {
+                if (result.data) {
                     changeFollowerState({ authorId, remove: 'followed', add: 'nofollow' });
                 } else {
+                    console.log(result);
                     console.log('系統異常，請稍後再試');
                 }
             } else {
                 // TODO: FOLLOW the user
-                const res = await fetch('/api/user/follow', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'Application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ followerId: authorId }),
-                });
-                if (res.status == 200) {
+                const result = await followerAuthor(token, authorId);
+                if (result.data) {
                     changeFollowerState({ authorId, add: 'followed', remove: 'nofollow' });
                 } else {
+                    console.log(result);
                     console.log('系統異常，請稍後再試');
                 }
             }

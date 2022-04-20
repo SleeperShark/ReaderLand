@@ -36,10 +36,21 @@ const unFollowerAuthor = async (userToken, authorId) => {
 const getNewsfeed = async (userToken) => {
     return fetchHandler('/api/articles/newsfeed', {
         method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${userToken}` },
     });
 };
 
-const getLatestArticles = () => {
+const getLatestArticles = async () => {
     return fetchHandler('/api/articles/latest');
+};
+
+const getUserSubscription = async (userToken) => {
+    return fetchHandler('/api/user/subscribe', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${userToken}` },
+    });
+};
+
+const getCategories = async () => {
+    return fetchHandler('/api/articles/categories');
 };

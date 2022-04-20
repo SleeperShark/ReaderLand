@@ -239,29 +239,36 @@ function appendCategories(subscription) {
 async function renderCategories(auth) {
     if (auth) {
         document.getElementById('subscribe-header').innerText = '#訂閱主題';
-        let res = await fetch('/api/user/subscribe', {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
 
-        if (res.status === 200) {
-            res = await res.json();
-            subscription = res.data;
-            appendCategories(subscription);
+        const result = await getUserSubscription(token);
+        if (result.data) {
+            appendCategories(result.data);
+        } else {
+            console.log(result);
+            alert('系統異常: getUserSubscription');
         }
     } else {
         document.getElementById('subscribe-header').innerText = '#主題列表';
-        let res = await fetch('/api/articles/categories');
-        if (res.status == 200) {
-            res = await res.json();
+        // let res = await fetch('/api/articles/categories');
+        // if (res.status == 200) {
+        //     res = await res.json();
+        //     const categories = {};
+        //     res.data.forEach((cat) => {
+        //         categories[cat] = '';
+        //     });
+
+        //     appendCategories(categories);
+        // }
+        const result = await getCategories();
+        if (result.data) {
             const categories = {};
-            res.data.forEach((cat) => {
+            result.data.forEach((cat) => {
                 categories[cat] = '';
             });
-
             appendCategories(categories);
+        } else {
+            console.log(result);
+            alert('系統異常: getCategories');
         }
     }
 }

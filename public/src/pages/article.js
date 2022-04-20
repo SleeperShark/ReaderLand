@@ -134,3 +134,16 @@ async function init() {
 }
 
 init();
+
+const commentBoard = document.getElementById('comment-board');
+// commentBoard.style.display = 'none';
+function toggleBoard(e) {
+    console.log(e.target);
+    if (commentBoard.style.display == 'none') {
+        commentBoard.style.display = 'flex';
+    } else {
+        commentBoard.style.display = 'none';
+    }
+}
+document.getElementById('comment').addEventListener('click', toggleBoard);
+document.getElementById('close-board-btn').addEventListener('click', toggleBoard);

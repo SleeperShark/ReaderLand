@@ -50,6 +50,7 @@
                 </div>
             </article>
         </main>
+
         <footer>
             <div id="read" class="feedback">
                 <i class="far fa-eye">
@@ -70,6 +71,31 @@
                 <i id="favorite-icon" class="fas fa-bookmark"></i>
             </div>
         </footer>
+
+        <div id="comment-board">
+            <div id="comment-header">
+                <p>留言<span id="comment-count"></span></p>
+                <div id="board-remove-btn">
+                    <span id="close-board-btn">x</span>
+                </div>
+            </div>
+            <div id="comment-container">
+                <div id="no-comment">
+                    <p>成為第一個留言的人吧</p>
+                </div>
+                <div class="comment-box">
+                    <div class="reader-comment"></div>
+                    <div class="author-reply"></div>
+                </div>
+            </div>
+            <div id="comment-footer">
+                <div id="unauth-comment-footer">
+                    <p>想參與討論嗎？&#10;趕快登入來留言吧！</p>
+                    <button>登入</button>
+                </div>
+                <div id="auth-comment-footer"></div>
+            </div>
+        </div>
 
         <script src="./src/components/header.js"></script>
         <script src="./src/util/util.js"></script>

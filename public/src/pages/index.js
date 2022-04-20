@@ -81,7 +81,14 @@ function appendArticle(article, auth) {
                 ${article.author.bio || ''}
             </div>
             <button class='profile-follow-btn'>
-            追蹤
+            <span class="unfollow" >
+                <i class="fas fa-thumbs-up"></i>
+                追蹤
+            </span>
+            <span class="follow" >
+                <i class="far fa-check-square"></i>                
+                已追蹤
+            </span>
             </button>
         </div>
 
@@ -157,25 +164,25 @@ async function renderArticles(auth) {
     }
 
     document.querySelectorAll('.author-picture').forEach((elem) => {
-        const profile = elem.nextSibling.nextSibling;
-        profile.addEventListener('mouseover', () => {
-            profile.dataset.status = 'show';
-        });
-        profile.addEventListener('mouseleave', () => {
-            profile.dataset.status = 'hide';
-            profile.style.display = 'none';
-        });
-        elem.addEventListener('mouseover', () => {
-            profile.style.display = 'flex';
-        });
-        elem.addEventListener('mouseleave', () => {
-            setTimeout(() => {
-                if (profile.dataset.status === 'hide') {
-                    console.log('test');
-                    profile.style.display = 'none';
-                }
-            }, 600);
-        });
+        // const profile = elem.nextSibling.nextSibling;
+        // profile.addEventListener('mouseover', () => {
+        //     profile.dataset.status = 'show';
+        // });
+        // profile.addEventListener('mouseleave', () => {
+        //     profile.dataset.status = 'hide';
+        //     profile.style.display = 'none';
+        // });
+        // elem.addEventListener('mouseover', () => {
+        //     profile.style.display = 'flex';
+        // });
+        // elem.addEventListener('mouseleave', () => {
+        //     setTimeout(() => {
+        //         if (profile.dataset.status === 'hide') {
+        //             console.log('test');
+        //             profile.style.display = 'none';
+        //         }
+        //     }, 600);
+        // });
     });
 }
 

@@ -210,16 +210,19 @@ async function renderArticles(auth) {
 
             if (btn.classList.contains('followed')) {
                 // TODO: UNFOLLOW the author
-                const res = await fetch('/api/user/follow', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'Application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ followerId: authorId }),
-                });
+                // const res = await fetch('/api/user/follow', {
+                //     method: 'DELETE',
+                //     headers: {
+                //         'Content-Type': 'Application/json',
+                //         Authorization: `Bearer ${token}`,
+                //     },
+                //     body: JSON.stringify({ followerId: authorId }),
+                // });
 
-                if (res.status == 200) {
+                const res = await unFollowerAuthor(token, authorId);
+                console.log(res);
+
+                if (res.data) {
                     changeFollowerState({ authorId, remove: 'followed', add: 'nofollow' });
                 } else {
                     console.log('系統異常，請稍後再試');

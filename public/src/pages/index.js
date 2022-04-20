@@ -259,11 +259,11 @@ async function renderCategories(auth) {
     }
 }
 
-async function main() {
+async function init() {
     const auth = await authenticate();
     await renderHeader(auth);
     await renderCategories(auth);
     await renderArticles(auth);
 }
 
-main();
+init();

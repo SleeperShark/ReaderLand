@@ -57,10 +57,26 @@ function appendArticle(article, auth) {
     } = article;
 
     let bookmark = '';
+    let followBtn = '';
 
     if (auth) {
+        // show bookmark
         let bookmarkClass = favorited ? 'fas fa-bookmark favored favorite' : 'far fa-bookmark favorite';
         bookmark = `<i class="${bookmarkClass}" onclick="favoriteArticle(this)" data-id="${article._id}"></i>`;
+
+        // show follow button
+        followBtn = `
+<button class='profile-follow-btn${followed ? ' followed' : ' nofollow'}' data-authorid="${article.author._id}">
+    <span class="nofollow-text" >
+        <i class="fas fa-thumbs-up"></i>
+        追蹤
+    </span>
+    <span class="followed-text" >
+        <i class="far fa-check-square"></i>                
+        已追蹤
+    </span>
+</button>
+        `;
     }
 
     articleElem.innerHTML = ` 
@@ -74,16 +90,7 @@ function appendArticle(article, auth) {
             <div class='profile-bio'>
                 ${article.author.bio || ''}
             </div>
-            <button class='profile-follow-btn${followed ? ' followed' : ' nofollow'}' data-authorid="${article.author._id}">
-            <span class="nofollow-text" >
-                <i class="fas fa-thumbs-up"></i>
-                追蹤
-            </span>
-            <span class="followed-text" >
-                <i class="far fa-check-square"></i>                
-                已追蹤
-            </span>
-            </button>
+            ${followBtn}
         </div>
 
     </div>

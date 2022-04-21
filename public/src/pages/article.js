@@ -7,6 +7,7 @@ function renderCommentBoard(article) {
         const {
             context,
             authorReply,
+            createdAt,
             reader: { _id: readerId, picture: readerPic, name: readerName },
         } = comment;
         const commentBox = document.createElement('div');
@@ -14,7 +15,7 @@ function renderCommentBoard(article) {
 
         commentBox.innerHTML += `
                     <div class="reader-comment">
-                        <div>
+                        <div class="comment-body">
                             <a href="#" class="avatar-container">
                                 <img class="reader-avatar" src="${readerPic}" alt="reader-avatar" />
                                 <div class="reader-name">${readerName}</div>
@@ -24,7 +25,9 @@ function renderCommentBoard(article) {
                                 <div class="comment-context">${context}</div>
                             </div>
                         </div>
-                        <span class="comment-time">3天前</span>
+                        <div class="time-container">
+                            <span class="comment-time">${timeTransformer(createdAt)}</span>
+                        </div>
                     </div>
         `;
 
@@ -40,7 +43,7 @@ function renderCommentBoard(article) {
                                 <div class="reply-name">${authorName}</div>
                             </a>
                         </div>
-                        <span class="reply-time">5小時前</span>
+                        <span class="reply-time">${timeTransformer(authorReply.createdAt)}</span>
                     </div>
             `;
         }

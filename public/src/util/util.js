@@ -101,3 +101,21 @@ const likeArticleAPI = (userToken, articleId) => {
         },
     });
 };
+
+function timeTransformer(ISODateString) {
+    const targetTimestamp = new Date(ISODateString).getTime();
+    const currentTimestamp = new Date().getTime();
+    // in minute
+    let timeInterval = Math.floor((currentTimestamp - targetTimestamp) / 1000 / 60);
+    if (timeInterval < 60) return `${timeInterval} 分鐘前`;
+
+    // in hour
+    timeInterval = Math.floor(timeInterval / 60);
+    if (timeInterval < 24) return `${timeInterval} 小時前`;
+
+    // in day
+    timeInterval = Math.floor(timeInterval / 24);
+    if (timeInterval < 4) return `${timeInterval} 天前`;
+
+    return ISODateString.split('T')[0];
+}

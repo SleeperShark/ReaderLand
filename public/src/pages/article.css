@@ -228,7 +228,7 @@ footer {
     margin-bottom: 8px;
 }
 
-.reader-comment > div {
+.comment-body {
     display: grid;
     grid-template-columns: 1fr 4fr;
 }
@@ -270,8 +270,14 @@ footer {
     margin-bottom: 8px;
 }
 
+.time-container {
+    width: 95%;
+    padding-right: 3px;
+    display: flex;
+    justify-content: flex-end;
+}
+
 .comment-time {
-    margin-left: 405px;
     margin-top: 3px;
 }
 

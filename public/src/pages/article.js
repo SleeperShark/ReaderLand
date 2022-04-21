@@ -25,6 +25,9 @@ async function renderArticle(auth) {
     document.querySelector('#like .count').innerText = article.likes.length;
     //* comment count
     document.querySelector('#comment .count').innerText = article.comments.length;
+    if (article.comments.length) {
+        document.getElementById('no-comment-box').remove();
+    }
 
     const followBtn = document.getElementById('follow-btn');
 

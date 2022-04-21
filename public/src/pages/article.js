@@ -210,8 +210,12 @@ async function renderArticle(auth) {
 
                 const article = result.data;
                 renderCommentBoard(article);
-                //* like count
+                //* like count update
                 document.querySelector('#like .count').innerText = article.likes.length;
+                //* comment count update
+                document.querySelector('#comment .count').innerText = article.comments.length;
+                //* commented update
+                document.getElementById('comment').classList.add('commented');
 
                 commentArea.value = '';
             } catch (error) {

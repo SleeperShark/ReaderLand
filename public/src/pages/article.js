@@ -1,3 +1,57 @@
+function renderCommentBoard(article) {
+    const commentContainer = document.getElementById('comment-container');
+    const {
+        author: { name: authorName, picture: authorPicture, _id: authorId },
+    } = article;
+    article.comments.forEach((comment, idx) => {
+        const {
+            context,
+            authorReply,
+            reader: { _id: readerId, picture: readerPic, name: readerName },
+        } = comment;
+        const commentBox = document.createElement('div');
+        commentBox.classList.add('comment-box');
+
+        commentBox.innerHTML += `
+                    <div class="reader-comment">
+                        <div>
+                            <a href="#" class="avatar-container">
+                                <img class="reader-avatar" src="${readerPic}" alt="reader-avatar" />
+                                <div class="reader-name">${readerName}</div>
+                            </a>
+
+                            <div class="comment-bubble">
+                                <div class="comment-context">${context}</div>
+                            </div>
+                        </div>
+                        <span class="comment-time">3天前</span>
+                    </div>
+        `;
+
+        if (authorReply) {
+            commentBox.innerHTML += `
+            <div class="author-reply">
+                        <div>
+                            <div class="reply-bubble">
+                                <div class="reply-context">${authorReply.context}</div>
+                            </div>
+                            <a href="#" class="avatar-container">
+                                <img class="author-avatar" src="${authorPicture}" alt="reader-avatar" />
+                                <div class="reply-name">${authorName}</div>
+                            </a>
+                        </div>
+                        <span class="reply-time">5小時前</span>
+                    </div>
+            `;
+        }
+
+        commentContainer.appendChild(commentBox);
+        if (idx !== article.comments.length - 1) {
+            commentContainer.innerHTML += '<div class="comment-divider"></div>';
+        }
+    });
+}
+
 async function renderArticle(auth) {
     const articleId = new URL(window.location).searchParams.get('id');
     let result;
@@ -8,7 +62,7 @@ async function renderArticle(auth) {
     }
     const { data: article } = result;
 
-    console.log(article.comments);
+    console.log(article);
 
     // TODO: Render content of the article
     //* title
@@ -27,6 +81,7 @@ async function renderArticle(auth) {
     document.querySelector('#comment .count').innerText = article.comments.length;
     if (article.comments.length) {
         document.getElementById('no-comment-box').remove();
+        renderCommentBoard(article);
     }
 
     const followBtn = document.getElementById('follow-btn');

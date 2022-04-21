@@ -181,7 +181,7 @@ const getFullArticle = async (articleId, userId = '') => {
         article.author.picture = `${IMAGE_URL}/avatar/${article.author.picture}`;
 
         // TODO: process userinfo in comment array
-        //get userid: {info} object
+        //get userid: { _id, picture, name } object
         const readersInfo = {};
         for (let user of article.comments_reader) {
             user.picture = `${IMAGE_URL}/avatar/${user.picture}`;

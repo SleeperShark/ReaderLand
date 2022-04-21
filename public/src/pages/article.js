@@ -8,7 +8,7 @@ async function renderArticle(auth) {
     }
     const { data: article } = result;
 
-    console.log(article);
+    // console.log(article);
 
     // TODO: Render content of the article
     //* title
@@ -31,7 +31,11 @@ async function renderArticle(auth) {
     if (auth) {
         //* follow btn
         followBtn.classList.add(article.author.followed ? 'followed' : 'nofollow');
-        // followBtn.dataset.id = article.author._id;
+        //* comment-footer user avatar
+        document.querySelector('#auth-comment-footer > img').src = user.picture;
+        //* remove unauth comment-footer
+        document.getElementById('unauth-comment-footer').remove();
+
         //* liked
         if (article.liked) {
             document.getElementById('like').classList.add('favored');
@@ -124,6 +128,7 @@ async function renderArticle(auth) {
         //TODO: stanger user interface
         followBtn.style.display = 'none';
         document.getElementById('favorite').style.display = 'none';
+        document.getElementById('auth-comment-footer').remove();
     }
 }
 

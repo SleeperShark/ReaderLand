@@ -80,20 +80,28 @@
                 </div>
             </div>
             <div id="comment-container">
-                <div id="no-comment">
+                <!-- display if no comment -->
+                <div id="no-comment-box">
                     <p>成為第一個留言的人吧</p>
                 </div>
+                <!-- display with comment -->
                 <div class="comment-box">
                     <div class="reader-comment"></div>
                     <div class="author-reply"></div>
                 </div>
             </div>
             <div id="comment-footer">
+                <!-- display when no login -->
                 <div id="unauth-comment-footer">
                     <p>想參與討論嗎？&#10;趕快登入來留言吧！</p>
                     <button>登入</button>
                 </div>
-                <div id="auth-comment-footer"></div>
+                <!-- display when login -->
+                <div id="auth-comment-footer">
+                    <img src="" alt="user-avatar" />
+                    <textarea placeholder="留下你的想法吧" id="comment-edit"></textarea>
+                    <i id="comment-send" class="fas fa-paper-plane"></i>
+                </div>
             </div>
         </div>
 

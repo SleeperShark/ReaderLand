@@ -110,12 +110,44 @@ const getFullArticle = async (articleId, userId = '') => {
                     as: 'author',
                 },
             },
-            { $project: { _id: 0, author: { $arrayElemAt: ['$author', 0] }, title: 1, context: 1, createdAt: 1, readCount: 1, likes: 1, category: 1, comments: 1 } },
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'comments.reader',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                picture: 1,
+                            },
+                        },
+                    ],
+                    as: 'comments_reader',
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    author: { $arrayElemAt: ['$author', 0] },
+                    title: 1,
+                    context: 1,
+                    createdAt: 1,
+                    readCount: 1,
+                    likes: 1,
+                    category: 1,
+                    comments: 1,
+                    comments_reader: 1,
+                },
+            },
         ]);
 
         if (!article) {
             return { error: 'No matched article.', status: 400 };
         }
+
+        // console.log(article);
 
         if (userId) {
             //TODO: check liked
@@ -129,7 +161,7 @@ const getFullArticle = async (articleId, userId = '') => {
 
             //TODO: check commented
             for (let { reader } of article.comments) {
-                if (reader.toString() == uidString) {
+                if (reader._id.toString() == uidString) {
                     article.commented = true;
                     break;
                 }
@@ -147,6 +179,19 @@ const getFullArticle = async (articleId, userId = '') => {
 
         //TODO: image url
         article.author.picture = `${IMAGE_URL}/avatar/${article.author.picture}`;
+
+        // TODO: process userinfo in comment array
+        //get userid: {info} object
+        const readersInfo = {};
+        for (let user of article.comments_reader) {
+            user.picture = `${IMAGE_URL}/avatar/${user.picture}`;
+            readersInfo[user._id.toString()] = { ...user };
+        }
+        delete article.comments_reader;
+
+        article.comments.forEach((comment) => {
+            comment.reader = readersInfo[comment.reader.toString()];
+        });
 
         return { article };
     } catch (error) {

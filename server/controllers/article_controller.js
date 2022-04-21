@@ -122,4 +122,24 @@ const getLatestArticles = async (req, res) => {
     return;
 };
 
-module.exports = { createArticle, getFullArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles };
+const commentArticle = async (req, res) => {
+    const { userId } = req.user;
+    const { articleId } = req.params;
+    const { comment } = req.body;
+
+    if (!articleId || !comment) {
+        res.status(400).json({ error: 'articleId and context are both required.' });
+        return;
+    }
+
+    const { error, status, data } = await Article.commentArticle({ userId, articleId, comment });
+
+    if (error) {
+        res.status(status).json({ error });
+        return;
+    }
+
+    return res.status(200).json({ data });
+};
+
+module.exports = { createArticle, getFullArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle };

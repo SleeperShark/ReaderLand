@@ -56,8 +56,10 @@ const userSchema = mongoose.Schema({
 });
 
 const commentSchema = mongoose.Schema({
-    _id: false,
-    context: String,
+    context: {
+        type: String,
+        required: true,
+    },
     createdAt: {
         type: Date,
         immutable: true,
@@ -65,6 +67,7 @@ const commentSchema = mongoose.Schema({
     reader: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'User',
+        required: true,
     },
     authorReply: {
         context: String,

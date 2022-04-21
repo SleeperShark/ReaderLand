@@ -565,4 +565,78 @@ const getCategories = async () => {
     }
 };
 
-module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles };
+const commentArticle = async ({ userId, articleId, comment }) => {
+    try {
+        // validate articleId
+        try {
+            articleId = ObjectId(articleId);
+        } catch (error) {
+            console.error('Invaid articleId');
+            return { status: 400, error: 'Invaid articleId' };
+        }
+
+        // update comment
+        await Article.updateOne(
+            { _id: articleId },
+            {
+                $push: {
+                    comments: {
+                        context: comment,
+                        reader: userId,
+                        createdAt: new Date().toISOString(),
+                    },
+                },
+            }
+        );
+
+        // get updated comments
+        const [{ comments: updatedComments, comments_reader }] = await Article.aggregate([
+            {
+                $match: {
+                    _id: articleId,
+                },
+            },
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'comments.reader',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                picture: 1,
+                            },
+                        },
+                    ],
+                    as: 'comments_reader',
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    comments: 1,
+                    comments_reader: 1,
+                },
+            },
+        ]);
+
+        // make uid: {userinfo} object
+        const userInfo = {};
+        comments_reader.forEach((reader) => {
+            userInfo[reader._id.toString()] = reader;
+        });
+        // merge reader info from comments_reader into comments
+        updatedComments.forEach((comment) => {
+            comment.reader = userInfo[comment.reader.toString()];
+        });
+
+        return { data: updatedComments };
+    } catch (error) {
+        console.error(error);
+        return { status: 500, error: 'Server error' };
+    }
+};
+
+module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle };

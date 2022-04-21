@@ -75,7 +75,7 @@ async function renderArticle(auth) {
     //* author name
     document.getElementById('author-name').innerText = article.author.name;
     //* created time
-    document.getElementById('date').innerText = article.createdAt;
+    document.getElementById('date').innerText = timeTransformer(article.createdAt);
     //* read count
     document.querySelector('#read .count').innerText = article.readCount;
     //* like count
@@ -89,7 +89,13 @@ async function renderArticle(auth) {
 
     const followBtn = document.getElementById('follow-btn');
 
-    if (auth) {
+    if (!auth) {
+        //TODO: stanger user interface
+        followBtn.style.display = 'none';
+        document.getElementById('favorite').style.display = 'none';
+        document.getElementById('auth-comment-footer').remove();
+    } else {
+        //TODO: render articles with user function
         //* follow btn
         followBtn.classList.add(article.author.followed ? 'followed' : 'nofollow');
         //* comment-footer user avatar
@@ -185,11 +191,15 @@ async function renderArticle(auth) {
                 }
             }
         });
-    } else {
-        //TODO: stanger user interface
-        followBtn.style.display = 'none';
-        document.getElementById('favorite').style.display = 'none';
-        document.getElementById('auth-comment-footer').remove();
+
+        //TODO: sunmit comment
+        const commentSubmitBtn = document.getElementById('comment-send');
+        commentSubmitBtn.addEventListener('click', () => {
+            const commetnArea = document.getElementById('comment-edit');
+            if (!commetnArea.value) {
+                return;
+            }
+        });
     }
 }
 

@@ -29,10 +29,10 @@ const createArticle = async (req, res) => {
     } catch (error) {}
 };
 
-const getFullArticle = async (req, res) => {
+const getArticle = async (req, res) => {
     const articleId = req.params.articleId;
     const userId = req.user?.userId;
-    const result = await Article.getFullArticle(articleId, userId);
+    const result = await Article.getArticle(articleId, userId);
 
     if (result.error) {
         res.status(result.status).json({ error: result.error });
@@ -142,4 +142,4 @@ const commentArticle = async (req, res) => {
     return res.status(200).json({ data });
 };
 
-module.exports = { createArticle, getFullArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle };
+module.exports = { createArticle, getArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle };

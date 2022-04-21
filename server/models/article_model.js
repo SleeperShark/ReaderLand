@@ -7,6 +7,22 @@ const Cache = require('../../util/cache');
 const fs = require('fs');
 const res = require('express/lib/response');
 
+//get userid: { _id, picture, name } object
+function mergeCommentsReaderInfo(article) {
+    // TODO: process userinfo in comment array
+    const readersInfo = {};
+    for (let user of article.comments_reader) {
+        user.picture = `${IMAGE_URL}/avatar/${user.picture}`;
+        readersInfo[user._id.toString()] = { ...user };
+    }
+    delete article.comments_reader;
+
+    article.comments.forEach((comment) => {
+        comment.reader = readersInfo[comment.reader.toString()];
+    });
+    return;
+}
+
 const pushToNewsfeed = async (article) => {
     try {
         //TODO: get author's followee list
@@ -82,7 +98,7 @@ const createArticle = async (articleInfo) => {
     }
 };
 
-const getFullArticle = async (articleId, userId = '') => {
+const getArticle = async (articleId, userId = '') => {
     try {
         const [article] = await Article.aggregate([
             { $match: { _id: new ObjectId(articleId) } },
@@ -147,8 +163,6 @@ const getFullArticle = async (articleId, userId = '') => {
             return { error: 'No matched article.', status: 400 };
         }
 
-        // console.log(article);
-
         if (userId) {
             //TODO: check liked
             const uidString = userId.toString();
@@ -180,18 +194,7 @@ const getFullArticle = async (articleId, userId = '') => {
         //TODO: image url
         article.author.picture = `${IMAGE_URL}/avatar/${article.author.picture}`;
 
-        // TODO: process userinfo in comment array
-        //get userid: { _id, picture, name } object
-        const readersInfo = {};
-        for (let user of article.comments_reader) {
-            user.picture = `${IMAGE_URL}/avatar/${user.picture}`;
-            readersInfo[user._id.toString()] = { ...user };
-        }
-        delete article.comments_reader;
-
-        article.comments.forEach((comment) => {
-            comment.reader = readersInfo[comment.reader.toString()];
-        });
+        mergeCommentsReaderInfo(article);
 
         return { article };
     } catch (error) {
@@ -543,10 +546,16 @@ const unlikeArticle = async (userId, articleId) => {
             return { error: "Article doesn't exist.", status: 400 };
         }
 
-        await Article.findByIdAndUpdate(articleId, { $pull: { likes: userId } });
+        const { likes } = await Article.findByIdAndUpdate(
+            articleId,
+            { $pull: { likes: userId } },
+            {
+                $project: { _id: 0, likes: 1 },
+                new: true,
+            }
+        );
         console.log("Remove userId from article's likes array...");
 
-        const { likes } = await Article.findById(articleId, { _id: 0, likes: 1 });
         return { data: likes };
     } catch (error) {
         console.error(error);
@@ -589,11 +598,25 @@ const commentArticle = async ({ userId, articleId, comment }) => {
             }
         );
 
-        // get updated comments
-        const [{ comments: updatedComments, comments_reader }] = await Article.aggregate([
+        console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
+
+        const [article] = await Article.aggregate([
+            { $match: { _id: new ObjectId(articleId) } },
             {
-                $match: {
-                    _id: articleId,
+                $lookup: {
+                    from: 'User',
+                    localField: 'author',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                picture: { $concat: [`${IMAGE_URL}/avatar/`, '$picture'] },
+                            },
+                        },
+                    ],
+                    as: 'author',
                 },
             },
             {
@@ -616,27 +639,21 @@ const commentArticle = async ({ userId, articleId, comment }) => {
             {
                 $project: {
                     _id: 0,
+                    author: { $arrayElemAt: ['$author', 0] },
+                    likes: 1,
                     comments: 1,
                     comments_reader: 1,
                 },
             },
         ]);
 
-        // make uid: {userinfo} object
-        const userInfo = {};
-        comments_reader.forEach((reader) => {
-            userInfo[reader._id.toString()] = reader;
-        });
-        // merge reader info from comments_reader into comments
-        updatedComments.forEach((comment) => {
-            comment.reader = userInfo[comment.reader.toString()];
-        });
+        mergeCommentsReaderInfo(article);
 
-        return { data: updatedComments };
+        return { data: article };
     } catch (error) {
         console.error(error);
         return { status: 500, error: 'Server error' };
     }
 };
 
-module.exports = { createArticle, getFullArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle };
+module.exports = { createArticle, getArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle };

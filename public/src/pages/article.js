@@ -1,8 +1,10 @@
 function renderCommentBoard(article) {
     const commentContainer = document.getElementById('comment-container');
+    commentContainer.innerHTML = '';
     const {
         author: { name: authorName, picture: authorPicture, _id: authorId },
     } = article;
+    article.comments.reverse();
     article.comments.forEach((comment, idx) => {
         const {
             context,
@@ -63,9 +65,7 @@ async function renderArticle(auth) {
     } else {
         result = await getFullArticleAPI(articleId);
     }
-    const { data: article } = result;
-
-    console.log(article);
+    const article = result.data;
 
     // TODO: Render content of the article
     //* title
@@ -194,13 +194,32 @@ async function renderArticle(auth) {
 
         //TODO: sunmit comment
         const commentSubmitBtn = document.getElementById('comment-send');
-        commentSubmitBtn.addEventListener('click', () => {
-            const commetnArea = document.getElementById('comment-edit');
-            if (!commetnArea.value) {
+        commentSubmitBtn.addEventListener('click', async () => {
+            const commentArea = document.getElementById('comment-edit');
+            if (!commentArea.value) {
                 return;
             }
+
+            try {
+                const result = await commentArticleAPI(token, articleId, commentArea.value);
+
+                if (result.error) {
+                    console.error(error);
+                    alert('留言失敗，請稍後在試');
+                }
+
+                const article = result.data;
+                renderCommentBoard(article);
+                //* like count
+                document.querySelector('#like .count').innerText = article.likes.length;
+
+                commentArea.value = '';
+            } catch (error) {
+                console.error(error);
+                alert('系統異常: POST /api/articles/:articleId/comment');
+            }
         });
-    }
+    } // end of if(auth)
 }
 
 async function init() {

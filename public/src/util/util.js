@@ -102,6 +102,16 @@ const likeArticleAPI = (userToken, articleId) => {
     });
 };
 
+const commentArticleAPI = (userToken, articleId, comment) => {
+    return fetchHandler(`/api/articles/${articleId}/comment`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ comment }),
+    });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

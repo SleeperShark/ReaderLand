@@ -8,7 +8,7 @@ async function renderArticle(auth) {
     }
     const { data: article } = result;
 
-    // console.log(article);
+    console.log(article.comments);
 
     // TODO: Render content of the article
     //* title
@@ -148,7 +148,7 @@ const commentBoard = document.getElementById('comment-board');
 function toggleBoard(e) {
     console.log(e.target);
     if (commentBoard.style.display == 'none') {
-        commentBoard.style.display = 'flex';
+        commentBoard.style.display = 'grid';
     } else {
         commentBoard.style.display = 'none';
     }

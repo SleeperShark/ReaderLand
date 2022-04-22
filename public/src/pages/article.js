@@ -1,3 +1,24 @@
+function toggleReplyEdit(replyBtn) {
+    const replyEdit = replyBtn.nextSibling.nextSibling;
+    const replySubmit = replyEdit.nextSibling.nextSibling;
+    replyEdit.classList.toggle('hide');
+    replySubmit.classList.toggle('hide');
+
+    const hint = replyBtn.innerText;
+    replyBtn.innerText = hint === '回覆' ? '收起' : '回覆';
+}
+
+function submitReply(submitBtn) {
+    const replyEdit = submitBtn.previousSibling.previousSibling;
+    const reply = replyEdit.value.trim();
+    if (!reply) {
+        alert('請輸入回覆內容');
+        return;
+    }
+
+    //submit reply
+}
+
 function renderCommentBoard(article) {
     const commentContainer = document.getElementById('comment-container');
     commentContainer.innerHTML = '';
@@ -5,6 +26,7 @@ function renderCommentBoard(article) {
         author: { name: authorName, picture: authorPicture, _id: authorId },
     } = article;
     article.comments.reverse();
+
     article.comments.forEach((comment, idx) => {
         const {
             context,
@@ -14,6 +36,15 @@ function renderCommentBoard(article) {
         } = comment;
         const commentBox = document.createElement('div');
         commentBox.classList.add('comment-box');
+
+        let replyEdit = '';
+        if (article.author.name == user.name) {
+            replyEdit = `
+        <div class="reply-btn" onclick="toggleReplyEdit(this)">回覆</div>
+        <textarea placeholder="回復${readerName}：" class="reply-edit hide"></textarea>
+        <i class="fas fa-paper-plane reply-submit  hide" onclick="submitReply(this)"></i>
+        `;
+        }
 
         commentBox.innerHTML += `
                     <div class="reader-comment">
@@ -27,13 +58,20 @@ function renderCommentBoard(article) {
                                 <div class="comment-context">${context}</div>
                             </div>
                         </div>
-                        <div class="time-container">
+                        <div class="footer-container">
                             <span class="comment-time">${timeTransformer(createdAt)}</span>
+                            
+                            ${replyEdit}
                         </div>
                     </div>
         `;
 
         if (authorReply) {
+            if (replyEdit) {
+                commentBox.querySelector('.reply-btn').remove();
+                commentBox.querySelector('.reply-edit').remove();
+            }
+
             commentBox.innerHTML += `
             <div class="author-reply">
                         <div>
@@ -196,7 +234,7 @@ async function renderArticle(auth) {
         const commentSubmitBtn = document.getElementById('comment-send');
         commentSubmitBtn.addEventListener('click', async () => {
             const commentArea = document.getElementById('comment-edit');
-            if (!commentArea.value) {
+            if (!commentArea.value.trim()) {
                 return;
             }
 

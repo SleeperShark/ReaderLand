@@ -1,3 +1,5 @@
+let articleInfo;
+
 function appendNewparagraph(currArea) {
     const newParagraph = document.createElement('div');
     newParagraph.classList.add('paragraph');
@@ -32,11 +34,15 @@ function appendNewparagraph(currArea) {
 function addReSizeProperty() {
     $('textarea')
         .each(function () {
-            this.setAttribute('style', 'height:' + this.scrollHeight + 'px;overflow-y:hidden;');
+            if (!this.id == 'preview-input') {
+                this.setAttribute('style', 'height:' + this.scrollHeight + 'px;overflow-y:hidden;');
+            }
         })
         .on('input', function () {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
+            if (!this.id == 'preview-input') {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            }
         });
 }
 
@@ -77,6 +83,10 @@ function removeEmptyParagraphListener(textArea) {
     });
 }
 
+async function renderCategoriesSelection() {
+    const { data: categories } = await getCategoriesAPI();
+}
+
 async function init() {
     const auth = await authenticate();
     await renderHeader(auth);
@@ -109,19 +119,71 @@ async function init() {
     document.getElementById('create-article').addEventListener('click', (e) => {
         e.preventDefault();
 
-        //collection paragraph context
+        // Getting title
+        const title = document.getElementById('title-input').value;
+        if (!title) {
+            alert('請輸入文章標題');
+            return;
+        }
+        console.log(title);
+
+        //collect paragraph context
         const context = {};
-        document.querySelectorAll('textarea').forEach((textArea) => {
+        const textAreas = document.querySelectorAll('textarea');
+        if (textAreas.length == 1 && !textAreas[0].value) {
+            alert('你的文章是空的歐！寫點東西吧~');
+            return;
+        }
+
+        //FIXME: if the middle paragraph is empty issue
+        textAreas.forEach((textArea) => {
             const {
                 dataset: { timestamp, next },
                 value: content,
             } = textArea;
 
-            context[timestamp] = { content, next };
+            if (!content) {
+                return;
+            }
+
+            context[timestamp] = { content, next, type: 'String' };
         });
 
-        console.log(context);
+        const preview = 'Testing preview';
+        const categories = ['政治', '經濟'];
+
+        // Store the info in the global vairable
+        articleInfo = {
+            preview,
+            categories,
+            context,
+            title,
+        };
     });
+
+    //TODO: counting words in preview board
+    const previewInput = document.getElementById('preview-input');
+    const previewCounting = document.getElementById('preview-counting');
+    previewInput.addEventListener('input', () => {
+        const wordsCount = previewInput.value.length;
+        if (wordsCount > 150) {
+            previewCounting.innerText = `超過字數限制(${wordsCount} 字)`;
+            previewCounting.classList.add('preview-limit-warning');
+        } else {
+            previewCounting.innerText = `共 ${wordsCount} 字`;
+            previewCounting.classList.remove('preview-limit-warning');
+        }
+    });
+
+    //TODO: close board btn
+    const submitBoard = document.getElementById('submit-board');
+    const closeSubmitBoardBtn = document.getElementById('close-submit-board-btn');
+    closeSubmitBoardBtn.addEventListener('click', () => {
+        submitBoard.classList.toggle('hide');
+    });
+
+    //TODO: render cateogry selection in submit-board
+    await renderCategoriesSelection();
 }
 
 init();

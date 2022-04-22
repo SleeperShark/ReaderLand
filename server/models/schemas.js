@@ -91,10 +91,7 @@ const articleSchema = mongoose.Schema({
         ref: 'User ',
         required: true,
     },
-    context: {
-        type: String,
-        required: true,
-    },
+    context: Object,
     preview: {
         type: String,
         maxLength: 200,
@@ -114,12 +111,6 @@ const articleSchema = mongoose.Schema({
 });
 
 articleSchema.index({ title: 1, author: 1 }, { unique: true });
-articleSchema.pre('save', function (next) {
-    if (!this.preview) {
-        this.preview = this.context.slice(0, 150);
-    }
-    next();
-});
 
 module.exports = {
     User: mongoose.model('User', userSchema, 'User'),

@@ -14,6 +14,7 @@ const createArticle = async (req, res) => {
         }
 
         articleInfo.category = req.body.categories;
+        articleInfo.preview = req.body.preview;
 
         const result = await Article.createArticle(articleInfo);
 

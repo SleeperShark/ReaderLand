@@ -227,7 +227,7 @@ async function renderCategories(auth) {
     } else {
         document.getElementById('subscribe-header').innerText = '#主題列表';
 
-        const result = await getCategories();
+        const result = await getCategoriesAPI();
         if (result.data) {
             const categories = {};
             result.data.forEach((cat) => {
@@ -236,7 +236,7 @@ async function renderCategories(auth) {
             appendCategories(categories);
         } else {
             console.log(result);
-            alert('系統異常: getCategories');
+            alert('系統異常: getCategoriesAPI');
         }
     }
 }

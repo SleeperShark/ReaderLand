@@ -51,7 +51,7 @@ const getUserSubscription = async (userToken) => {
     });
 };
 
-const getCategories = async () => {
+const getCategoriesAPI = async () => {
     return fetchHandler('/api/articles/categories');
 };
 

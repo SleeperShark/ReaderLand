@@ -2,6 +2,10 @@ html {
     background-color: black;
 }
 
+body {
+    position: relative;
+}
+
 main {
     padding-top: 90px;
     display: flex;
@@ -10,7 +14,6 @@ main {
 
 #editor {
     width: 800px;
-    height: 900px;
     /* border: 1px white solid; */
     display: flex;
     flex-direction: column;
@@ -51,4 +54,93 @@ main {
 
 .text-input:hover {
     background-color: rgb(44, 41, 41);
+}
+
+/* submit board */
+#submit-board {
+    position: fixed;
+    width: 550px;
+    height: 550px;
+    background-color: rgb(223, 223, 223);
+    top: calc(50% - 275px);
+    left: calc(50% - 275px);
+
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#submit-board.hide {
+    display: none;
+}
+
+#close-submit-board-btn {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding-bottom: 2px;
+}
+
+#close-submit-board-btn:hover {
+    background-color: rgb(179, 177, 177);
+}
+
+#close-submit-board-btn:active {
+    transform: scale(0.9);
+}
+
+#close-submit-board-btn span {
+    text-align: center;
+    font-size: 1.3rem;
+}
+
+#submit-board-header {
+    /* background-color: aqua; */
+    font-size: 1.6rem;
+    font-weight: bolder;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.557);
+}
+
+#preview {
+    /* border: 1px solid black; */
+    margin-top: 10px;
+}
+
+.explaination {
+    color: rgba(44, 41, 41, 0.661);
+}
+
+#preview-input {
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 500px;
+    height: 150px;
+    resize: none;
+    border-radius: 3px;
+    padding: 10px;
+    font-size: 1.2rem;
+}
+
+#preview-counting {
+    text-align: right;
+    padding-right: 10px;
+    color: black;
+}
+
+#preview-counting.preview-limit-warning {
+    color: red;
+    font-weight: bolder;
+}
+
+#category {
+    margin-top: 10px;
 }

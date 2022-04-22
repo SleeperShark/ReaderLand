@@ -574,7 +574,7 @@ const getCategories = async () => {
     }
 };
 
-//TODO: Fetch latest feedback after article is commented
+//TODO: Fetch latest feedback after article is commented or replied
 async function getUpdatedFeedback(articleId) {
     const [article] = await Article.aggregate([
         { $match: { _id: articleId } },

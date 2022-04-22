@@ -112,6 +112,16 @@ const commentArticleAPI = (userToken, articleId, comment) => {
     });
 };
 
+const replyCommentAPI = ({ userToken, articleId, commentId, reply }) => {
+    return fetchHandler(`/api/articles/${articleId}/replyComment`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ commentId, reply }),
+    });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

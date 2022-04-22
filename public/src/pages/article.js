@@ -8,7 +8,7 @@ function toggleReplyEdit(replyBtn) {
     replyBtn.innerText = hint === '回覆' ? '收起' : '回覆';
 }
 
-function submitReply(submitBtn) {
+async function submitReply(submitBtn) {
     const replyEdit = submitBtn.previousSibling.previousSibling;
     const reply = replyEdit.value.trim();
     if (!reply) {
@@ -16,7 +16,25 @@ function submitReply(submitBtn) {
         return;
     }
 
-    //submit reply
+    const commentId = submitBtn.dataset.id;
+    const articleId = new URL(window.location).searchParams.get('id');
+
+    try {
+        const { data: article, error, status } = await replyCommentAPI({ commentId, articleId, userToken: token, reply });
+
+        if (error) {
+            console.error(status);
+            console.error(error);
+            alert('API 異常: replyCommentAPI');
+            return;
+        }
+
+        renderCommentBoard(article);
+        return;
+    } catch (error) {
+        console.error(error);
+        alert('系統異常: submit reply');
+    }
 }
 
 function renderCommentBoard(article) {
@@ -41,8 +59,8 @@ function renderCommentBoard(article) {
         if (article.author.name == user.name) {
             replyEdit = `
         <div class="reply-btn" onclick="toggleReplyEdit(this)">回覆</div>
-        <textarea placeholder="回復${readerName}：" class="reply-edit hide"></textarea>
-        <i class="fas fa-paper-plane reply-submit  hide" onclick="submitReply(this)"></i>
+        <textarea placeholder="回復&nbsp;${readerName}：" class="reply-edit hide"></textarea>
+        <i class="fas fa-paper-plane reply-submit  hide" data-id="${comment._id}" onclick="submitReply(this)"></i>
         `;
         }
 

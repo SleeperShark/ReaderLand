@@ -653,54 +653,7 @@ const commentArticle = async ({ userId, articleId, comment }) => {
 
         console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
 
-        const [article] = await Article.aggregate([
-            { $match: { _id: articleId } },
-            {
-                $lookup: {
-                    from: 'User',
-                    localField: 'author',
-                    foreignField: '_id',
-                    pipeline: [
-                        {
-                            $project: {
-                                _id: 1,
-                                name: 1,
-                                picture: { $concat: [`${IMAGE_URL}/avatar/`, '$picture'] },
-                            },
-                        },
-                    ],
-                    as: 'author',
-                },
-            },
-            {
-                $lookup: {
-                    from: 'User',
-                    localField: 'comments.reader',
-                    foreignField: '_id',
-                    pipeline: [
-                        {
-                            $project: {
-                                _id: 1,
-                                name: 1,
-                                picture: 1,
-                            },
-                        },
-                    ],
-                    as: 'comments_reader',
-                },
-            },
-            {
-                $project: {
-                    _id: 0,
-                    author: { $arrayElemAt: ['$author', 0] },
-                    likes: 1,
-                    comments: 1,
-                    comments_reader: 1,
-                },
-            },
-        ]);
-
-        mergeCommentsReaderInfo(article);
+        const article = await getUpdatedFeedback(articleId);
 
         return { data: article };
     } catch (error) {

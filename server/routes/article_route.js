@@ -1,6 +1,17 @@
 const router = require('express').Router();
 const { wrapAsync, authentication } = require('../../util/util');
-const { createArticle, getArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle } = require('../controllers/article_controller');
+const {
+    createArticle,
+    getArticle,
+    getNewsFeed,
+    likeArticle,
+    unlikeArticle,
+    getCategories,
+    getLatestArticles,
+    commentArticle,
+    replyComment,
+} = require('../controllers/article_controller');
+
 const { USER_ROLE } = require('../models/user_model');
 
 router.route('/articles').post(authentication(USER_ROLE.ALL), wrapAsync(createArticle));
@@ -14,6 +25,7 @@ router.route('/articles/:articleId/like').delete(authentication(USER_ROLE.ALL), 
 
 // TODO: reader leave comment
 router.route('/articles/:articleId/comment').post(authentication(USER_ROLE.ALL), wrapAsync(commentArticle));
+router.route('/articles/:articleId/replyComment').post(authentication(USER_ROLE.ALL), wrapAsync(replyComment));
 
 router.route('/articles/:articleId').get(authentication(USER_ROLE.ALL, false), wrapAsync(getArticle));
 

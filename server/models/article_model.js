@@ -574,6 +574,59 @@ const getCategories = async () => {
     }
 };
 
+//TODO: Fetch latest feedback after article is commented
+async function getUpdatedFeedback(articleId) {
+    const [article] = await Article.aggregate([
+        { $match: { _id: articleId } },
+        {
+            $lookup: {
+                from: 'User',
+                localField: 'author',
+                foreignField: '_id',
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            picture: { $concat: [`${IMAGE_URL}/avatar/`, '$picture'] },
+                        },
+                    },
+                ],
+                as: 'author',
+            },
+        },
+        {
+            $lookup: {
+                from: 'User',
+                localField: 'comments.reader',
+                foreignField: '_id',
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            picture: 1,
+                        },
+                    },
+                ],
+                as: 'comments_reader',
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                author: { $arrayElemAt: ['$author', 0] },
+                likes: 1,
+                comments: 1,
+                comments_reader: 1,
+            },
+        },
+    ]);
+
+    mergeCommentsReaderInfo(article);
+    return article;
+}
+
 const commentArticle = async ({ userId, articleId, comment }) => {
     try {
         // validate articleId
@@ -601,7 +654,7 @@ const commentArticle = async ({ userId, articleId, comment }) => {
         console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
 
         const [article] = await Article.aggregate([
-            { $match: { _id: new ObjectId(articleId) } },
+            { $match: { _id: articleId } },
             {
                 $lookup: {
                     from: 'User',
@@ -656,4 +709,40 @@ const commentArticle = async ({ userId, articleId, comment }) => {
     }
 };
 
-module.exports = { createArticle, getArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle };
+const replyComment = async ({ userId, articleId, reply, commentId }) => {
+    //* verify articleId
+    try {
+        articleId = ObjectId(articleId);
+        commentId = ObjectId(commentId);
+    } catch (error) {
+        console.error('Invalid articleId or commentId');
+        return { status: 400, error: 'Invalid articleId' };
+    }
+
+    try {
+        const exist = await Article.countDocuments({ _id: articleId, author: userId, 'comments._id': commentId });
+
+        if (!exist) {
+            console.error('Unmatched articleId, authorId or commentId');
+            return { status: 400, error: 'Unmatched articleId or authorId' };
+        }
+
+        await Article.updateOne(
+            { _id: articleId, author: userId, 'comments._id': commentId },
+            {
+                $set: { 'comments.$.authorReply': { context: reply, createdAt: new Date().toISOString() } },
+            }
+        );
+
+        console.log('Successfully update reply content, ready to return uodated comment...');
+
+        const article = await getUpdatedFeedback(articleId);
+
+        return { data: article };
+    } catch (error) {
+        console.error(error);
+        return { status: 500, error: 'Server error' };
+    }
+};
+
+module.exports = { createArticle, getArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle, replyComment };

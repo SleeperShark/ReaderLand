@@ -142,4 +142,23 @@ const commentArticle = async (req, res) => {
     return res.status(200).json({ data });
 };
 
-module.exports = { createArticle, getArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle };
+const replyComment = async (req, res) => {
+    const { userId } = req.user;
+    const { articleId } = req.params;
+    const { reply, commentId } = req.body;
+
+    if (!reply || !commentId) {
+        res.status(400).json({ error: 'Reply and commentId is reqired.' });
+        return;
+    }
+
+    const { error, status, data } = await Article.replyComment({ userId, articleId, reply, commentId });
+
+    if (error) {
+        res.status(status).json({ error });
+    }
+
+    res.status(200).json({ data });
+};
+
+module.exports = { createArticle, getArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle, replyComment };

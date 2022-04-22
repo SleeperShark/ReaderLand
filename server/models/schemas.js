@@ -62,6 +62,7 @@ const commentSchema = mongoose.Schema({
     },
     createdAt: {
         type: Date,
+        reqired: true,
         immutable: true,
     },
     reader: {
@@ -69,13 +70,7 @@ const commentSchema = mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    authorReply: {
-        context: String,
-        createdAt: {
-            type: Date,
-            immutable: true,
-        },
-    },
+    authorReply: Object,
 });
 
 const categorySchema = mongoose.Schema({

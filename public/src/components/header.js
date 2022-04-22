@@ -30,7 +30,7 @@ async function renderHeader(auth) {
     if (auth) {
         // const auth = await authenticate();
         rightElementHTML = `
-<a id="create-article" href="#">
+<a id="create-article" href="/edit.html">
     <span>建立貼文</span>
 </a>
 <i id="notification" class="fas fa-bell"></i>

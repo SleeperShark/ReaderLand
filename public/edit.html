@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ReaderLand</title>
+        <link rel="stylesheet" href="src/components/header.css" />
+        <link rel="stylesheet" href="src/pages/edit.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://kit.fontawesome.com/b9edaa44c7.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <header></header>
+
+        <main>
+            <div id="editor">
+                <input type="text" id="title-input" placeholder="請輸入標題"></input>
+                <div id="paragraph-container">
+
+                  <div class="paragraph">
+                    <textarea id="headInput" class="text-input" type="text" placeholder="開始寫作吧 ..."></textarea>
+                  </div>
+                
+                </div>
+            </div>
+        </main>
+
+        <script src="./src/components/header.js"></script>
+        <script src="./src/util/util.js"></script>
+        <script src="./src/pages/edit.js"></script>
+    </body>
+</html>

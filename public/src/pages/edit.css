@@ -1,0 +1,54 @@
+html {
+    background-color: black;
+}
+
+main {
+    padding-top: 90px;
+    display: flex;
+    justify-content: center;
+}
+
+#editor {
+    width: 800px;
+    height: 900px;
+    /* border: 1px white solid; */
+    display: flex;
+    flex-direction: column;
+}
+
+#title-input {
+    width: 100%;
+    font-size: 3rem;
+    background-color: black;
+    color: white;
+    border: none;
+    resize: none;
+    margin-bottom: 50px;
+}
+
+#title-input:focus {
+    outline: none;
+}
+
+.paragraph {
+    margin-bottom: 15px;
+}
+
+.text-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.5rem;
+    background-color: black;
+    color: white;
+    resize: none;
+    border: 0px;
+    height: auto;
+}
+
+.text-input:focus {
+    outline: 0px;
+}
+
+.text-input:hover {
+    background-color: rgb(44, 41, 41);
+}

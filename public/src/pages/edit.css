@@ -86,7 +86,7 @@ main {
     align-items: center;
     justify-content: center;
 
-    padding-bottom: 2px;
+    padding-bottom: 4px;
 }
 
 #close-submit-board-btn:hover {
@@ -142,5 +142,47 @@ main {
 }
 
 #category {
-    margin-top: 10px;
+    margin-top: 15px;
+}
+
+#selected-pool {
+    border: 1px black solid;
+    margin-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.category {
+    font-size: 1.15rem;
+    font-weight: bolder;
+    margin-right: 25px;
+    padding: 5px 30px 5px 5px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.category.selected {
+    background-color: rgba(91, 244, 44, 0.41);
+}
+
+.toggle-category-btn {
+    background-color: rgba(0, 128, 0, 0.648);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    top: 8px;
+    right: 5px;
+}
+
+.toggle-category-btn span {
+    padding-bottom: 5px;
 }

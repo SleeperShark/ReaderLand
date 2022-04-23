@@ -130,13 +130,12 @@ async function renderCategoriesSelection() {
 async function init() {
     const auth = await authenticate();
     await renderHeader(auth);
-
+    await renderCategoriesSelection();
     const submitArticle = document.getElementById('create-article');
     submitArticle.querySelector('span').innerText = '準備發佈';
     submitArticle.href = '#';
 
     const defaultInput = document.querySelector('.text-input');
-
     addReSizeProperty();
     appendNewParagraphListener(defaultInput);
 
@@ -158,7 +157,7 @@ async function init() {
         }
     });
 
-    //TODO: submit btn event listener
+    //TODO: create-article btn event listener
     document.getElementById('create-article').addEventListener('click', (e) => {
         e.preventDefault();
 
@@ -215,7 +214,6 @@ async function init() {
         // Store the info in the global vairable
         articleInfo = {
             preview,
-            categories,
             context,
             title,
         };
@@ -245,8 +243,29 @@ async function init() {
         submitBoard.classList.toggle('hide');
     });
 
-    //TODO: render cateogry selection in submit-board
-    await renderCategoriesSelection();
+    //TODO: submit article btn listener
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.addEventListener('click', () => {
+        // collect category
+        let categories = document.querySelectorAll('.category.selected');
+        if (!categories.length) {
+            alert('請至少選擇一樣主題標籤');
+            return;
+        }
+        articleInfo.category = [];
+
+        categories.forEach((elem) => {
+            articleInfo.category.push(elem.innerText.split('\n')[0]);
+        });
+
+        // collect preview
+        const preview = document.getElementById('preview-input').value;
+        if (preview) {
+            articleInfo.preview = preview;
+        }
+
+        //TODO: POST article
+    });
 }
 
 init();

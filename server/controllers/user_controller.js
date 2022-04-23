@@ -3,9 +3,9 @@ const validator = require('validator');
 const User = require('../models/user_model');
 
 const getUserInfo = async (req, res) => {
-    let { name, email, picture } = req.user;
+    let { name, email, picture, userId } = req.user;
     picture = `${process.env.IMAGE_URL}/avatar/${picture}`;
-    res.status(200).json({ data: { name, email, picture } });
+    res.status(200).json({ data: { name, email, picture, userId } });
     return;
 };
 

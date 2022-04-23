@@ -47,7 +47,8 @@ function appendArticle(article, auth) {
         bookmark = `<i class="${bookmarkClass}" onclick="favoriteArticle(this)" data-id="${article._id}"></i>`;
 
         // show follow button
-        followBtn = `
+        if (user.userId != article.author._id) {
+            followBtn = `
 <button class='profile-follow-btn${followed ? ' followed' : ' nofollow'}' data-authorid="${article.author._id}">
     <span class="nofollow-text" >
         <i class="fas fa-thumbs-up"></i>
@@ -59,6 +60,7 @@ function appendArticle(article, auth) {
     </span>
 </button>
         `;
+        }
     }
 
     articleElem.innerHTML = ` 

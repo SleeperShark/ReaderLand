@@ -131,7 +131,7 @@ async function renderArticle(auth) {
     //* author name
     document.getElementById('author-name').innerText = article.author.name;
     // hide follow btn if user is author
-    if (user.name == article.author.name) {
+    if (user.userId == article.author._id) {
         document.getElementById('follow-btn').classList.add('hide');
     }
     //* created time

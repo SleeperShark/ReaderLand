@@ -77,6 +77,7 @@ const getUserDetail = async (email, roleId) => {
 const follow = async (userId, followerId) => {
     // check if userId equals to follower
     if (userId.toString() === followerId) {
+        console.log("User can't be follower itself");
         return { error: "User can't be follower itself", status: 400 };
     }
 

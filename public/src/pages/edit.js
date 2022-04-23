@@ -85,17 +85,40 @@ function removeEmptyParagraphListener(textArea) {
 
 async function renderCategoriesSelection() {
     const { data: categories } = await getCategoriesAPI();
-
+    const selectedPool = document.getElementById('selected-pool');
     const categoryPool = document.getElementById('category-pool');
+
     for (let category of categories) {
         const template = document.createElement('div');
         template.classList.add('category');
-        template.innerHTML = `
-        ${category}
-        <div class="toggle-category-btn">
-            <span>+</span>
-        </div>
-        `;
+        template.innerHTML += category;
+
+        // seleted button
+        const toggleBtn = document.createElement('div');
+        toggleBtn.classList.add('toggle-category-btn');
+        toggleBtn.innerHTML = '<span>+<span>';
+        template.appendChild(toggleBtn);
+
+        // toggle event listener
+        toggleBtn.addEventListener('click', () => {
+            if (!template.classList.contains('selected')) {
+                // category pool => seleted pool
+                // count if already have 3 category
+                if (selectedPool.querySelectorAll('.category').length == 3) {
+                    return;
+                }
+                template.remove();
+                toggleBtn.querySelector('span').innerText = '-';
+                selectedPool.appendChild(template);
+            } else {
+                // seleted pool => category pool
+                template.remove();
+                toggleBtn.querySelector('span').innerText = '+';
+                categoryPool.appendChild(template);
+            }
+
+            template.classList.toggle('selected');
+        });
 
         categoryPool.appendChild(template);
     }

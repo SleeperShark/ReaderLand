@@ -147,6 +147,25 @@ async function renderArticle(auth) {
         renderCommentBoard(article);
     }
 
+    //TODO: render context
+    const contextDiv = document.getElementById('context');
+    let cursor = 'head';
+
+    while (cursor) {
+        const newParagraph = document.createElement('div');
+        newParagraph.classList.add('paragraph');
+        const currContext = article.context[cursor];
+
+        switch (currContext.type) {
+            case 'text':
+                newParagraph.innerHTML = currContext.content;
+                break;
+        }
+
+        cursor = currContext.next;
+        contextDiv.appendChild(newParagraph);
+    }
+
     const followBtn = document.getElementById('follow-btn');
 
     if (!auth) {
@@ -252,7 +271,7 @@ async function renderArticle(auth) {
             }
         });
 
-        //TODO: sunmit comment
+        //TODO: submit comment
         const commentSubmitBtn = document.getElementById('comment-send');
         commentSubmitBtn.addEventListener('click', async () => {
             const commentArea = document.getElementById('comment-edit');

@@ -162,31 +162,40 @@ async function init() {
             alert('請輸入文章標題');
             return;
         }
-        console.log(title);
 
         //collect paragraph context
         const context = {};
-        const textAreas = document.querySelectorAll('textarea');
+        const textAreas = document.querySelectorAll('.text-input');
         if (textAreas.length == 1 && !textAreas[0].value) {
             alert('你的文章是空的歐！寫點東西吧~');
             return;
         }
 
         //FIXME: if the middle paragraph is empty issue
-        textAreas.forEach((textArea) => {
+        textAreas.forEach((textArea, idx) => {
             const {
                 dataset: { timestamp, next },
                 value: content,
             } = textArea;
 
+            console.log(idx);
+
             if (!content) {
+                // last one block is empty
+                // remove previous "next" value to undefined
+                const prevArea = textAreas[idx - 1];
+                const {
+                    dataset: { timestamp: prevTimestamp },
+                } = prevArea;
+
+                context[prevTimestamp].next = undefined;
                 return;
             }
 
             context[timestamp] = { content, next, type: 'String' };
         });
 
-        const preview = 'Testing preview';
+        const preview = textAreas[0].value.slice(0, 151);
         const categories = ['政治', '經濟'];
 
         // Store the info in the global vairable
@@ -196,6 +205,9 @@ async function init() {
             context,
             title,
         };
+
+        console.log(articleInfo);
+        document.getElementById('submit-board').classList.remove('hide');
     });
 
     //TODO: counting words in preview board

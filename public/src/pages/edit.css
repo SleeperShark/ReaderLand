@@ -145,14 +145,16 @@ main {
     margin-top: 15px;
 }
 
+#category-pool,
 #selected-pool {
-    border: 1px black solid;
+    /* border: 1px black solid; */
     margin-top: 20px;
     padding-left: 10px;
     padding-right: 10px;
 
     display: flex;
     flex-wrap: wrap;
+    min-height: 70px;
 }
 
 .category {
@@ -162,6 +164,10 @@ main {
     padding: 5px 30px 5px 5px;
     border-radius: 10px;
     position: relative;
+    height: 35px;
+
+    /* default setting for tag in selected pool */
+    background-color: rgb(249, 138, 157);
 }
 
 .category.selected {
@@ -169,7 +175,6 @@ main {
 }
 
 .toggle-category-btn {
-    background-color: rgba(0, 128, 0, 0.648);
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -181,8 +186,32 @@ main {
     position: absolute;
     top: 8px;
     right: 5px;
+    cursor: pointer;
+
+    /* default setting for tag in selected pool */
+    background-color: rgb(235, 28, 63);
+}
+
+.selected .toggle-category-btn {
+    background-color: rgba(0, 128, 0, 0.648);
+}
+
+.toggle-category-btn:hover {
+    transform: scale(1.1);
+}
+.toggle-category-btn:active {
+    transform: scale(0.9);
 }
 
 .toggle-category-btn span {
-    padding-bottom: 5px;
+    padding-bottom: 8px;
+    color: white;
+    font-size: 1.8rem;
+}
+
+#category-divider {
+    width: 480px;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.137);
+    margin-left: 15px;
 }

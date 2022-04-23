@@ -60,7 +60,7 @@ main {
 #submit-board {
     position: fixed;
     width: 550px;
-    height: 550px;
+    height: 580px;
     background-color: rgb(223, 223, 223);
     top: calc(50% - 275px);
     left: calc(50% - 275px);
@@ -222,4 +222,33 @@ main {
     height: 1px;
     background-color: rgba(0, 0, 0, 0.137);
     margin-left: 15px;
+}
+
+#submit-btn {
+    /* border: 1px solid black; */
+    text-align: center;
+    width: 64px;
+    position: absolute;
+    bottom: 15px;
+    right: 10px;
+
+    font-size: 1.2rem;
+    font-weight: bolder;
+    border-radius: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    cursor: pointer;
+
+    color: rgba(0, 0, 0, 0.379);
+    background-color: rgba(2, 137, 255, 0.213);
+}
+
+#submit-btn:hover {
+    background-color: rgb(2, 137, 255);
+    color: white;
+}
+
+#submit-btn:active {
+    transform: scale(0.9);
 }

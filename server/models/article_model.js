@@ -245,7 +245,22 @@ const generateNewsFeed = async (userId, lastArticleId) => {
                         from: 'User',
                         localField: 'author',
                         foreignField: '_id',
-                        pipeline: [{ $project: { _id: 1, name: 1, picture: 1 } }],
+                        pipeline: [
+                            {
+                                $project: {
+                                    _id: 1,
+                                    name: 1,
+                                    picture: 1,
+                                    followed: {
+                                        $cond: {
+                                            if: { $in: [userId, '$followee'] },
+                                            then: true,
+                                            else: false,
+                                        },
+                                    },
+                                },
+                            },
+                        ],
                         as: 'author',
                     },
                 },

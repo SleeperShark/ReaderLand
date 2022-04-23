@@ -6,6 +6,10 @@ function toggleReplyEdit(replyBtn) {
 
     const hint = replyBtn.innerText;
     replyBtn.innerText = hint === '回覆' ? '收起' : '回覆';
+
+    if (replyBtn.innerText == '收起') {
+        replyEdit.focus();
+    }
 }
 
 async function submitReply(submitBtn) {

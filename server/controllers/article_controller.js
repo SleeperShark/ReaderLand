@@ -3,18 +3,22 @@ const Cache = require('../../util/cache');
 
 const createArticle = async (req, res) => {
     try {
+        const author = req.user.userId;
+        const { title, category, context, preview } = req.body;
+
         const articleInfo = {
-            title: req.body.title,
-            author: req.user.userId,
-            context: req.body.context,
+            title,
+            category,
+            context,
+            preview,
+            author,
         };
 
-        if (Object.values(articleInfo).includes('') || Object.values(articleInfo).includes(null) || Object.values(articleInfo).includes(undefined)) {
-            res.status(400).json({ error: 'Title, author and context are all required.' });
+        const values = Object.values(articleInfo);
+        if (values.includes('') || values.includes(null) || values.includes(undefined)) {
+            res.status(400).json({ error: 'Title, category, context and preview are all required.' });
+            return;
         }
-
-        articleInfo.category = req.body.categories;
-        articleInfo.preview = req.body.preview;
 
         const result = await Article.createArticle(articleInfo);
 
@@ -24,10 +28,12 @@ const createArticle = async (req, res) => {
             return;
         }
 
-        const article = result.article;
-        res.status(200).json({ data: { _id: article._id } });
+        const { article } = result;
+        res.status(200).json({ data: article._id.toString() });
         return;
-    } catch (error) {}
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 const getArticle = async (req, res) => {

@@ -94,7 +94,7 @@ const articleSchema = mongoose.Schema({
     context: Object,
     preview: {
         type: String,
-        maxLength: 200,
+        maxLength: 150,
     },
     createdAt: {
         type: Date,

@@ -245,7 +245,7 @@ async function init() {
 
     //TODO: submit article btn listener
     const submitBtn = document.getElementById('submit-btn');
-    submitBtn.addEventListener('click', () => {
+    submitBtn.addEventListener('click', async () => {
         // collect category
         let categories = document.querySelectorAll('.category.selected');
         if (!categories.length) {
@@ -264,7 +264,20 @@ async function init() {
             articleInfo.preview = preview;
         }
 
-        //TODO: POST article
+        articleInfo.userToken = token;
+
+        //TODO: fetch POST article
+        const { data: articleId, status, error } = await postArticleAPI(articleInfo);
+
+        if (error) {
+            console.error(status);
+            console.error(error);
+            alert('系統異常: POST /api/articles');
+            return;
+        }
+
+        alert(`新增成功，文章id: ${articleId}`);
+        window.location.href = `/article.html?id=${articleId}`;
     });
 }
 

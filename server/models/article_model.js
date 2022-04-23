@@ -31,6 +31,7 @@ const pushToNewsfeed = async (article) => {
         if (!followee.length) {
             return;
         }
+
         const followeeNum = followee.length;
         //TODO: make followee list match lua format
         followee = followee.map((elem) => elem.toString() + '_newsfeed');
@@ -81,10 +82,12 @@ const createArticle = async (articleInfo) => {
         }
 
         const article = await Article.create(articleInfo);
-        console.log(`Successfully create article: ${article._id}`);
+        console.log(`User ${articleInfo.author.toString()} successfully create article: ${article._id}`);
 
         // TODO: Insert the new article to followee's newsfeed Queue
-        pushToNewsfeed(article);
+        if (Cache.ready) {
+            pushToNewsfeed(article);
+        }
 
         return { article };
     } catch (error) {

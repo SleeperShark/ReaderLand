@@ -1,12 +1,16 @@
 let articleInfo;
 
 function appendNewparagraph(currArea) {
+    const prevParagraph = currArea.parentElement;
     const newParagraph = document.createElement('div');
+
     newParagraph.classList.add('paragraph');
+    newParagraph.dataset.timestamp = new Date().getTime();
+    newParagraph.dataset.type = 'text';
+
     // Text area attibute setting
     const newArea = document.createElement('textarea');
     newArea.classList.add('text-input');
-    newArea.dataset.timestamp = new Date().getTime();
     newArea.placeholder = '在這裡編輯...';
 
     newParagraph.appendChild(newArea);
@@ -17,15 +21,15 @@ function appendNewparagraph(currArea) {
     appendNewParagraphListener(newArea);
     removeEmptyParagraphListener(newArea);
 
-    // setting next attribute for previous textArea
-    if (!currArea.dataset.next) {
+    //TODO: setting next attribute for previous textArea
+    if (!prevParagraph.dataset.next) {
         // append case
-        currArea.dataset.next = newArea.dataset.timestamp;
+        prevParagraph.dataset.next = newParagraph.dataset.timestamp;
     } else {
         // insert case
-        const temp = currArea.dataset.next;
-        currArea.dataset.next = newArea.dataset.timestamp;
-        newArea.dataset.next = temp;
+        const temp = prevParagraph.dataset.next;
+        prevParagraph.dataset.next = newParagraph.dataset.timestamp;
+        newParagraph.dataset.next = temp;
     }
 
     newArea.focus();
@@ -64,17 +68,16 @@ function removeEmptyParagraphListener(textArea) {
     textArea.addEventListener('keydown', (e) => {
         if (e.keyCode == 8 && e.target.value.length == 0) {
             e.preventDefault();
-            const previousArea = e.target.parentElement.previousSibling.querySelector('textarea');
+            const prevParagraph = e.target.parentElement.previousSibling;
 
-            let nextArea = e.target.parentElement.nextSibling;
+            let nextParagraph = e.target.parentElement.nextSibling;
 
-            if (nextArea.classList?.contains('paragraph')) {
+            if (nextParagraph.classList?.contains('paragraph')) {
                 // middle remove case
-                nextArea = nextArea.querySelector('textarea');
-                previousArea.dataset.next = nextArea.dataset.timestamp;
+                prevParagraph.dataset.next = nextParagraph.dataset.timestamp;
             } else {
                 // bottom remove case
-                previousArea.dataset.next = undefined;
+                prevParagraph.dataset.next = undefined;
             }
 
             e.target.parentElement.remove();
@@ -136,8 +139,10 @@ async function init() {
     appendNewParagraphListener(document.querySelector('#headInput'));
 
     const headInput = document.getElementById('headInput');
-    //TODO: set headInput timeStamp
-    headInput.dataset.timestamp = new Date().getTime();
+    const headParagraph = headInput.parentElement;
+    //TODO: set headInput div timeStamp
+    headParagraph.dataset.timestamp = new Date().getTime();
+    headParagraph.dataset.type = 'text';
 
     //TODO: title enter to first paragraph
     document.getElementById('title-input').addEventListener('keypress', (e) => {

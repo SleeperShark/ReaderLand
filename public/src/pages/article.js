@@ -56,7 +56,7 @@ function renderCommentBoard(article) {
         commentBox.classList.add('comment-box');
 
         let replyEdit = '';
-        if (article.author.name == user.name) {
+        if (article.author.name == user?.name) {
             replyEdit = `
         <div class="reply-btn" onclick="toggleReplyEdit(this)">回覆</div>
         <textarea placeholder="回復&nbsp;${readerName}：" class="reply-edit hide"></textarea>
@@ -131,7 +131,7 @@ async function renderArticle(auth) {
     //* author name
     document.getElementById('author-name').innerText = article.author.name;
     // hide follow btn if user is author
-    if (user.userId == article.author._id) {
+    if (user?.userId == article.author._id) {
         document.getElementById('follow-btn').classList.add('hide');
     }
     //* created time

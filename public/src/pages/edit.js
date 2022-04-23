@@ -81,7 +81,7 @@ function removeEmptyParagraphListener(textArea) {
             }
 
             e.target.parentElement.remove();
-            previousArea.focus();
+            prevParagraph.querySelector('.text-input').focus();
         }
     });
 }
@@ -135,12 +135,13 @@ async function init() {
     submitArticle.querySelector('span').innerText = '準備發佈';
     submitArticle.href = '#';
 
-    addReSizeProperty();
-    appendNewParagraphListener(document.querySelector('#headInput'));
+    const defaultInput = document.querySelector('.text-input');
 
-    const headInput = document.getElementById('headInput');
-    const headParagraph = headInput.parentElement;
-    //TODO: set headInput div timeStamp
+    addReSizeProperty();
+    appendNewParagraphListener(defaultInput);
+
+    const headParagraph = defaultInput.parentElement;
+    //TODO: set defaultInput div timeStamp
     headParagraph.dataset.timestamp = new Date().getTime();
     headParagraph.dataset.type = 'text';
 
@@ -153,7 +154,7 @@ async function init() {
                 return;
             }
 
-            headInput.focus();
+            document.querySelector('.text-input').focus();
         }
     });
 
@@ -168,40 +169,48 @@ async function init() {
             return;
         }
 
-        //collect paragraph context
+        //TODO: collect paragraph context
         const context = {};
-        const textAreas = document.querySelectorAll('.text-input');
-        if (textAreas.length == 1 && !textAreas[0].value) {
-            alert('你的文章是空的歐！寫點東西吧~');
-            return;
-        }
-
-        //FIXME: if the middle paragraph is empty issue
-        textAreas.forEach((textArea, idx) => {
+        const paragraphs = document.querySelectorAll('.paragraph');
+        let preview;
+        let prevTimestamp;
+        paragraphs.forEach((paragraph, idx) => {
             const {
-                dataset: { timestamp, next },
-                value: content,
-            } = textArea;
+                dataset: { type, timestamp },
+            } = paragraph;
 
-            console.log(idx);
+            let content;
 
-            if (!content) {
-                // last one block is empty
-                // remove previous "next" value to undefined
-                const prevArea = textAreas[idx - 1];
-                const {
-                    dataset: { timestamp: prevTimestamp },
-                } = prevArea;
-
-                context[prevTimestamp].next = undefined;
-                return;
+            switch (type) {
+                case 'text':
+                    const textInput = paragraph.querySelector('.text-input');
+                    content = textInput.value;
+                    if (content && !preview) {
+                        preview = content.slice(0, 151);
+                    }
             }
 
-            context[timestamp] = { content, next, type: 'String' };
-        });
+            if (!content) return;
 
-        const preview = textAreas[0].value.slice(0, 151);
-        const categories = ['政治', '經濟'];
+            if (prevTimestamp) {
+                context[prevTimestamp].next = timestamp;
+            }
+
+            if (!context.head) {
+                // setting head node
+                context.head = {
+                    type,
+                    content,
+                };
+                prevTimestamp = 'head';
+            } else {
+                context[timestamp] = {
+                    type,
+                    content,
+                };
+                prevTimestamp = timestamp;
+            }
+        });
 
         // Store the info in the global vairable
         articleInfo = {

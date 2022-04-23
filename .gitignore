@@ -3,3 +3,4 @@ script.js
 .env
 weightRecord.json
 NewsFeed.json
+test/fake*.json

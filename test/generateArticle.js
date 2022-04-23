@@ -1,4 +1,5 @@
 const { Article, User, Category } = require('../server/models/schemas');
+const fs = require('fs');
 
 async function run() {
     await Article.deleteMany({});
@@ -48,24 +49,18 @@ async function run() {
         console.error(error);
     }
 
+    const fakeArticles = JSON.parse(fs.readFileSync('./test/fakeArticlesMOD.json'), 'utf-8');
+
     for (let i = 0; i < 1000; i++) {
         try {
             const author = usersId[Math.floor(Math.random() * usersId.length)];
-            const category = categories.sort(() => 0.5 - Math.random()).slice(0, 2);
-
-            let title = `000000${Math.floor(Math.random() * 1000000)}`;
-            title = 'Test-' + title.substring(title.length - 6);
+            const article = fakeArticles[Math.floor(Math.random() * fakeArticles.length)];
+            article.count = article.count + 1 || 0;
 
             const createdAt = new Date(fakeTimeStamp).toISOString();
 
             const readCount = Math.floor(Math.random() * 100);
             const likes = usersId.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * readCount));
-
-            const context = `
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-        `.trim();
-
-            const preview = Math.floor(Math.random() * 10) % 2 == 0 ? context.slice(0, 150) : 'Just a normal preview.';
 
             // create comments
             const comments = [];
@@ -92,16 +87,18 @@ async function run() {
                 comments.push(comment);
             }
 
+            // console.log(article.context);
+
             await Article.create({
-                title,
+                title: article.title + ' - ' + article.count,
                 author,
-                category,
-                context,
+                category: article.category,
+                context: article.context,
                 createdAt,
                 likes,
                 readCount,
                 comments,
-                preview,
+                preview: article.preview,
             });
 
             if (i % 100 == 0) {
@@ -116,3 +113,30 @@ async function run() {
 }
 
 run();
+
+async function modifyArticle() {
+    const articles = JSON.parse(fs.readFileSync('./test/fakeArticles.json', 'utf8'));
+    for (let article of articles) {
+        const temp = article.context.split('\n\n');
+        article.context = {};
+        temp.forEach((paragraph, idx) => {
+            if (idx == 0) {
+                article.context.head = {
+                    content: paragraph,
+                    next: idx + 1,
+                    type: 'text',
+                };
+            } else {
+                article.context[`${idx}`] = {
+                    content: paragraph,
+                    next: idx + 1 == temp.length ? undefined : idx + 1,
+                    type: 'text',
+                };
+            }
+        });
+    }
+
+    fs.writeFileSync('./test/fakeArticlesMOD.json', JSON.stringify(articles));
+}
+
+// modifyArticle();

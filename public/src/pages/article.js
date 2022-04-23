@@ -130,6 +130,10 @@ async function renderArticle(auth) {
     document.getElementById('author-avatar').src = article.author.picture;
     //* author name
     document.getElementById('author-name').innerText = article.author.name;
+    // hide follow btn if user is author
+    if (user.name == article.author.name) {
+        document.getElementById('follow-btn').classList.add('hide');
+    }
     //* created time
     document.getElementById('date').innerText = timeTransformer(article.createdAt);
     //* read count

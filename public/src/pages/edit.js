@@ -85,6 +85,20 @@ function removeEmptyParagraphListener(textArea) {
 
 async function renderCategoriesSelection() {
     const { data: categories } = await getCategoriesAPI();
+
+    const categoryPool = document.getElementById('category-pool');
+    for (let category of categories) {
+        const template = document.createElement('div');
+        template.classList.add('category');
+        template.innerHTML = `
+        ${category}
+        <div class="toggle-category-btn">
+            <span>+</span>
+        </div>
+        `;
+
+        categoryPool.appendChild(template);
+    }
 }
 
 async function init() {

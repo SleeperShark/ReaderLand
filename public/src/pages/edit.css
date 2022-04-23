@@ -157,10 +157,18 @@ main {
     min-height: 50px;
 }
 
+#category-pool {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    max-height: 120px;
+    overflow-y: scroll;
+}
+
 .category {
     font-size: 1.1rem;
     font-weight: bolder;
     margin-right: 25px;
+    margin-bottom: 7px;
     padding: 5px 30px 5px 5px;
     border-radius: 10px;
     position: relative;

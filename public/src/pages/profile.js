@@ -8,6 +8,8 @@ async function init() {
 
     await renderHeader(auth);
 
+    //TODO: render each info display
+
     //TODO: navbar select event listener
     document.querySelector('#navbar').addEventListener('click', (e) => {
         const selectedItem = e.target;

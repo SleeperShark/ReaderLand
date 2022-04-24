@@ -105,24 +105,13 @@ const signIn = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
-    const result = await User.getUserDetail(req.user.email);
-    if (result.error) {
-        res.status(result.status || 500).json({ error: result.error });
-        return;
+    const { error, status, data } = await User.getUserProfile(req.user.userId);
+
+    if (error) {
+        res.status(status).json({ error });
     }
 
-    const profile = result.user;
-    res.status(200).json({
-        data: {
-            name: profile.name,
-            email: profile.email,
-            provider: profile.provider,
-            follower: profile.follower,
-            followee: profile.followee,
-            favorite_articles: profile.favorite_articles,
-            subscribe_category: profile.subscribe_category,
-        },
-    });
+    return res.status(200).json({ data });
 };
 
 const follow = async (req, res) => {

@@ -44,7 +44,10 @@ const userSchema = mongoose.Schema({
     followee: [mongoose.SchemaTypes.ObjectId],
     favorite: [
         {
-            articleId: mongoose.SchemaTypes.ObjectId,
+            articleId: {
+                type: mongoose.SchemaTypes.ObjectId,
+                ref: 'Article',
+            },
             createdAt: {
                 type: Date,
                 immutable: true,

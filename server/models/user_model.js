@@ -74,6 +74,139 @@ const getUserDetail = async (email, roleId) => {
     }
 };
 
+//TODO: get user profile for personal page
+const getUserProfile = async (userId) => {
+    try {
+        const [profile] = await User.aggregate([
+            { $match: { _id: userId } },
+            // follower lookuo
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'follower',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                picture: { $concat: [process.env.IMAGE_URL, '/avatar/', '$picture'] },
+                                bio: 1,
+                            },
+                        },
+                    ],
+                    as: 'follower',
+                },
+            },
+            // followee lookup
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'followee',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                picture: { $concat: [process.env.IMAGE_URL, '/avatar/', '$picture'] },
+                                bio: 1,
+                            },
+                        },
+                    ],
+                    as: 'followee',
+                },
+            },
+            // favorite article lookup
+            {
+                $lookup: {
+                    from: 'Article',
+                    localField: 'favorite.articleId',
+                    let: { favoriteAt: '$favorite.createdAt' },
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'User',
+                                localField: 'author',
+                                foreignField: '_id',
+                                pipeline: [{ $project: { _id: 1, name: 1, picture: { $concat: [process.env.IMAGE_URL, '/avatar/', '$picture'] } } }],
+                                as: 'author',
+                            },
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                title: 1,
+                                author: 1,
+                                readCount: 1,
+                                likeCount: { $size: '$likes' },
+                                commentCount: { $size: '$comments' },
+                                articleCreatedAt: '$createdAt',
+                            },
+                        },
+                    ],
+                    as: 'favorite_article',
+                },
+            },
+            {
+                $addFields: {
+                    favorite: {
+                        $map: {
+                            input: '$favorite_article',
+                            as: 'f',
+                            in: {
+                                $mergeObjects: [
+                                    {
+                                        $arrayElemAt: [
+                                            {
+                                                $filter: {
+                                                    input: '$favorite',
+                                                    cond: {
+                                                        $eq: ['$$this.articleId', '$$f._id'],
+                                                    },
+                                                },
+                                            },
+                                            0,
+                                        ],
+                                    },
+                                    '$$f',
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+            // final project
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    email: 1,
+                    picture: { $concat: [process.env.IMAGE_URL, '/avatar/', '$picture'] },
+                    follower: 1,
+                    followee: 1,
+                    favorite: {
+                        articleId: 1,
+                        favoritedAt: '$createdAt',
+                        title: 1,
+                        author: 1,
+                        readCount: 1,
+                        likeCount: 1,
+                        commentCount: 1,
+                        articleCreatedAt: 1,
+                    },
+                },
+            },
+        ]);
+
+        return { data: profile };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 400 };
+    }
+};
+
 const follow = async (userId, followerId) => {
     // check if userId equals to follower
     if (userId.toString() === followerId) {
@@ -290,6 +423,7 @@ module.exports = {
     nativeSignIn,
     signUp,
     getUserDetail,
+    getUserProfile,
     follow,
     unfollow,
     subscribe,

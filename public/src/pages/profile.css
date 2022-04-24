@@ -2,6 +2,7 @@ main {
     background-color: black;
     margin-top: 80px;
     min-height: calc(100vh - 80px);
+    padding-top: 40px;
 }
 
 #navbar {
@@ -37,4 +38,11 @@ main {
     width: 60px;
     text-align: center;
     /* background-color: aqua; */
+}
+
+.display {
+    border: 1px white solid;
+    margin-left: 450px;
+    width: 900px;
+    height: 300px;
 }

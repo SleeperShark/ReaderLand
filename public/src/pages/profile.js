@@ -7,6 +7,14 @@ async function init() {
     }
 
     await renderHeader(auth);
+
+    //TODO: navbar select event listener
+    document.querySelector('#navbar').addEventListener('click', (e) => {
+        if (e.target.matches('.navbar-item')) {
+            document.querySelector('.navbar-item.selected')?.classList.remove('selected');
+            e.target.classList.add('selected');
+        }
+    });
 }
 
 init();

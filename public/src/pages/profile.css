@@ -15,14 +15,20 @@ main {
 .navbar-item {
     font-size: 1.6rem;
     margin-bottom: 30px;
-    opacity: 0.7;
+    opacity: 0.6;
     padding: 12px;
     padding-left: 0px;
     border-radius: 5px;
     cursor: pointer;
 }
 
+.navbar-item.selected {
+    opacity: 1;
+    background-color: rgba(49, 46, 129, 0.9);
+}
+
 .navbar-item:hover {
+    opacity: 1;
     background-color: rgb(49, 46, 129);
 }
 

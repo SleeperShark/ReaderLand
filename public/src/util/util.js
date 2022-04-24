@@ -133,6 +133,14 @@ const postArticleAPI = ({ title, context, preview, category, userToken }) => {
     });
 };
 
+const getUserProfileAPI = (userToken) => {
+    return fetchHandler('/api/user/profile', {
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+    });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

@@ -154,12 +154,13 @@ main {
 }
 
 .title {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: bolder;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     color: white;
     cursor: pointer;
     text-decoration: none;
+    margin-bottom: 8px;
 }
 .title:hover {
     color: rgb(101, 96, 255);

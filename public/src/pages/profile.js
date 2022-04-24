@@ -10,9 +10,16 @@ async function init() {
 
     //TODO: navbar select event listener
     document.querySelector('#navbar').addEventListener('click', (e) => {
-        if (e.target.matches('.navbar-item')) {
-            document.querySelector('.navbar-item.selected')?.classList.remove('selected');
-            e.target.classList.add('selected');
+        const selectedItem = e.target;
+        if (selectedItem.matches('.navbar-item')) {
+            // hide original display
+            const currSelected = document.querySelector('.navbar-item.selected');
+            document.getElementById(`${currSelected.id}-page`).classList.add('hide');
+            currSelected.classList.remove('selected');
+
+            // show selected display
+            document.getElementById(`${selectedItem.id}-page`).classList.remove('hide');
+            selectedItem.classList.add('selected');
         }
     });
 }

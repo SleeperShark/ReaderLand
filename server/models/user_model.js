@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
+const { lookup } = require('dns');
 
 const USER_ROLE = {
     ALL: -1,
@@ -126,15 +127,6 @@ const getUserProfile = async (userId) => {
                     foreignField: '_id',
                     pipeline: [
                         {
-                            $lookup: {
-                                from: 'User',
-                                localField: 'author',
-                                foreignField: '_id',
-                                pipeline: [{ $project: { _id: 1, name: 1, picture: { $concat: [process.env.IMAGE_URL, '/avatar/', '$picture'] } } }],
-                                as: 'author',
-                            },
-                        },
-                        {
                             $project: {
                                 _id: 1,
                                 title: 1,
@@ -177,6 +169,16 @@ const getUserProfile = async (userId) => {
                     },
                 },
             },
+            // lookup favorite author info
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'favorite.author',
+                    foreignField: '_id',
+                    pipeline: [{ $project: { name: 1, picture: { $concat: [process.env.IMAGE_URL, '/avatar/', '$picture'] } } }],
+                    as: 'article_author',
+                },
+            },
             // final project
             {
                 $project: {
@@ -196,9 +198,22 @@ const getUserProfile = async (userId) => {
                         commentCount: 1,
                         articleCreatedAt: 1,
                     },
+                    article_author: 1,
                 },
             },
         ]);
+
+        // process author into favorite
+        const author = {};
+        profile.article_author.forEach((authorInfo) => {
+            author[authorInfo._id.toString()] = authorInfo;
+        });
+
+        profile.favorite.forEach((article) => {
+            article.author = author[article.author.toString()];
+        });
+
+        delete profile.article_author;
 
         return { data: profile };
     } catch (error) {

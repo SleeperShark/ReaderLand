@@ -2,7 +2,10 @@ main {
     background-color: black;
     margin-top: 80px;
     min-height: calc(100vh - 80px);
-    padding-top: 40px;
+    padding-left: 380px;
+    padding-top: 50px;
+    display: flex;
+    justify-content: center;
 }
 
 #navbar {
@@ -10,7 +13,7 @@ main {
     color: white;
     position: fixed;
     top: 180px;
-    left: 140px;
+    left: 100px;
 }
 
 .navbar-item {
@@ -41,8 +44,98 @@ main {
 }
 
 .display {
-    border: 1px white solid;
-    margin-left: 450px;
-    width: 900px;
-    height: 300px;
+    width: 1000px;
+}
+
+.favorite-article {
+    width: 90%;
+    border-radius: 8px;
+    background-color: rgb(71, 67, 67);
+
+    padding: 25px;
+
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.favorite-article > .fa-bookmark {
+    font-size: 1.5rem;
+    color: red;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+}
+
+.favorite-article > .fa-bookmark:hover + .unfavorite-hint {
+    display: block;
+}
+
+.favorite-article > .unfavorite-hint {
+    color: black;
+    font-weight: bolder;
+    right: -55px;
+    top: -15px;
+    background-color: rgb(248, 248, 203);
+    position: absolute;
+    padding: 2px;
+    display: none;
+    border-radius: 2px;
+}
+
+.favorite-article > .title {
+    display: inline-block;
+    font-size: 2.2rem;
+    font-weight: bolder;
+    color: white;
+    cursor: pointer;
+    padding-right: 20px;
+    text-decoration: none;
+}
+
+.favorite-article > .title:hover {
+    color: rgb(166, 163, 250);
+}
+
+.article-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    color: white;
+}
+
+.article-footer > .left {
+    display: flex;
+}
+
+.article-footer > .left > img {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+}
+
+.article-footer > .left > .name-date {
+    margin-top: 2px;
+    margin-left: 15px;
+}
+
+.name-date .author-name {
+    text-decoration: none;
+    color: white;
+    font-size: 1.45rem;
+}
+
+.name-date .post-date {
+    font-size: 1.05rem;
+    margin-top: 5px;
+}
+
+.article-footer > .right {
+    display: flex;
+    font-size: 1.4rem;
+    margin: auto -10px -17px auto;
+}
+
+.article-footer > .right > div {
+    margin-left: 20px;
 }

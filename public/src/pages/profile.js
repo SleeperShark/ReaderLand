@@ -1,3 +1,60 @@
+function renderFavorite(favoriteArticles) {
+    const favoritePage = document.getElementById('favorite-page');
+    favoriteArticles.reverse();
+    favoriteArticles.forEach((article) => {
+        const { articleId, title, author, readCount, likeCount, commentCount, articleCreatedAt } = article;
+        const articleDiv = document.createElement('div');
+        articleDiv.innerHTML = `
+<div class="favorite-article">
+            <i class="fas fa-bookmark" data-id="${articleId}"></i>
+            <div class="unfavorite-hint" >取消珍藏</div>
+
+            <a href="/article.html?id=${articleId}" class="title">${title}</a>
+
+            <div class="article-footer">
+                <div class="left">
+                    <img src="${author.picture}" alt="" />
+                    <div class="name-date">
+                        <a href="#" class="author-name">${author.name}</a>
+                        <div class="post-date">${timeTransformer(articleCreatedAt)}</div>
+                    </div>
+                </div>
+                <div class="right">
+                    <div class="feedback read">
+                        <i class="far fa-eye"></i>
+                        <span class="count">${readCount}</span>
+                    </div>
+                    <div class="feedback like">
+                        <i class="fas fa-heart"></i>
+                        <span class="count">${likeCount}</span>
+                    </div>
+                    <div class="feedback comment">
+                        <i class="far fa-comment-dots"></i>
+                        <span class="count">${commentCount}</span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        favoritePage.appendChild(articleDiv);
+    });
+
+    // unfavortie enevt
+    document.querySelectorAll('.favorite-article > .fa-bookmark').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+            const { error, data, status } = await unFavoriteArticleAPI(token, btn.dataset.id);
+            if (error) {
+                console.error(status);
+                console.error(error);
+                alert('系統異常: unFavoriteArticleAPI');
+                return;
+            }
+
+            alert('成功移除珍藏');
+            btn.parentElement.remove();
+        });
+    });
+}
+
 async function init() {
     const auth = await authenticate();
 
@@ -11,7 +68,7 @@ async function init() {
     //TODO: render each info display
     const { data: profile, error, status } = await getUserProfileAPI(token);
 
-    console.log(profile);
+    renderFavorite(profile.favorite);
 
     if (error) {
         console.error(status);

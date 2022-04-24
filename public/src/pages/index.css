@@ -5,7 +5,7 @@
     background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(155, 155, 155, 0.5);
+    background-color: rgb(112, 111, 111);
     border-radius: 20px;
     border: transparent;
 }
@@ -13,7 +13,7 @@
 main {
     margin-top: 80px;
     background-color: black;
-    width: 100vw;
+    width: calc(100vw - 9px);
     display: flex;
     flex-direction: row;
     justify-content: center;

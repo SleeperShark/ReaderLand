@@ -4,12 +4,19 @@ function renderFavorite(favoriteArticles) {
     favoriteArticles.forEach((article) => {
         const { articleId, title, author, readCount, likeCount, commentCount, articleCreatedAt } = article;
         const articleDiv = document.createElement('div');
+
+        const categoryHTML = article.category.reduce((accu, category) => (accu += `<div class="category">${category}</div>`), '');
+
         articleDiv.innerHTML = `
 <div class="favorite-article">
             <i class="fas fa-bookmark" data-id="${articleId}"></i>
             <div class="unfavorite-hint" >取消珍藏</div>
 
             <a href="/article.html?id=${articleId}" class="title">${title}</a>
+
+            <div class="category-container">
+                ${categoryHTML}
+            </div>
 
             <div class="article-footer">
                 <div class="left">

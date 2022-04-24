@@ -97,6 +97,21 @@ main {
     color: rgb(166, 163, 250);
 }
 
+.category-container {
+    margin-top: 12px;
+    margin-bottom: 15px;
+    display: flex;
+}
+
+.category-container > .category {
+    margin-right: 10px;
+    background-color: rgb(90, 95, 100);
+    color: rgba(255, 255, 255, 0.649);
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bolder;
+}
+
 .article-footer {
     display: flex;
     justify-content: space-between;

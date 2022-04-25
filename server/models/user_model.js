@@ -322,21 +322,24 @@ const getSubscription = async (userId) => {
     }
 };
 
-const subscribe = async (userId, category, weight) => {
+const subscribe = async (userId, subscribe) => {
     try {
         // verify if category in Cateogry schema
-        const catExist = await Category.countDocuments({ category });
-        if (!catExist) {
-            return { error: `category ${category} doesn't exist.`, status: 400 };
+        let categories = await Category.find({}, { _id: 0, category: 1 });
+        categories = categories.map((elem) => elem.category);
+        const updateSub = {};
+
+        // remove unexist category
+        for (cat in subscribe) {
+            if (categories.includes(cat)) {
+                updateSub[cat] = subscribe[cat];
+            }
         }
 
-        // retrieve user's subscribe object
-        let subscription = (await User.findById(userId, { _id: 0, subscribe: 1 }))['subscribe'] || {};
-        subscription[category] = weight;
+        const updateResult = await User.findByIdAndUpdate(userId, { $set: { subscribe: updateSub } }, { projection: { subscribe: 1 }, new: true });
+        console.log(`Successfully update user's subscription...`);
 
-        await User.findByIdAndUpdate(userId, { subscribe: subscription });
-        console.log(`Successfully update user's subscription with new category ${category}:${weight}...`);
-        return { subscribe: 1 };
+        return { data: updateResult };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

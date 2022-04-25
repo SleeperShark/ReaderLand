@@ -153,24 +153,29 @@ const unfollow = async (req, res) => {
 
 const subscribe = async (req, res) => {
     const { userId } = req.user;
-    const { category, weight } = req.body;
+    const newSubscribe = req.body;
 
     // validate category and weight
-    if (!category || !weight) {
-        res.status(400).json({ error: 'category and weight is required in subscribe objecr' });
+    if (!newSubscribe) {
+        res.status(400).json({ error: 'category and weightis required in subscription object' });
         return;
-    } else if (isNaN(parseInt(weight)) || weight <= 0 || weight >= 10) {
-        res.status(400).json({ error: 'weight must be a positive integer between 1 and 10.' });
+    }
+    Object.keys(newSubscribe).forEach((cat) => {
+        const weight = parseInt(newSubscribe[cat]);
+        if (isNaN(weight) || weight < 1 || weight > 10) {
+            res.status(400).json({ error: 'weight value should be between 1 to 10.' });
+            return;
+        }
+    });
+
+    const { data: subscribe, error, status } = await User.subscribe(userId, newSubscribe);
+
+    if (error) {
+        res.status(status).json({ error: error });
         return;
     }
 
-    const result = await User.subscribe(userId, category, weight);
-    if (result.error) {
-        res.status(result.status).json({ error: result.error });
-        return;
-    }
-
-    res.status(200).json({ data: 'OK' });
+    res.status(200).json({ data: subscribe.subscribe });
 };
 
 const unsubscribe = async (req, res) => {

@@ -231,6 +231,26 @@ main {
     padding-bottom: 3px;
 }
 
+/* subscribe status toggle */
+
+#subscribe-page > .category > .subscribe-btn {
+    display: inline-block;
+}
+
+#subscribe-page > .category > .category-weight {
+    display: none;
+}
+
+#subscribe-page > .category.subscribe > .subscribe-btn {
+    display: none;
+}
+
+#subscribe-page > .category.subscribe > .category-weight {
+    display: block;
+}
+
+/* -------------------------- */
+
 #subscribe-page > .category > .subscribe-btn {
     color: white;
     display: inline-block;
@@ -254,12 +274,36 @@ main {
     transform: scale(0.95);
 }
 
-#category-divider {
+.category-divider {
     width: 90%;
     height: 1px;
     margin-top: 15px;
     margin-bottom: 30px;
     margin-left: 30px;
-
     background-color: rgba(141, 138, 138, 0.5);
+}
+
+#update-subscribe-btn {
+    width: 200px;
+    height: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 50px;
+    background-color: rgb(90, 93, 252);
+    border-radius: 5px;
+
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+    padding-top: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+#update-subscribe-btn:hover {
+    transform: scale(1.05);
+}
+#update-subscribe-btn:active {
+    transform: scale(0.95);
 }

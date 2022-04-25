@@ -1,3 +1,5 @@
+let allCategory;
+
 //TODO: render favorite article
 function renderFavorite(favoriteArticles) {
     const favoritePage = document.getElementById('favorite-page');
@@ -65,8 +67,39 @@ function renderFavorite(favoriteArticles) {
 
 //TODO: render personal subscription
 async function renderSubscribe(subscribe) {
+    function createDivider() {
+        const divider = document.createElement('div');
+        divider.classList.add('category-divider');
+        categoryContainer.appendChild(divider);
+    }
+
+    function appendCategoryDiv(category, weight) {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.dataset.category = category;
+
+        categoryDiv.classList.add('category');
+        if (weight) {
+            categoryDiv.classList.add('subscribe');
+        }
+
+        categoryDiv.innerHTML = `
+<div class="category-name">
+    <span class="category-tag">#</span>
+    ${category}
+</div>
+<input type="number" class="category-weight" min="0" max="10" value="${weight || 1}" />
+<span class="subscribe-btn">訂閱</span>
+        `;
+        categoryContainer.appendChild(categoryDiv);
+    }
+
     const categoryContainer = document.getElementById('subscribe-page');
-    const { data: allCategory } = await getCategoriesAPI();
+    categoryContainer.innerHTML = '';
+
+    if (!allCategory) {
+        const { data } = await getCategoriesAPI();
+        allCategory = data;
+    }
 
     // Render peronal Subscription
     const personalCategory = [];
@@ -75,40 +108,71 @@ async function renderSubscribe(subscribe) {
     });
 
     personalCategory.sort((a, b) => b[1] - a[1]);
-    personalCategory.forEach(([cat, weight]) => {
-        const categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('category');
-        categoryDiv.classList.add('subscribe');
-
-        categoryDiv.innerHTML = `
-<div class="category-name">
-    <span class="category-tag">#</span>
-    ${cat}
-</div>
-<input type="number" class="category-weight" min="1" max="10" value="${weight}" />
-        `;
-        categoryContainer.appendChild(categoryDiv);
-    });
+    personalCategory.forEach(([cat, weight]) => appendCategoryDiv(cat, weight));
 
     // Add divider between subscribe and unsubscribe
-    const divider = document.createElement('div');
-    divider.id = 'category-divider';
-    categoryContainer.append(divider);
+    createDivider();
 
     // Render other categories
     allCategory.forEach((cat) => {
         if (subscribe.hasOwnProperty(cat)) return;
-        const categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('category');
+        appendCategoryDiv(cat);
+    });
 
-        categoryDiv.innerHTML = `
-<div class="category-name">
-    <span class="category-tag">#</span>
-    ${cat}
-</div>
-<span class="subscribe-btn">訂閱</span>
-        `;
-        categoryContainer.appendChild(categoryDiv);
+    // Add divider between unsubscribe and update button
+    createDivider();
+
+    //TODO: update subscription button
+    const updateSubscribeBtn = document.createElement('div');
+    updateSubscribeBtn.id = 'update-subscribe-btn';
+    updateSubscribeBtn.innerText = '更新訂閱';
+    categoryContainer.appendChild(updateSubscribeBtn);
+
+    // TODO: ---------- EVENTLISTENR ----------
+
+    //TODO: subscribe btn event listener
+    document.querySelectorAll('.subscribe-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const targetCategory = btn.parentElement;
+            targetCategory.classList.add('subscribe');
+            targetCategory.remove();
+            categoryContainer.insertBefore(targetCategory, categoryContainer.querySelector('.category-divider'));
+        });
+    });
+
+    //TODO: unsubscribe category if weight is 0
+    document.querySelectorAll('.category-weight').forEach((weightInput) => {
+        weightInput.addEventListener('blur', () => {
+            if (weightInput.value == 0) {
+                const targetCategory = weightInput.parentElement;
+                targetCategory.classList.remove('subscribe');
+                targetCategory.remove();
+                categoryContainer.insertBefore(targetCategory, categoryContainer.querySelector('.category-divider').nextElementSibling);
+            }
+        });
+    });
+
+    //TODO: updateCategory btn click event listener
+    updateSubscribeBtn.addEventListener('click', async () => {
+        const newSubscribeCategories = categoryContainer.querySelectorAll('.category.subscribe');
+        const data = {};
+
+        newSubscribeCategories.forEach((catDiv) => {
+            const { category } = catDiv.dataset;
+            const weight = catDiv.querySelector('.category-weight').value;
+            data[category] = weight;
+        });
+
+        const { data: updateResult, error, status } = await updateSubscribeAPI(token, data);
+        if (error) {
+            console.error(status);
+            console.error(error);
+            alert('系統異常: updateSubscribeAPI');
+            return;
+        }
+
+        alert('訂閱成功!');
+        renderSubscribe(updateResult);
     });
 }
 

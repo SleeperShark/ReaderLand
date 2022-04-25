@@ -328,6 +328,8 @@ main {
     border-radius: 3px;
     margin-left: 20px;
     margin-bottom: 20px;
+
+    /* border-left: 90px solid green; */
 }
 
 .followee > img {
@@ -335,7 +337,7 @@ main {
     width: 4rem;
     height: 4rem;
     border-radius: 50%;
-    margin-left: 10px;
+    margin-left: -77px;
 }
 
 .followee > span {

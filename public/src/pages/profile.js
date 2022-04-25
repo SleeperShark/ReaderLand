@@ -183,11 +183,15 @@ async function renderSubscribe(subscribe) {
 function renderFollowee(followee) {
     const followeePage = document.getElementById('followee-page');
     followee.forEach((elem) => {
-        followeePage.innerHTML += `
-<div class="followee" data-id=${elem._id}>
+        const followeeDiv = document.createElement('div');
+        followeeDiv.classList.add('followee');
+        followeeDiv.dataset.id = elem._id;
+        followeeDiv.style.borderLeft = `90px solid ${randomColor()}`;
+        followeeDiv.innerHTML += `
     <img src="${elem.picture}" alt="" />
-    <span>${elem.name}</span>
-</div>`;
+    <span>${elem.name}</span>`;
+
+        followeePage.appendChild(followeeDiv);
     });
 }
 

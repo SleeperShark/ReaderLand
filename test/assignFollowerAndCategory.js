@@ -11,7 +11,7 @@ async function run() {
     console.log(categories);
 
     let usersId = await User.find({}, { _id: 1 });
-    usersId = usersId.map((elem) => elem._id).slice(0, 15);
+    usersId = usersId.map((elem) => elem._id);
 
     for (let id of usersId) {
         const followers = famousAuthor.sort(() => 0.5 - Math.random()).slice(0, 4);
@@ -24,13 +24,12 @@ async function run() {
 
         let subscribe = {};
         for (let cat of subscribeTemplate) {
-            subscribe[cat] = Math.floor(Math.random() * 4) + 1;
+            subscribe[cat] = Math.floor(Math.random() * 10) + 1;
         }
 
         await User.findByIdAndUpdate(id, {
             follower: followers,
             subscribe,
-            followee: [],
         });
 
         // push this followee into followers' list

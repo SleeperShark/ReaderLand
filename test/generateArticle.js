@@ -5,9 +5,9 @@ async function run() {
     await Article.deleteMany({});
     await Category.deleteMany({});
 
-    // Get all User id, take first 15 user as author (Tester-1 not included)
+    // Get all User id, take first 15 user as author
     let usersId = await User.find({}, { _id: 1 });
-    usersId = usersId.map((elem) => elem._id.toString()).slice(1, 16);
+    usersId = usersId.map((elem) => elem._id.toString()).slice(0, 15);
 
     const days = 10;
     const daysInMilli = days * 24 * 60 * 60 * 1000;
@@ -38,7 +38,7 @@ async function run() {
 
     // insert category
     try {
-        const result = await Category.insertMany(
+        await Category.insertMany(
             categories.map((elem) => {
                 return { category: elem };
             })
@@ -89,7 +89,7 @@ async function run() {
 
             // console.log(article.context);
 
-            await Article.create({
+            const result = await Article.create({
                 title: article.title + ' - ' + article.count,
                 author,
                 category: article.category,
@@ -100,6 +100,8 @@ async function run() {
                 comments,
                 preview: article.preview,
             });
+
+            console.log(result);
 
             if (i % 100 == 0) {
                 console.log(`Article ${i} created...`);

@@ -29,4 +29,4 @@ async function main(userId) {
     console.log('update finish...');
 }
 
-main('625cf11b01caa208ce931493');
+main('62664a63fff46c7595b4c5e2');

@@ -56,6 +56,7 @@ const userSchema = mongoose.Schema({
         },
     ],
     subscribe: Object,
+    bio: String,
 });
 
 const commentSchema = mongoose.Schema({

@@ -432,6 +432,10 @@ main {
     align-items: center;
 }
 
+#profile-page.hide {
+    display: none;
+}
+
 #avatar-div {
     position: relative;
 }
@@ -475,9 +479,18 @@ main {
     border-bottom: 4px solid white;
     text-align: center;
     padding: 0px 30px 2px;
+    position: relative;
 }
 
-#bio-div {
+#name-edit {
+    font-size: 1.2rem;
+    position: absolute;
+    top: 0px;
+    right: -10px;
+    cursor: pointer;
+}
+
+#profile-bio {
     position: relative;
     color: white;
     margin-top: 20px;

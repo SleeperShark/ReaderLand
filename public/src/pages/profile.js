@@ -230,6 +230,12 @@ function renderFollower(follower) {
     });
 }
 
+function renderProfile({ name, picture, bio }) {
+    document.getElementById('profile-avatar').src = picture;
+    document.querySelector('#profile-name > span').textContent = name;
+    document.querySelector('#bio').textContent = bio;
+}
+
 //TODO: init profile render
 async function init() {
     const auth = await authenticate();
@@ -254,6 +260,8 @@ async function init() {
     renderFollowee(profile.followee);
 
     renderFollower(profile.follower);
+
+    renderProfile({ picture: profile.picture, name: profile.name, bio: profile.bio });
     console.log(profile);
 
     if (error) {

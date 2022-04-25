@@ -202,6 +202,7 @@ const getUserProfile = async (userId) => {
                         category: 1,
                     },
                     article_author: 1,
+                    bio: 1,
                 },
             },
         ]);

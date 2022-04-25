@@ -282,3 +282,10 @@ async function init() {
 }
 
 init();
+
+// close comment board when press esc
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        document.getElementById('submit-board').classList.add('hide');
+    }
+});

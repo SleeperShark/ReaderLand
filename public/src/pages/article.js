@@ -151,6 +151,14 @@ async function renderArticle(auth) {
         renderCommentBoard(article);
     }
 
+    //TODO: render category
+    article.category.forEach((cat) => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.classList.add('category');
+        categoryDiv.innerText = cat;
+        document.getElementById('category-container').appendChild(categoryDiv);
+    });
+
     //TODO: render context
     const contextDiv = document.getElementById('context');
     let cursor = 'head';
@@ -275,7 +283,7 @@ async function renderArticle(auth) {
             }
         });
 
-        //TODO: submit comment
+        //TODO: submit comment event
         const commentSubmitBtn = document.getElementById('comment-send');
         commentSubmitBtn.addEventListener('click', async () => {
             const commentArea = document.getElementById('comment-edit');
@@ -324,3 +332,10 @@ function toggleBoard(e) {
 }
 document.getElementById('comment').addEventListener('click', toggleBoard);
 document.getElementById('close-board-btn').addEventListener('click', toggleBoard);
+
+// close comment board when press esc
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        commentBoard.classList.add('hide');
+    }
+});

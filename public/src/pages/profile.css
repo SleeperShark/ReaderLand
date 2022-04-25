@@ -47,6 +47,8 @@ main {
     width: 1000px;
 }
 
+/* ========== FAVORITE PAGE ========== */
+
 .favorite-article {
     width: 90%;
     border-radius: 8px;
@@ -153,4 +155,65 @@ main {
 
 .article-footer > .right > div {
     margin-left: 20px;
+}
+
+/* ========== SUBSCRIBE PAGE ========== */
+
+/* 黑魔法 */
+
+/* #subscribe-page {
+} */
+
+/* #subscribe-page > .category {
+    display: inline-block;
+    background-color: rgb(60, 61, 62);
+    width: 300px;
+    height: 100px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    margin-top: 0px;
+    border-top: 10px solid greenyellow;
+}
+
+.category > .category-name {
+    display: inline-block;
+    color: white;
+} */
+
+#subscribe-page {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+#subscribe-page.hide {
+    display: none;
+}
+
+#subscribe-page > .category {
+    display: inline-block;
+    background-color: rgb(60, 61, 62);
+    width: 300px;
+    height: 100px;
+    margin-left: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    margin-top: 0px;
+    border-top: 10px solid greenyellow;
+    padding: 20px 10px;
+}
+
+#subscribe-page > .category > .category-name {
+    display: inline-block;
+    color: white;
+    font-size: 1.4rem;
+}
+
+#subscribe-page > .category > .category-weight {
+    display: block;
+    text-align: right;
+    font-size: 1.2rem;
+    margin-top: 5px;
+    padding-right: 10px;
 }

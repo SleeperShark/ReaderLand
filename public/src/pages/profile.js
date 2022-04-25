@@ -279,3 +279,11 @@ document.querySelector('#navbar').addEventListener('click', (e) => {
         selectedItem.classList.add('selected');
     }
 });
+
+//TODO: show "更換頭像" hint when mouse over btn
+document.getElementById('change-avatar-btn').addEventListener('mouseenter', () => {
+    document.getElementById('change-avatar-hint').style.display = 'block';
+});
+document.getElementById('change-avatar-btn').addEventListener('mouseleave', () => {
+    document.getElementById('change-avatar-hint').style.display = 'none';
+});

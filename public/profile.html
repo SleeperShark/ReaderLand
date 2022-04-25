@@ -56,23 +56,28 @@
                 </div>
             </div>
 
-            <div class="display" id="profile-page"></div>
+            <div class="display" id="profile-page">
+                <div id="avatar-div">
+                    <img id="profile-avatar" src="img/avatar/default-8.jpg" alt="" />
+                    <i class="fas fa-camera" id="change-avatar-btn" onclick="document.getElementById('change-avatar').click()"></i>
+                    <input type="file" id="change-avatar" style="display: none" />
+                    <div id="change-avatar-hint">更換頭像</div>
+                </div>
+
+                <div id="profile-name">魚骨書籤</div>
+
+                <div id="bio-div">
+                    Miula，M觀點首席主講、YouTube 與 Podcast 的商業知識頻道 「M觀點」
+                    的主講人，曾任和信超媒體戲谷的執行長CEO，也曾在遊戲橘子負責楓之谷的台灣發行上市，以分享好的商業知識與數位經濟趨勢為使命。
+                    <i class="fas fa-edit" id="bio-edit"></i>
+                </div>
+            </div>
 
             <div class="display hide" id="subscribe-page"></div>
             <div class="display hide" id="user-articles-page"></div>
             <div class="display hide" id="favorite-page"></div>
 
-            <div class="display hide" id="follower-page">
-                <!-- <div class="follower">
-                    <img class="follower-avatar" src="img/avatar/default-7.jpg" alt="" />
-                    <div class="follower-name">Tester-1</div>
-                    <div class="follower-bio">
-                        我從不無照駕駛，卻是體制外的小小無照教師，從小學作文到大學寫作－－能教就教，不能教就學，學不會就動手寫，寫到有心得再教……
-                        喜歡書寫飲食經驗、鬼怪短篇、雜感趣聞、叭啦叭啦……等題材。透過我的作品，你將會走訪教育現場、命案現場以及菜市場。歡迎參觀選讀！
-                    </div>
-                    <i class="fas fa-ban unfollow-btn">&nbsp;&nbsp;取消追蹤</i>
-                </div> -->
-            </div>
+            <div class="display hide" id="follower-page"></div>
 
             <div class="display hide" id="followee-page"></div>
         </main>

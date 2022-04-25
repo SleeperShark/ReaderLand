@@ -226,6 +226,18 @@ const getUserProfile = async (userId) => {
     }
 };
 
+const updateUserProfile = async (userId, updateInfo) => {
+    try {
+        const result = await User.updateOne({ _id: userId }, { $set: updateInfo });
+        console.log(result);
+
+        return { data: 'ok' };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 const follow = async (userId, followerId) => {
     // check if userId equals to follower
     if (userId.toString() === followerId) {
@@ -446,6 +458,7 @@ module.exports = {
     signUp,
     getUserDetail,
     getUserProfile,
+    updateUserProfile,
     follow,
     unfollow,
     subscribe,

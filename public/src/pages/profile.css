@@ -482,6 +482,15 @@ main {
     position: relative;
 }
 
+#name-input {
+    display: none;
+    margin-bottom: 5px;
+    font-size: 1.3rem;
+    width: 220px;
+    padding: 3px 10px;
+    text-align: center;
+}
+
 #name-edit {
     font-size: 1.2rem;
     position: absolute;

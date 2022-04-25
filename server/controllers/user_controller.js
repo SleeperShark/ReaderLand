@@ -109,9 +109,27 @@ const getUserProfile = async (req, res) => {
 
     if (error) {
         res.status(status).json({ error });
+        return;
     }
 
     return res.status(200).json({ data });
+};
+
+const updateUserProfile = async (req, res) => {
+    const { userId } = req.user;
+    const updateInfo = {};
+    for (let field in req.body) {
+        updateInfo[field] = req.body[field];
+    }
+
+    const { data, error, status } = await User.updateUserProfile(userId, updateInfo);
+
+    if (error) {
+        res.status(status).json({ error });
+        return;
+    }
+
+    res.status(200).json({ data: 'ok' });
 };
 
 const follow = async (req, res) => {
@@ -251,6 +269,7 @@ const getSubscription = async (req, res) => {
 
 module.exports = {
     getUserProfile,
+    updateUserProfile,
     signUp,
     signIn,
     follow,

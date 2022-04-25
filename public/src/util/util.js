@@ -152,6 +152,17 @@ const updateSubscribeAPI = (userToken, subscription) => {
     });
 };
 
+const updateUserProfileAPI = (userToken, updateInfo) => {
+    return fetchHandler('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateInfo),
+    });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

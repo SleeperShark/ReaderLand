@@ -232,7 +232,7 @@ function renderFollower(follower) {
 
 function renderProfile({ name, picture, bio }) {
     document.getElementById('profile-avatar').src = picture;
-    document.querySelector('#profile-name > span').textContent = name;
+    document.querySelector('#profile-name > div').textContent = name;
     document.querySelector('#bio').textContent = bio;
 }
 
@@ -295,3 +295,49 @@ document.getElementById('change-avatar-btn').addEventListener('mouseenter', () =
 document.getElementById('change-avatar-btn').addEventListener('mouseleave', () => {
     document.getElementById('change-avatar-hint').style.display = 'none';
 });
+
+//TODO: edit name
+async function EditNameEvent() {
+    // send POST API to update name
+    if (nameDiv.innerText == nameInput.value) {
+        return;
+    }
+
+    console.log('test');
+    const { data, error, status } = await updateUserProfileAPI(token, { name: nameInput.value });
+
+    if (error) {
+        console.error(status);
+        console.error(error);
+        alert('系統異常: updateUserProfileAPI');
+        return;
+    }
+
+    nameDiv.style.display = 'block';
+    nameEditIcon.style.display = 'block';
+    nameDiv.innerText = nameInput.value;
+    nameInput.style.display = 'none';
+}
+
+const nameDiv = document.querySelector('#profile-name > div');
+const nameInput = document.getElementById('name-input');
+const nameEditIcon = document.getElementById('name-edit');
+
+nameEditIcon.addEventListener('click', () => {
+    nameDiv.style.display = 'none';
+    nameEditIcon.style.display = 'none';
+    nameInput.style.display = 'block';
+
+    nameInput.value = nameDiv.innerText;
+    nameInput.focus();
+});
+
+// finish Editing with blur or enter
+nameInput.addEventListener('blur', EditNameEvent);
+nameInput.addEventListener('keypress', (e) => {
+    if (e.keyCode == 13) {
+        EditNameEvent();
+    }
+});
+
+//TODO: edit bio

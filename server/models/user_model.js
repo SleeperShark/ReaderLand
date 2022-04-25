@@ -189,6 +189,7 @@ const getUserProfile = async (userId) => {
                     picture: { $concat: [process.env.IMAGE_URL, '/avatar/', '$picture'] },
                     follower: 1,
                     followee: 1,
+                    subscribe: 1,
                     favorite: {
                         articleId: 1,
                         favoritedAt: '$createdAt',

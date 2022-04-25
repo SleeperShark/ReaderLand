@@ -79,6 +79,8 @@ header {
 .action > span#profile {
     font-size: 1.25rem;
     padding-top: 8px;
+    text-decoration: none;
+    color: white;
 }
 
 .divider {

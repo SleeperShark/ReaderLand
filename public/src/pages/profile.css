@@ -192,28 +192,74 @@ main {
 }
 
 #subscribe-page > .category {
-    display: inline-block;
     background-color: rgb(60, 61, 62);
     width: 300px;
-    height: 100px;
     margin-left: 15px;
     margin-bottom: 15px;
     border-radius: 8px;
     margin-top: 0px;
+    border-top: 10px solid rgb(237, 50, 69);
+    padding: 10px 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+#subscribe-page > .category.subscribe {
     border-top: 10px solid greenyellow;
-    padding: 20px 10px;
 }
 
 #subscribe-page > .category > .category-name {
     display: inline-block;
     color: white;
     font-size: 1.4rem;
+    padding-bottom: 10px;
+    font-weight: bolder;
 }
 
 #subscribe-page > .category > .category-weight {
     display: block;
     text-align: right;
     font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
     margin-top: 5px;
-    padding-right: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+    background-color: rgb(44, 44, 45);
+    border: 1px solid rgba(148, 145, 145, 0.472);
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+#subscribe-page > .category > .subscribe-btn {
+    color: white;
+    display: inline-block;
+    width: 150px;
+    height: 30px;
+    margin-top: 5px;
+    margin-bottom: 8px;
+    text-align: center;
+    align-self: center;
+    padding-top: 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: rgba(255, 0, 0, 0.775);
+}
+
+#subscribe-page > .category > .subscribe-btn:hover {
+    transform: scale(1.05);
+}
+
+#subscribe-page > .category > .subscribe-btn:active {
+    transform: scale(0.95);
+}
+
+#category-divider {
+    width: 90%;
+    height: 1px;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    margin-left: 30px;
+
+    background-color: rgba(141, 138, 138, 0.5);
 }

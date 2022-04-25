@@ -1,3 +1,4 @@
+//TODO: render favorite article
 function renderFavorite(favoriteArticles) {
     const favoritePage = document.getElementById('favorite-page');
     favoriteArticles.reverse();
@@ -62,6 +63,56 @@ function renderFavorite(favoriteArticles) {
     });
 }
 
+//TODO: render personal subscription
+async function renderSubscribe(subscribe) {
+    const categoryContainer = document.getElementById('subscribe-page');
+    const { data: allCategory } = await getCategoriesAPI();
+
+    // Render peronal Subscription
+    const personalCategory = [];
+    Object.keys(subscribe).forEach((cat) => {
+        personalCategory.push([cat, subscribe[cat]]);
+    });
+
+    personalCategory.sort((a, b) => b[1] - a[1]);
+    personalCategory.forEach(([cat, weight]) => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.classList.add('category');
+        categoryDiv.classList.add('subscribe');
+
+        categoryDiv.innerHTML = `
+<div class="category-name">
+    <span class="category-tag">#</span>
+    ${cat}
+</div>
+<input type="number" class="category-weight" min="1" max="10" value="${weight}" />
+        `;
+        categoryContainer.appendChild(categoryDiv);
+    });
+
+    // Add divider between subscribe and unsubscribe
+    const divider = document.createElement('div');
+    divider.id = 'category-divider';
+    categoryContainer.append(divider);
+
+    // Render other categories
+    allCategory.forEach((cat) => {
+        if (subscribe.hasOwnProperty(cat)) return;
+        const categoryDiv = document.createElement('div');
+        categoryDiv.classList.add('category');
+
+        categoryDiv.innerHTML = `
+<div class="category-name">
+    <span class="category-tag">#</span>
+    ${cat}
+</div>
+<span class="subscribe-btn">訂閱</span>
+        `;
+        categoryContainer.appendChild(categoryDiv);
+    });
+}
+
+//TODO: init profile render
 async function init() {
     const auth = await authenticate();
 
@@ -72,10 +123,16 @@ async function init() {
 
     await renderHeader(auth);
 
+    // nullify the profile button action
+    document.getElementById('action-profile').href = '#';
+
     //TODO: render each info display
     const { data: profile, error, status } = await getUserProfileAPI(token);
 
     renderFavorite(profile.favorite);
+
+    renderSubscribe(profile.subscribe);
+    console.log(profile);
 
     if (error) {
         console.error(status);

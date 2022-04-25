@@ -38,9 +38,9 @@ async function renderHeader(auth) {
     <img id="avatar" src="${user.picture}" alt="user avatar" />
     
     <div id="user-actions" data-status="hide" class="hide">
-        <div class="action" id="action-profile">
+        <a href="/profile.html" class="action" id="action-profile">
             <span id="profile">${user.name}<span>
-        </div>
+        </a>
         <div class="divider"></div>
         <div class='action' id="action-signout">
             <span>Sign Out</span>

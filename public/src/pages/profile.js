@@ -212,6 +212,22 @@ function renderFollower(follower) {
         `;
         followerPage.appendChild(followerDiv);
     });
+
+    followerPage.querySelectorAll('.unfollow-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const { data, error, status } = await unFollowAuthorAPI(token, btn.parentElement.dataset.id);
+
+            if (error) {
+                console.error(status);
+                console.error(error);
+                alert('取消追蹤失敗');
+                return;
+            }
+
+            alert(`取消追蹤 ${btn.parentElement.querySelector('.follower-name').innerText}`);
+            btn.parentElement.remove();
+        });
+    });
 }
 
 //TODO: init profile render

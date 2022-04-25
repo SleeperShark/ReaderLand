@@ -502,18 +502,28 @@ main {
 #profile-bio {
     position: relative;
     color: white;
-    margin-top: 20px;
     font-size: 1.5rem;
+}
+
+#bio {
+    color: white;
+    background-color: rgb(70, 67, 67);
+    margin-top: 20px;
+
     width: 800px;
     line-height: 2.2rem;
-    background-color: rgb(70, 67, 67);
     padding: 35px;
     border-radius: 10px;
 }
 
+#bio.edit {
+    background-color: rgb(189, 198, 207);
+    color: black;
+}
+
 #bio-edit {
     position: absolute;
-    top: 10px;
+    top: 30px;
     right: 10px;
     cursor: pointer;
 }

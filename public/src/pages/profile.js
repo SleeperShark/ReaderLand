@@ -298,12 +298,15 @@ document.getElementById('change-avatar-btn').addEventListener('mouseleave', () =
 
 //TODO: edit name
 async function EditNameEvent() {
-    // send POST API to update name
+    nameDiv.style.display = 'block';
+    nameEditIcon.style.display = 'block';
+    nameInput.style.display = 'none';
+
     if (nameDiv.innerText == nameInput.value) {
         return;
     }
 
-    console.log('test');
+    // send POST API to update name
     const { data, error, status } = await updateUserProfileAPI(token, { name: nameInput.value });
 
     if (error) {
@@ -315,8 +318,8 @@ async function EditNameEvent() {
 
     nameDiv.style.display = 'block';
     nameEditIcon.style.display = 'block';
-    nameDiv.innerText = nameInput.value;
     nameInput.style.display = 'none';
+    nameDiv.innerText = nameInput.value;
 }
 
 const nameDiv = document.querySelector('#profile-name > div');
@@ -341,3 +344,42 @@ nameInput.addEventListener('keypress', (e) => {
 });
 
 //TODO: edit bio
+async function EditBioEvent() {
+    bioDiv.classList.remove('edit');
+    bioEditIcon.style.display = 'block';
+    bioDiv.contentEditable = 'false';
+
+    if (bioVersion != bioDiv.innerText) {
+        // PUT update API
+        const { data, error, status } = await updateUserProfileAPI(token, { bio: bioDiv.innerText });
+
+        if (error) {
+            console.error(status);
+            console.error(error);
+            alert('系統異常: updateUserProfileAPI');
+            return;
+        }
+
+        bioVersion = bioDiv.innerText;
+    }
+}
+
+const bioDiv = document.getElementById('bio');
+const bioEditIcon = document.getElementById('bio-edit');
+let bioVersion;
+
+bioEditIcon.addEventListener('click', () => {
+    bioVersion = bioDiv.innerText;
+    bioDiv.contentEditable = 'true';
+    bioDiv.classList.add('edit');
+    bioDiv.focus();
+    bioEditIcon.style.display = 'none';
+});
+
+bioDiv.addEventListener('blur', EditBioEvent);
+bioDiv.addEventListener('keypress', (e) => {
+    if (e.keyCode == 13 && !e.shiftKey) {
+        e.preventDefault();
+        EditBioEvent();
+    }
+});

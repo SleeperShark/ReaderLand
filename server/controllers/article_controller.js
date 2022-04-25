@@ -58,6 +58,7 @@ const getNewsFeed = async (req, res) => {
         if (!Cache.ready || (await Cache.exists(cacheKey)) === 0) {
             // no feeds in cache
             const result = await Article.generateNewsFeed(userId);
+
             if (result.error) {
                 res.status(500).json({ error: 'Server Error' });
                 return;

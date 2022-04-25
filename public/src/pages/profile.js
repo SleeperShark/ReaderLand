@@ -1,5 +1,9 @@
 let allCategory;
 
+function randomColor() {
+    return `rgb(${Math.random() * 256}, ${Math.random() * 256}, ${Math.random() * 256})`;
+}
+
 //TODO: render favorite article
 function renderFavorite(favoriteArticles) {
     const favoritePage = document.getElementById('favorite-page');
@@ -176,6 +180,36 @@ async function renderSubscribe(subscribe) {
     });
 }
 
+function renderFollowee(followee) {
+    const followeePage = document.getElementById('followee-page');
+    followee.forEach((elem) => {
+        followeePage.innerHTML += `
+<div class="followee" data-id=${elem._id}>
+    <img src="${elem.picture}" alt="" />
+    <span>${elem.name}</span>
+</div>`;
+    });
+}
+
+function renderFollower(follower) {
+    const followerPage = document.getElementById('follower-page');
+    follower.forEach((elem) => {
+        const followerDiv = document.createElement('div');
+        followerDiv.dataset.id = elem._id;
+        followerDiv.classList.add('follower');
+        followerDiv.style.borderTop = `50px solid ${randomColor()}`;
+        followerDiv.innerHTML += `
+    <img class="follower-avatar" src="${elem.picture}" alt="" />
+    <div class="follower-name">${elem.name}</div>
+    <div class="follower-bio">
+        ${elem.bio}
+    </div>
+    <i class="fas fa-ban unfollow-btn">&nbsp;&nbsp;取消追蹤</i>
+        `;
+        followerPage.appendChild(followerDiv);
+    });
+}
+
 //TODO: init profile render
 async function init() {
     const auth = await authenticate();
@@ -196,6 +230,10 @@ async function init() {
     renderFavorite(profile.favorite);
 
     renderSubscribe(profile.subscribe);
+
+    renderFollowee(profile.followee);
+
+    renderFollower(profile.follower);
     console.log(profile);
 
     if (error) {

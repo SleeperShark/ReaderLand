@@ -12,7 +12,7 @@ main {
     /* border: 1px solid white; */
     color: white;
     position: fixed;
-    top: 180px;
+    top: 120px;
     left: 100px;
 }
 
@@ -305,5 +305,120 @@ main {
     transform: scale(1.05);
 }
 #update-subscribe-btn:active {
+    transform: scale(0.95);
+}
+
+/* --------- followee page ---------- */
+#followee-page {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+#followee-page.hide {
+    display: none;
+}
+.followee {
+    background-color: rgb(74, 75, 76);
+    color: white;
+    display: flex;
+    width: 300px;
+    height: 80px;
+    align-items: center;
+    border-radius: 3px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+.followee > img {
+    display: inline-block;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    margin-left: 10px;
+}
+
+.followee > span {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: 10px;
+}
+
+/* ---------- follower page ---------- */
+#follower-page {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+#follower-page.hide {
+    display: none;
+}
+
+.follower {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background-color: rgb(74, 75, 76);
+    border-top: 50px solid rgb(255, 193, 47);
+    width: 450px;
+    height: 315px;
+
+    border-radius: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    margin-left: 30px;
+    margin-bottom: 30px;
+}
+
+.follower-avatar {
+    width: 4.8rem;
+    height: 4.8rem;
+    border-radius: 50%;
+    margin-top: -35px;
+}
+
+.follower-name {
+    margin-top: 2px;
+    font-size: 2rem;
+    color: white;
+    font-weight: bolder;
+    letter-spacing: 2px;
+}
+
+.follower-bio {
+    width: 100%;
+    margin-top: 10px;
+    color: white;
+    font-size: 1.2rem;
+    height: 102.4px;
+    /* background-color: aquamarine; */
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+}
+
+.unfollow-btn {
+    margin-top: 13px;
+    color: white;
+    background-color: rgb(62, 62, 255);
+    padding: 10px 50px;
+    border-radius: 10px;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.unfollow-btn:hover {
+    opacity: 1;
+}
+
+.unfollow-btn:active {
     transform: scale(0.95);
 }

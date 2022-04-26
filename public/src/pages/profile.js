@@ -297,12 +297,17 @@ document.getElementById('change-avatar-btn').addEventListener('mouseleave', () =
 });
 
 //TODO: edit name
+let EditNameProcessing = false;
 async function EditNameEvent() {
+    if (EditNameProcessing) return;
+    EditNameProcessing = true;
     nameDiv.style.display = 'block';
     nameEditIcon.style.display = 'block';
     nameInput.style.display = 'none';
 
     if (nameDiv.innerText == nameInput.value) {
+        // no edit => return back
+        EditNameProcessing = false;
         return;
     }
 
@@ -320,6 +325,7 @@ async function EditNameEvent() {
     nameEditIcon.style.display = 'block';
     nameInput.style.display = 'none';
     nameDiv.innerText = nameInput.value;
+    EditNameProcessing = false;
 }
 
 const nameDiv = document.querySelector('#profile-name > div');

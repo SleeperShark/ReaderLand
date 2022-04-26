@@ -228,8 +228,17 @@ const getUserProfile = async (userId) => {
 
 const updateUserProfile = async (userId, updateInfo) => {
     try {
-        const result = await User.updateOne({ _id: userId }, { $set: updateInfo });
+        // const result = await User.updateOne({ _id: userId }, { $set: updateInfo });
+        const result = await User.findByIdAndUpdate(userId, { $set: updateInfo });
+        console.log(result);
         console.log('Succeefully update user profile: ' + Object.keys(updateInfo).join(', '));
+
+        for (let key in updateInfo) {
+            if (['name, email, picture'].includes(key)) {
+                //Remake JWT for new info
+                console.log('Remake JWT!!!');
+            }
+        }
 
         return { data: 'ok' };
     } catch (error) {

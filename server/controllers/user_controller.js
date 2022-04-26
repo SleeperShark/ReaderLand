@@ -267,8 +267,22 @@ const getSubscription = async (req, res) => {
     return;
 };
 
+const getAuthorProfile = async (req, res) => {
+    const { id: authorId } = req.params;
+
+    const { data, error, status } = await User.getAuthorProfile(authorId);
+
+    if (error) {
+        res.status(status).json({ error });
+        return;
+    }
+
+    res.status(200).json({ data });
+};
+
 module.exports = {
     getUserProfile,
+    getAuthorProfile,
     updateUserProfile,
     signUp,
     signIn,

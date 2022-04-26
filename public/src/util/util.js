@@ -163,6 +163,10 @@ const updateUserProfileAPI = (userToken, updateInfo) => {
     });
 };
 
+const getAuthorProfileAPI = (authorId) => {
+    return fetchHandler(`/api/user/${authorId}`);
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

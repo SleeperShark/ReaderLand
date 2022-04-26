@@ -13,6 +13,7 @@ const {
     unfavorite,
     getSubscription,
     updateUserProfile,
+    getAuthorProfile,
 } = require('../controllers/user_controller');
 
 const { USER_ROLE } = require('../models/user_model');
@@ -33,5 +34,7 @@ router.route('/user/follow').delete(authentication(USER_ROLE.ALL), wrapAsync(unf
 
 router.route('/user/favorite').post(authentication(USER_ROLE.ALL), wrapAsync(favorite));
 router.route('/user/favorite').delete(authentication(USER_ROLE.ALL), wrapAsync(unfavorite));
+
+router.route('/user/:id').get(wrapAsync(getAuthorProfile));
 
 module.exports = router;

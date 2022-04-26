@@ -516,12 +516,39 @@ const unfavorite = async (userId, articleId) => {
     return {};
 };
 
+const getAuthorProfile = async (authorId) => {
+    if (!ObjectId.isValid(authorId)) {
+        console.error('Invalid authorId');
+        return { error: 'Invalid authorId', status: 400 };
+    }
+    try {
+        const authorProfile = await User.aggregate([
+            { $match: { _id: ObjectId(authorId) } },
+            { $project: { follower: 1, followee: 1, name: 1, bio: 1 } },
+            {
+                $lookup: {
+                    from: 'Article',
+                    localField: '_id',
+                    foreignField: 'author',
+                    pipeline: [{ $project: { title: 1, readCount: 1, commentCount: { $size: '$comments' }, likeCount: { $size: '$likes' }, category: 1, createdAt: 1 } }],
+                    as: 'articles',
+                },
+            },
+        ]);
+        return { data: authorProfile[0] };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 module.exports = {
     USER_ROLE,
     nativeSignIn,
     signUp,
     getUserDetail,
     getUserProfile,
+    getAuthorProfile,
     updateUserProfile,
     follow,
     unfollow,

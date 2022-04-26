@@ -34,6 +34,7 @@ async function submitReply(submitBtn) {
         }
 
         renderCommentBoard(article);
+        EnterToSubmitReplyEvent();
         return;
     } catch (error) {
         console.error(error);
@@ -63,7 +64,7 @@ function renderCommentBoard(article) {
         if (article.author.name == user?.name) {
             replyEdit = `
         <div class="reply-btn" onclick="toggleReplyEdit(this)">回覆</div>
-        <textarea placeholder="回復&nbsp;${readerName}：" class="reply-edit hide"></textarea>
+        <textarea placeholder="回復&nbsp;${readerName}：" class="reply-edit hide""></textarea>
         <i class="fas fa-paper-plane reply-submit  hide" data-id="${comment._id}" onclick="submitReply(this)"></i>
         `;
         }
@@ -283,11 +284,12 @@ async function renderArticle(auth) {
             }
         });
 
-        //TODO: submit comment event
         const commentSubmitBtn = document.getElementById('comment-send');
+        const commentArea = document.getElementById('comment-edit');
+        //TODO: submit comment event
         commentSubmitBtn.addEventListener('click', async () => {
-            const commentArea = document.getElementById('comment-edit');
             if (!commentArea.value.trim()) {
+                alert('請輸入留言內容');
                 return;
             }
 
@@ -309,18 +311,43 @@ async function renderArticle(auth) {
                 document.getElementById('comment').classList.add('commented');
 
                 commentArea.value = '';
+
+                document.getElementById('comment-container').scrollTop = 0;
             } catch (error) {
                 console.error(error);
                 alert('系統異常: POST /api/articles/:articleId/comment');
             }
         });
+        //TODO: submit comment when hit enter
+        commentArea.addEventListener('keypress', (e) => {
+            if (e.keyCode == 13 && !e.shiftKey) {
+                e.preventDefault();
+                commentSubmitBtn.click();
+            }
+        });
     } // end of if(auth)
+}
+
+function EnterToSubmitReplyEvent() {
+    //TODO: enter submit reply
+    document.querySelectorAll('.comment-box').forEach((commentBox) => {
+        const replyEdit = commentBox.querySelector('.reply-edit');
+        if (replyEdit) {
+            replyEdit.addEventListener('keypress', (e) => {
+                if (e.keyCode == 13 && !e.shiftKey) {
+                    commentBox.querySelector('.reply-submit').click();
+                }
+            });
+        }
+    });
 }
 
 async function init() {
     const auth = await authenticate();
     await renderHeader(auth);
     await renderArticle(auth);
+
+    EnterToSubmitReplyEvent();
 }
 
 init();

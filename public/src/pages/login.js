@@ -35,6 +35,7 @@ switchBtn.addEventListener('click', (event) => {
     }
 });
 
+//TODO: Focus and Blur effect for every field
 document.querySelectorAll('input').forEach((elem) => {
     elem.addEventListener('blur', (event) => {
         const field = elem.previousSibling.previousSibling;
@@ -124,5 +125,12 @@ submitBtn.addEventListener('click', async (event) => {
             } else {
                 alert('✘ 系統異常，請稍後再試。');
             }
+    }
+});
+
+//TODO: submit when hit enter in password input
+document.getElementById('password-input').addEventListener('keypress', (e) => {
+    if (switchBtn.dataset.state == 'sign-in' && e.keyCode == 13) {
+        submitBtn.click();
     }
 });

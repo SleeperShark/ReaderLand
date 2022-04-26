@@ -399,3 +399,16 @@ bioDiv.addEventListener('keypress', (e) => {
         EditBioEvent();
     }
 });
+
+// TODO: toggle draft and published articles
+const draftTag = document.getElementById('draft-tag');
+const publishedTag = document.getElementById('published-tag');
+draftTag.addEventListener('click', () => {
+    draftTag.classList.add('selected');
+    publishedTag.classList.remove('selected');
+});
+
+publishedTag.addEventListener('click', () => {
+    publishedTag.classList.add('selected');
+    draftTag.classList.remove('selected');
+});

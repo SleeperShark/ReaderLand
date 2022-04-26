@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <div class="display" id="profile-page">
+            <div class="display hide" id="profile-page">
                 <div id="avatar-div">
                     <img id="profile-avatar" src="img/avatar/default-8.jpg" alt="" />
                     <i class="fas fa-camera" id="change-avatar-btn" onclick="document.getElementById('change-avatar').click()"></i>
@@ -77,7 +77,43 @@
             </div>
 
             <div class="display hide" id="subscribe-page"></div>
-            <div class="display hide" id="user-articles-page"></div>
+
+            <div class="display" id="user-articles-page">
+                <div id="tag-container">
+                    <span id="draft-tag" class="tag selected"> 文章草稿 </span>
+                    <span id="published-tag" class="tag">已發佈</span>
+
+                    <!-- <div id="draft-container"></div> -->
+                </div>
+
+                <div id="published-container">
+                    <div class="published-article">
+                        <i class="fas fa-edit published-edit"></i>
+                        <span class="published-edit-hint">編輯文章</span>
+
+                        <div class="published-title">Title of the article</div>
+
+                        <div class="published-footer">
+                            <div class="published-date">2022.01.25</div>
+                            <div class="published-feedback">
+                                <div class="feedback read">
+                                    <i class="far fa-eye"></i>
+                                    <span class="count">100</span>
+                                </div>
+                                <div class="feedback like">
+                                    <i class="fas fa-heart"></i>
+                                    <span class="count">40</span>
+                                </div>
+                                <div class="feedback comment">
+                                    <i class="far fa-comment-dots"></i>
+                                    <span class="count">5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="display hide" id="favorite-page"></div>
 
             <div class="display hide" id="follower-page"></div>

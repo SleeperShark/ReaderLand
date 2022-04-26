@@ -4,9 +4,6 @@ const { Article, ObjectId, User, Category } = require('./schemas');
 const { timeDecayer, authentication } = require('../../util/util');
 const Cache = require('../../util/cache');
 
-const fs = require('fs');
-const res = require('express/lib/response');
-
 //get userid: { _id, picture, name } object
 function mergeCommentsReaderInfo(article) {
     // TODO: process userinfo in comment array

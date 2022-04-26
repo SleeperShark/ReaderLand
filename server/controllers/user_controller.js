@@ -129,7 +129,7 @@ const updateUserProfile = async (req, res) => {
         return;
     }
 
-    res.status(200).json({ data: 'ok' });
+    res.status(200).json({ data });
 };
 
 const follow = async (req, res) => {

@@ -229,18 +229,41 @@ const getUserProfile = async (userId) => {
 const updateUserProfile = async (userId, updateInfo) => {
     try {
         // const result = await User.updateOne({ _id: userId }, { $set: updateInfo });
-        const result = await User.findByIdAndUpdate(userId, { $set: updateInfo });
-        console.log(result);
+        let user = await User.findByIdAndUpdate(
+            userId,
+            { $set: updateInfo },
+            {
+                projection: {
+                    _id: 0,
+                    name: 1,
+                    email: 1,
+                    picture: 1,
+                    provider: 1,
+                },
+                new: true,
+            }
+        );
         console.log('Succeefully update user profile: ' + Object.keys(updateInfo).join(', '));
 
+        user = JSON.parse(JSON.stringify(user));
         for (let key in updateInfo) {
-            if (['name, email, picture'].includes(key)) {
+            if (['name', 'email', 'picture'].includes(key)) {
                 //Remake JWT for new info
-                console.log('Remake JWT!!!');
+                console.log('Remake JWT...');
+                user.accessToken = jwt.sign(
+                    {
+                        provider: user.provider,
+                        name: user.name,
+                        email: user.email,
+                        picture: user.picture,
+                    },
+                    TOKEN_SECRET
+                );
+                break;
             }
         }
 
-        return { data: 'ok' };
+        return { data: user };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

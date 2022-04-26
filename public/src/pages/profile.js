@@ -312,7 +312,7 @@ async function EditNameEvent() {
     }
 
     // send POST API to update name
-    const { data, error, status } = await updateUserProfileAPI(token, { name: nameInput.value });
+    const { data: user, error, status } = await updateUserProfileAPI(token, { name: nameInput.value });
 
     if (error) {
         console.error(status);
@@ -326,6 +326,9 @@ async function EditNameEvent() {
     nameInput.style.display = 'none';
     nameDiv.innerText = nameInput.value;
     EditNameProcessing = false;
+
+    window.localStorage.setItem('ReaderLandToken', user.accessToken);
+    document.getElementById('profile').innerText = user.name;
 }
 
 const nameDiv = document.querySelector('#profile-name > div');

@@ -102,6 +102,11 @@ const createArticle = async (articleInfo) => {
 };
 
 const getArticle = async (articleId, userId = '') => {
+    if (!ObjectId.isValid(articleId)) {
+        console.error('Invalid articleId.');
+        return { error: 'Invalid articleId.', status: 400 };
+    }
+
     try {
         const [article] = await Article.aggregate([
             { $match: { _id: new ObjectId(articleId) } },
@@ -209,7 +214,6 @@ const getArticle = async (articleId, userId = '') => {
 const generateNewsFeed = async (userId, lastArticleId) => {
     try {
         // acquire user's follower and subscribe categories
-        // console.log(userId);
         const userPreference = await User.findById(userId, { subscribe: 1, follower: 1, _id: 0 });
 
         let { follower, subscribe } = userPreference;
@@ -517,12 +521,12 @@ const getLatestArticles = async (token) => {
 // TODO: push userId to Article.likes array
 const likeArticle = async (userId, articleId) => {
     //* examine the articleId format
-    try {
-        articleId = ObjectId(articleId);
-    } catch (error) {
-        console.error(error);
+    if (!ObjectId.isValid(articleId)) {
+        console.error('Invalid articleId.');
         return { error: 'ArticleId format error', status: 400 };
     }
+
+    articleId = ObjectId(articleId);
 
     try {
         //* Check if Article exist
@@ -558,12 +562,12 @@ const likeArticle = async (userId, articleId) => {
 
 const unlikeArticle = async (userId, articleId) => {
     //* examine the articleId format
-    try {
-        articleId = ObjectId(articleId);
-    } catch (error) {
-        console.error(error);
+    if (!ObjectId.isValid(articleId)) {
+        console.error('Invalid articleId.');
         return { error: 'ArticleId format error', status: 400 };
     }
+
+    articleId = ObjectId(articleId);
 
     try {
         //* Check if Article exist
@@ -656,12 +660,12 @@ async function getUpdatedFeedback(articleId) {
 const commentArticle = async ({ userId, articleId, comment }) => {
     try {
         // validate articleId
-        try {
-            articleId = ObjectId(articleId);
-        } catch (error) {
-            console.error('Invaid articleId');
-            return { status: 400, error: 'Invaid articleId' };
+        if (!ObjectId.isValid(articleId)) {
+            console.error('Invalid articleId.');
+            return { error: 'ArticleId format error', status: 400 };
         }
+
+        articleId = ObjectId(articleId);
 
         // update comment
         await Article.updateOne(

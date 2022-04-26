@@ -246,11 +246,12 @@ const follow = async (userId, followerId) => {
     }
 
     // validate whether followerId match BSON format
-    try {
-        followerId = ObjectId(followerId);
-    } catch (error) {
+    if (!ObjectId.isValid(followerId)) {
+        console.error('Invalid followerId.');
         return { error: 'followerId format error', status: 400 };
     }
+
+    followerId = ObjectId(followerId);
 
     try {
         // check if followe exist
@@ -303,11 +304,12 @@ const unfollow = async (userId, followerId) => {
     }
 
     // validate whether followerId follow the BSON format
-    try {
-        followerId = ObjectId(followerId);
-    } catch (error) {
+
+    if (!ObjectId.isValid(followerId)) {
+        console.error('Invalid followerId');
         return { error: 'followerId format error', status: 400 };
     }
+    followerId = ObjectId(followerId);
 
     try {
         // remove followerId from user's follower list
@@ -378,11 +380,12 @@ const unsubscribe = async (userId, category) => {
 // TODO: add articleId to user's favorite array
 const favorite = async (userId, articleId) => {
     //TODO: validate articleId
-    try {
-        articleId = ObjectId(articleId);
-    } catch (error) {
+    if (!ObjectId.isValid(articleId)) {
+        console.error('Invalid articleId');
         return { error: 'Invalid articleId', status: 400 };
     }
+
+    articleId = ObjectId(articleId);
 
     try {
         const exist = await Article.countDocuments({ _id: articleId });
@@ -420,11 +423,12 @@ const favorite = async (userId, articleId) => {
 // TODO: remove articleId from user's favorite array
 const unfavorite = async (userId, articleId) => {
     // format validation
-    try {
-        articleId = ObjectId(articleId);
-    } catch (error) {
+    if (!ObjectId.isValid(articleId)) {
+        console.error('Invalid articleId');
         return { status: 400, error: 'Invalid articleId' };
     }
+
+    articleId = ObjectId(articleId);
 
     try {
         const exist = await Article.countDocuments({ _id: articleId });

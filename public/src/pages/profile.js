@@ -350,7 +350,12 @@ nameInput.addEventListener('keypress', (e) => {
 });
 
 //TODO: edit bio
+let editBioProcessing = false;
 async function EditBioEvent() {
+    if (editBioProcessing) {
+        return;
+    }
+    editBioProcessing = true;
     bioDiv.classList.remove('edit');
     bioEditIcon.style.display = 'block';
     bioDiv.contentEditable = 'false';
@@ -368,6 +373,8 @@ async function EditBioEvent() {
 
         bioVersion = bioDiv.innerText;
     }
+
+    editBioProcessing = false;
 }
 
 const bioDiv = document.getElementById('bio');

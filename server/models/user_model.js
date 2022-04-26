@@ -80,7 +80,7 @@ const getUserProfile = async (userId) => {
     try {
         const [profile] = await User.aggregate([
             { $match: { _id: userId } },
-            // follower lookuo
+            // follower lookup
             {
                 $lookup: {
                     from: 'User',
@@ -180,6 +180,33 @@ const getUserProfile = async (userId) => {
                     as: 'article_author',
                 },
             },
+            // user published articles
+            {
+                $lookup: {
+                    from: 'Article',
+                    localField: '_id',
+                    foreignField: 'author',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                title: 1,
+                                readCount: 1,
+                                commentCount: { $size: '$comments' },
+                                likeCount: { $size: '$likes' },
+                                category: 1,
+                                createdAt: 1,
+                            },
+                        },
+                        {
+                            $sort: {
+                                createdAt: -1,
+                            },
+                        },
+                    ],
+                    as: 'publishedArticles',
+                },
+            },
             // final project
             {
                 $project: {
@@ -203,6 +230,7 @@ const getUserProfile = async (userId) => {
                     },
                     article_author: 1,
                     bio: 1,
+                    publishedArticles: 1,
                 },
             },
         ]);

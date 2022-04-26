@@ -236,6 +236,51 @@ function renderProfile({ name, picture, bio }) {
     document.querySelector('#bio').textContent = bio;
 }
 
+function renderPublishedArticles(articles) {
+    const container = document.getElementById('published-container');
+
+    articles.forEach(({ _id, title, createdAt, readCount, category, likeCount, commentCount }) => {
+        const articleDiv = document.createElement('div');
+        articleDiv.classList.add('published-article');
+        const categoriesHTML = category.reduce(
+            (prev, elem) =>
+                (prev += `
+<span class="published-category">${elem}</span>
+        `),
+            ''
+        );
+
+        articleDiv.innerHTML = `
+<i class="fas fa-edit published-edit"></i>
+<span class="published-edit-hint">編輯文章</span>
+
+<div class="published-title" onclick="window.location.href='/article.html?id=${_id}'">${title}</div>
+<div class="published-category-container">
+    ${categoriesHTML}
+</div>
+
+<div class="published-footer">
+    <div class="published-date">${timeTransformer(createdAt)}</div>
+    <div class="published-feedback">
+        <div class="feedback read">
+            <i class="far fa-eye"></i>
+            <span class="count">${readCount}</span>
+        </div>
+        <div class="feedback like">
+            <i class="fas fa-heart"></i>
+            <span class="count">${likeCount}</span>
+        </div>
+        <div class="feedback comment">
+            <i class="far fa-comment-dots"></i>
+            <span class="count">${commentCount}</span>
+        </div>
+    </div>
+</div>`;
+
+        container.appendChild(articleDiv);
+    });
+}
+
 //TODO: init profile render
 async function init() {
     const auth = await authenticate();
@@ -262,6 +307,8 @@ async function init() {
     renderFollower(profile.follower);
 
     renderProfile({ picture: profile.picture, name: profile.name, bio: profile.bio });
+
+    renderPublishedArticles(profile.publishedArticles);
     console.log(profile);
 
     if (error) {
@@ -402,13 +449,19 @@ bioDiv.addEventListener('keypress', (e) => {
 
 // TODO: toggle draft and published articles
 const draftTag = document.getElementById('draft-tag');
+const draftContainer = document.getElementById('draft-container');
 const publishedTag = document.getElementById('published-tag');
+const publishedContainer = document.getElementById('published-container');
 draftTag.addEventListener('click', () => {
     draftTag.classList.add('selected');
+    draftContainer.classList.remove('hide');
     publishedTag.classList.remove('selected');
+    publishedContainer.classList.add('hide');
 });
 
 publishedTag.addEventListener('click', () => {
     publishedTag.classList.add('selected');
+    publishedContainer.classList.remove('hide');
     draftTag.classList.remove('selected');
+    draftContainer.classList.add('hide');
 });

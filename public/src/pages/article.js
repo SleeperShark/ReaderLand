@@ -34,11 +34,16 @@ async function submitReply(submitBtn) {
         }
 
         renderCommentBoard(article);
-        EnterToSubmitReplyEvent();
         return;
     } catch (error) {
         console.error(error);
         alert('系統異常: submit reply');
+    }
+}
+
+function enterToSubmit(event) {
+    if (event.keyCode == 13 && !event.shiftKey) {
+        event.target.nextElementSibling.click();
     }
 }
 
@@ -64,7 +69,7 @@ function renderCommentBoard(article) {
         if (article.author.name == user?.name) {
             replyEdit = `
         <div class="reply-btn" onclick="toggleReplyEdit(this)">回覆</div>
-        <textarea placeholder="回復&nbsp;${readerName}：" class="reply-edit hide""></textarea>
+        <textarea placeholder="回復&nbsp;${readerName}：" class="reply-edit hide" onkeypress="return enterToSubmit(event)" ></textarea>
         <i class="fas fa-paper-plane reply-submit  hide" data-id="${comment._id}" onclick="submitReply(this)"></i>
         `;
         }
@@ -347,20 +352,19 @@ async function init() {
     await renderHeader(auth);
     await renderArticle(auth);
 
-    EnterToSubmitReplyEvent();
+    // EnterToSubmitReplyEvent();
 }
 
 init();
 
 const commentBoard = document.getElementById('comment-board');
-// commentBoard.style.display = 'none';
 function toggleBoard(e) {
     commentBoard.classList.toggle('hide');
 }
 document.getElementById('comment').addEventListener('click', toggleBoard);
 document.getElementById('close-board-btn').addEventListener('click', toggleBoard);
 
-// close comment board when press esc
+//TODO: close comment board when press esc
 document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         commentBoard.classList.add('hide');

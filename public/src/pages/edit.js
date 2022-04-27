@@ -1,5 +1,6 @@
 let articleInfo;
 let draftId = new URL(window.location).searchParams.get('draftId');
+var typingTimer;
 
 function appendNewparagraph(paragraphTimetamp) {
     const currArea = document.getElementById(paragraphTimetamp);
@@ -66,6 +67,27 @@ function addTextAreaProperty(paragraphTimetamp) {
                 this.style.height = 'auto';
                 this.style.height = this.scrollHeight + 'px';
             }
+        })
+        //TODO: autosaving content of the context area
+        .on('keyup', function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(async () => {
+                const updateData = {};
+                updateData[`context.${paragraphTimetamp}.content`] = this.value;
+
+                const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
+
+                if (error) {
+                    console.error(status);
+                    console.error(error);
+                    alert('Error: Autosaving content');
+                }
+
+                alert('儲存成功');
+            }, 2000);
+        })
+        .on('keydown', function () {
+            clearTimeout(typingTimer);
         })
         .keypress(function (event) {
             if (event.which == 13 && !event.shiftKey) {

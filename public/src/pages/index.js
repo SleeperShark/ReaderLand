@@ -26,6 +26,10 @@ async function favoriteArticle(e) {
 }
 
 function appendArticle(article, auth) {
+    function redirectToAuthorPage() {
+        window.open(`/author.html?id=${article.author._id}`, '_blank').focus();
+    }
+
     const categoryHTML = article.category.map((elem) => `<span class="category">${elem}</span>`).join(' ');
     const articleElem = document.createElement('article');
     articleElem.classList.add('article');
@@ -114,6 +118,11 @@ function appendArticle(article, auth) {
 
     document.getElementById('articles').appendChild(articleElem);
 
+    // TODO: add event listener to author name and avatar to redirect to auhtor page
+    articleElem.querySelector('.details .author').addEventListener('click', redirectToAuthorPage);
+    articleElem.querySelector('.author-picture').addEventListener('click', redirectToAuthorPage);
+    articleElem.querySelector('.profile-picture').addEventListener('click', redirectToAuthorPage);
+    articleElem.querySelector('.profile-name').addEventListener('click', redirectToAuthorPage);
     return;
 }
 

@@ -85,12 +85,14 @@ main {
 .profile-name {
     font-size: 1.3rem;
     font-weight: bolder;
+    cursor: pointer;
 }
 
 .profile-picture {
     border-radius: 50%;
     width: 50px;
     height: 50px;
+    cursor: pointer;
 }
 
 .profile-follow-btn {
@@ -135,15 +137,18 @@ main {
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    /* border: 3px solid grey; */
+    cursor: pointer;
 }
 
 .details {
     margin-left: 10px;
-
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+}
+
+.author {
+    cursor: pointer;
 }
 
 .favorite {

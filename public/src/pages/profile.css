@@ -382,6 +382,7 @@ main {
     height: 4.8rem;
     border-radius: 50%;
     margin-top: -35px;
+    cursor: pointer;
 }
 
 .follower-name {
@@ -390,6 +391,7 @@ main {
     color: white;
     font-weight: bolder;
     letter-spacing: 2px;
+    cursor: pointer;
 }
 
 .follower-bio {

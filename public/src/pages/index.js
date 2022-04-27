@@ -87,7 +87,7 @@ function appendArticle(article, auth) {
     ${bookmark}
 </div>
 
-<a href="/article.html?id=${article._id}" class="title">${article.title}</a>
+<a href="/article.html?id=${article._id}" target="blank"  class="title">${article.title}</a>
 
 <div class="categories">
     ${categoryHTML}

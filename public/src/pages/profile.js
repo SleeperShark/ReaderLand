@@ -197,14 +197,16 @@ function renderFollowee(followee) {
 
 function renderFollower(follower) {
     const followerPage = document.getElementById('follower-page');
+
     follower.forEach((elem) => {
+        console.log(elem);
         const followerDiv = document.createElement('div');
         followerDiv.dataset.id = elem._id;
         followerDiv.classList.add('follower');
         followerDiv.style.borderTop = `50px solid ${randomColor()}`;
         followerDiv.innerHTML += `
-    <img class="follower-avatar" src="${elem.picture}" alt="" />
-    <div class="follower-name">${elem.name}</div>
+    <img class="follower-avatar" src="${elem.picture}" onclick="window.open('/author.html?id=${elem._id}', '_blank').focus();" alt="" />
+    <div class="follower-name" onclick="window.open('/author.html?id=${elem._id}', '_blank').focus();">${elem.name}</div>
     <div class="follower-bio">
         ${elem.bio}
     </div>

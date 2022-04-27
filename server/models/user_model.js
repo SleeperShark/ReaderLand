@@ -1,12 +1,11 @@
 require('dotenv').config();
 const { User, ObjectId, Category, Article } = require('./schemas');
 const salt = parseInt(process.env.BCRYPT_SALT);
-const { TOKEN_SECRET } = process.env;
+const { TOKEN_SECRET, IMAGE_URL } = process.env;
 const bcrypt = require('bcrypt');
 const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
-const { lookup } = require('dns');
 
 const USER_ROLE = {
     ALL: -1,
@@ -524,13 +523,16 @@ const getAuthorProfile = async (authorId) => {
     try {
         const authorProfile = await User.aggregate([
             { $match: { _id: ObjectId(authorId) } },
-            { $project: { follower: 1, followee: 1, name: 1, bio: 1 } },
+            { $project: { follower: 1, followee: 1, name: 1, bio: 1, picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] } } },
             {
                 $lookup: {
                     from: 'Article',
                     localField: '_id',
                     foreignField: 'author',
-                    pipeline: [{ $project: { title: 1, readCount: 1, commentCount: { $size: '$comments' }, likeCount: { $size: '$likes' }, category: 1, createdAt: 1 } }],
+                    pipeline: [
+                        { $project: { title: 1, readCount: 1, commentCount: { $size: '$comments' }, likeCount: { $size: '$likes' }, category: 1, createdAt: 1, preview: 1 } },
+                        { $sort: { createdAt: -1 } },
+                    ],
                     as: 'articles',
                 },
             },

@@ -147,6 +147,8 @@ async function renderArticles(auth) {
 
     //TODO: profile presentation when hover
     document.querySelectorAll('.author-picture').forEach((elem) => {
+        //TODO: click to redirect to author.html
+
         const profile = elem.nextSibling.nextSibling;
         profile.addEventListener('mouseover', () => {
             profile.dataset.status = 'show';

@@ -2,13 +2,18 @@ html {
     background-color: black;
 }
 
+main {
+    margin-top: 100px;
+}
+
 #author-info {
     position: fixed;
-    width: 400px;
+    width: 440px;
+    /* height: 550px; */
     padding-bottom: 30px;
     background-color: azure;
     top: 120px;
-    left: 10vw;
+    left: 8vw;
     background-color: rgb(74, 75, 76);
 
     display: flex;
@@ -50,6 +55,7 @@ html {
     border-top: 2px solid white;
     border-bottom: 2px solid white;
     padding: 5px 10px 8px;
+    margin-top: 10px;
 }
 
 .activity-container {
@@ -117,4 +123,91 @@ html {
 
 #follow-btn.followed .fa-check-square {
     display: block;
+}
+
+/* --------- articles part ----------- */
+#author-articles {
+    min-height: 500px;
+    margin-left: calc(8vw + 490px);
+    margin-right: 6vw;
+}
+
+#articles-div-header {
+    color: white;
+    font-size: 2rem;
+    border-bottom: 2px white solid;
+    padding-left: 20px;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+/* article component */
+.article {
+    background-color: rgb(71, 67, 67);
+    border-radius: 3px;
+    width: 95%;
+    margin: 0 auto 25px auto;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.article:hover {
+    transform: scale(1.03);
+}
+
+.article-title {
+    font-size: 1.5rem;
+    font-weight: bolder;
+    margin-bottom: 15px;
+}
+
+.article-categories {
+    margin: 10px auto 5px 5px;
+}
+
+.category {
+    margin-right: 10px;
+    background-color: rgb(90, 95, 100);
+    color: rgba(255, 255, 255, 0.649);
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bolder;
+}
+
+.article-preview {
+    margin: 15px auto 5px 10px;
+    font-size: 1.2rem;
+}
+
+.article-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.637);
+}
+
+.article-feedback {
+    display: flex;
+}
+
+.article-date {
+    margin-top: 5px;
+}
+
+.article-feedback {
+    margin-top: 5px;
+}
+
+.article-feedback .feedback > * {
+    font-size: 1.2rem;
+}
+
+.article-feedback .feedback > .count {
+    font-weight: normal;
+}
+
+.feedback {
+    margin-left: 15px;
 }

@@ -1,6 +1,8 @@
 let articleInfo;
 
-function appendNewparagraph(currArea) {
+function appendNewparagraph(paragraphTimetamp) {
+    const currArea = document.getElementById(paragraphTimetamp);
+
     const prevParagraph = currArea.parentElement;
     const newParagraph = document.createElement('div');
 
@@ -10,6 +12,7 @@ function appendNewparagraph(currArea) {
 
     // Text area attibute setting
     const newArea = document.createElement('textarea');
+    newArea.id = newParagraph.dataset.timestamp;
     newArea.classList.add('text-input');
     newArea.placeholder = '在這裡編輯...';
 
@@ -17,9 +20,7 @@ function appendNewparagraph(currArea) {
     const container = currArea.parentElement.parentElement;
     container.insertBefore(newParagraph, currArea.parentElement.nextSibling);
 
-    addReSizeProperty();
-    appendNewParagraphListener(newArea);
-    removeEmptyParagraphListener(newArea);
+    addTextAreaProperty(newParagraph.dataset.timestamp);
 
     //TODO: setting next attribute for previous textArea
     if (!prevParagraph.dataset.next) {
@@ -35,55 +36,56 @@ function appendNewparagraph(currArea) {
     newArea.focus();
 }
 
-function addReSizeProperty() {
-    $('textarea')
-        .each(function () {
-            if (this.id != 'preview-input') {
-                this.setAttribute('style', 'height:' + this.scrollHeight + 'px;overflow-y:hidden;');
-            }
+function removeEmptyParagraph(paragraphTimetamp) {
+    const currParagraph = document.getElementById(paragraphTimetamp).parentElement;
+    const nextParagraph = currParagraph.nextElementSibling;
+    const prevParagraph = currParagraph.previousElementSibling;
+
+    if (!nextParagraph) {
+        prevParagraph.dataset.next = undefined;
+        currParagraph.remove();
+    } else {
+        prevParagraph.dataset.next = nextParagraph.dataset.timestamp;
+        currParagraph.remove();
+    }
+
+    prevParagraph.querySelector('textarea').focus();
+}
+
+function addTextAreaProperty(paragraphTimetamp) {
+    const textarea = $(`#${paragraphTimetamp}`);
+
+    textarea
+        .css({
+            height: this.scrollHeight,
+            'overflow-y': 'hidden',
         })
         .on('input', function () {
             if (this.id != 'preview-input') {
                 this.style.height = 'auto';
                 this.style.height = this.scrollHeight + 'px';
             }
+        })
+        .keypress(function (event) {
+            if (event.which == 13 && !event.shiftKey) {
+                event.preventDefault();
+
+                if (this.value.trim().length == 0) {
+                    return;
+                }
+                appendNewparagraph(paragraphTimetamp);
+            }
         });
-}
 
-function appendNewParagraphListener(textArea) {
-    textArea.addEventListener('keypress', (e) => {
-        if (e.keyCode == 13 && !e.shiftKey) {
-            e.preventDefault();
-
-            if (e.target.value.trim().length == 0) {
-                return;
+    //TODO: except for first paragraph, add remove event when backspace empty paragraph
+    if (paragraphTimetamp != document.getElementsByTagName('textarea')[0].id) {
+        textarea.keydown(function (event) {
+            if (event.which == 8 && this.value.length == 0) {
+                event.preventDefault();
+                removeEmptyParagraph(paragraphTimetamp);
             }
-
-            appendNewparagraph(e.target);
-        }
-    });
-}
-
-function removeEmptyParagraphListener(textArea) {
-    textArea.addEventListener('keydown', (e) => {
-        if (e.keyCode == 8 && e.target.value.length == 0) {
-            e.preventDefault();
-            const prevParagraph = e.target.parentElement.previousSibling;
-
-            let nextParagraph = e.target.parentElement.nextSibling;
-
-            if (nextParagraph.classList?.contains('paragraph')) {
-                // middle remove case
-                prevParagraph.dataset.next = nextParagraph.dataset.timestamp;
-            } else {
-                // bottom remove case
-                prevParagraph.dataset.next = undefined;
-            }
-
-            e.target.parentElement.remove();
-            prevParagraph.querySelector('.text-input').focus();
-        }
-    });
+        });
+    }
 }
 
 async function renderCategoriesSelection() {
@@ -136,17 +138,17 @@ async function init() {
     submitArticle.querySelector('span').innerText = '準備發佈';
     submitArticle.href = '#';
 
-    //TODO: init first
-    const defaultInput = document.querySelector('.text-input');
-    addReSizeProperty();
-    appendNewParagraphListener(defaultInput);
-
-    const headParagraph = defaultInput.parentElement;
+    const headParagraph = document.querySelector('.paragraph');
     //TODO: set defaultInput div timeStamp
     headParagraph.dataset.timestamp = new Date().getTime();
     headParagraph.dataset.type = 'text';
 
-    //TODO: title enter to first paragraph
+    //TODO: init first paragraph
+    const defaultInput = document.querySelector('.text-input');
+    defaultInput.id = headParagraph.dataset.timestamp;
+    addTextAreaProperty(headParagraph.dataset.timestamp);
+
+    //TODO: title enter to focus to first paragraph
     document.getElementById('title-input').addEventListener('keypress', (e) => {
         if (e.keyCode == 13 && !e.shiftKey) {
             e.preventDefault();

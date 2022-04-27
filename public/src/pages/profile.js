@@ -182,6 +182,7 @@ async function renderSubscribe(subscribe) {
 
 function renderFollowee(followee) {
     const followeePage = document.getElementById('followee-page');
+
     followee.forEach((elem) => {
         const followeeDiv = document.createElement('div');
         followeeDiv.classList.add('followee');
@@ -191,6 +192,9 @@ function renderFollowee(followee) {
     <img src="${elem.picture}" alt="" />
     <span>${elem.name}</span>`;
 
+        followeeDiv.addEventListener('click', () => {
+            window.open(`/author.html?id=${elem._id}`, '_blank').focus();
+        });
         followeePage.appendChild(followeeDiv);
     });
 }
@@ -199,7 +203,6 @@ function renderFollower(follower) {
     const followerPage = document.getElementById('follower-page');
 
     follower.forEach((elem) => {
-        console.log(elem);
         const followerDiv = document.createElement('div');
         followerDiv.dataset.id = elem._id;
         followerDiv.classList.add('follower');

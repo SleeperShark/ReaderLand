@@ -319,6 +319,7 @@ main {
 #followee-page.hide {
     display: none;
 }
+
 .followee {
     background-color: rgb(74, 75, 76);
     color: white;
@@ -329,8 +330,16 @@ main {
     border-radius: 3px;
     margin-left: 20px;
     margin-bottom: 20px;
-
+    cursor: pointer;
     /* border-left: 90px solid green; */
+}
+
+.followee:hover {
+    transform: scale(1.03);
+}
+
+.followee:active {
+    transform: scale(1);
 }
 
 .followee > img {

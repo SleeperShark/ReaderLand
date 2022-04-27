@@ -45,7 +45,6 @@ main {
     color: white;
     resize: none;
     border: 0px;
-    height: auto;
 }
 
 .text-input:focus {

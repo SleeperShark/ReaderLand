@@ -38,12 +38,12 @@ function appendNewparagraph(currArea) {
 function addReSizeProperty() {
     $('textarea')
         .each(function () {
-            if (!this.id == 'preview-input') {
+            if (this.id != 'preview-input') {
                 this.setAttribute('style', 'height:' + this.scrollHeight + 'px;overflow-y:hidden;');
             }
         })
         .on('input', function () {
-            if (!this.id == 'preview-input') {
+            if (this.id != 'preview-input') {
                 this.style.height = 'auto';
                 this.style.height = this.scrollHeight + 'px';
             }
@@ -131,10 +131,12 @@ async function init() {
     const auth = await authenticate();
     await renderHeader(auth);
     await renderCategoriesSelection();
+    //TODO: change create article button text
     const submitArticle = document.getElementById('create-article');
     submitArticle.querySelector('span').innerText = '準備發佈';
     submitArticle.href = '#';
 
+    //TODO: init first
     const defaultInput = document.querySelector('.text-input');
     addReSizeProperty();
     appendNewParagraphListener(defaultInput);

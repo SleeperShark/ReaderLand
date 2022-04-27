@@ -116,9 +116,30 @@ const articleSchema = mongoose.Schema({
 
 articleSchema.index({ title: 1, author: 1 }, { unique: true });
 
+const draftSchema = mongoose.Schema({
+    title: String,
+    author: {
+        type: mongoose.SchemaTypes.ObjectId,
+        required: true,
+        index: true,
+    },
+    context: Object,
+    head: {
+        type: String,
+        require: true,
+    },
+    createdAt: {
+        type: Date,
+        immutable: true,
+        required: true,
+    },
+    lastUpdatedAt: Date,
+});
+
 module.exports = {
     User: mongoose.model('User', userSchema, 'User'),
     Article: mongoose.model('Article', articleSchema, 'Article'),
     Category: mongoose.model('Category', categorySchema, 'Category'),
+    Draft: mongoose.model('Draft', draftSchema, 'Draft'),
     ObjectId: mongoose.Types.ObjectId,
 };

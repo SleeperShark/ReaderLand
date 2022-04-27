@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // API routes
-app.use('/api', [require('./server/routes/user_route'), require('./server/routes/article_route')]);
+app.use('/api', [require('./server/routes/user_route'), require('./server/routes/article_route'), require('./server/routes/draft_route')]);
 
 // Page not found
 app.use((req, res, next) => {

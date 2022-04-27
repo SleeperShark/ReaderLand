@@ -167,6 +167,17 @@ const getAuthorProfileAPI = (authorId) => {
     return fetchHandler(`/api/user/${authorId}`);
 };
 
+const createDraftAPI = (userToken, initTimeStamp) => {
+    return fetchHandler('/api/drafts', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ head: initTimeStamp }),
+    });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

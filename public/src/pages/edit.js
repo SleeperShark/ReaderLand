@@ -1,4 +1,5 @@
 let articleInfo;
+let draftId = new URL(window.location).searchParams.get('draftId');
 
 function appendNewparagraph(paragraphTimetamp) {
     const currArea = document.getElementById(paragraphTimetamp);
@@ -129,6 +130,17 @@ async function renderCategoriesSelection() {
     }
 }
 
+async function createDraft(token, initTimeStamp) {
+    const { data: draftId, error, status } = await createDraftAPI(token, initTimeStamp);
+    if (error) {
+        console.error(status);
+        console.error(error);
+        alert('Error: createDraftAPI');
+    }
+
+    return draftId;
+}
+
 async function init() {
     const auth = await authenticate();
     await renderHeader(auth);
@@ -140,6 +152,7 @@ async function init() {
 
     const headParagraph = document.querySelector('.paragraph');
     //TODO: set defaultInput div timeStamp
+    // const headTimeStamp =
     headParagraph.dataset.timestamp = new Date().getTime();
     headParagraph.dataset.type = 'text';
 
@@ -147,6 +160,15 @@ async function init() {
     const defaultInput = document.querySelector('.text-input');
     defaultInput.id = headParagraph.dataset.timestamp;
     addTextAreaProperty(headParagraph.dataset.timestamp);
+
+    //TODO: create draft object
+    if (!draftId) {
+        draftId = await createDraft(token, headParagraph.dataset.timestamp);
+        if (history.pushState) {
+            var newurl = window.location.protocol + '//' + window.location.host + window.location.pathname + `?draftId=${draftId}`;
+            window.history.pushState({ path: newurl }, '', newurl);
+        }
+    }
 
     //TODO: title enter to focus to first paragraph
     document.getElementById('title-input').addEventListener('keypress', (e) => {

@@ -136,10 +136,21 @@ async function renderArticle(auth) {
     // TODO: Render content of the article
     //* title
     document.getElementById('title').innerText = article.title;
+
     //* author avatar
-    document.getElementById('author-avatar').src = article.author.picture;
+    const avatar = document.getElementById('author-avatar');
+    avatar.src = article.author.picture;
+    avatar.addEventListener('click', () => {
+        window.location.href = `/author.html?id=${article.author._id}`;
+    });
+
     //* author name
-    document.getElementById('author-name').innerText = article.author.name;
+    const name = document.getElementById('author-name');
+    name.innerText = article.author.name;
+    name.addEventListener('click', () => {
+        window.location.href = `/author.html?id=${article.author._id}`;
+    });
+
     // hide follow btn if user is author
     if (user?.userId == article.author._id) {
         document.getElementById('follow-btn').classList.add('hide');

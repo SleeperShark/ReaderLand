@@ -18,6 +18,22 @@ const createDraft = async (userId, head) => {
     }
 };
 
+const updateDraft = async ({ userId, draftId, updateData }) => {
+    if (!ObjectId.isValid(draftId)) {
+        return { error: 'Invalid draftId.', status: 400 };
+    }
+
+    try {
+        const result = await Draft.updateOne({ _id: ObjectId(draftId), author: userId }, { $set: updateData });
+        console.log(result);
+        return { data: 'OK' };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 module.exports = {
     createDraft,
+    updateDraft,
 };

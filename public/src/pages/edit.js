@@ -170,8 +170,9 @@ async function init() {
         }
     }
 
+    const titleInput = document.getElementById('title-input');
     //TODO: title enter to focus to first paragraph
-    document.getElementById('title-input').addEventListener('keypress', (e) => {
+    titleInput.addEventListener('keypress', (e) => {
         if (e.keyCode == 13 && !e.shiftKey) {
             e.preventDefault();
 
@@ -181,6 +182,20 @@ async function init() {
 
             document.querySelector('.text-input').focus();
         }
+    });
+
+    //TODO: save title when blur
+    titleInput.addEventListener('blur', async () => {
+        const { data, error, status } = await updateDraftAPI(token, draftId, { title: titleInput.value });
+
+        if (error) {
+            console.error(status);
+            console.error(error);
+            alert('Error: updateDraftAPI');
+            return;
+        }
+
+        alert(data);
     });
 
     //TODO: create-article btn event listener

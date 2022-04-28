@@ -454,7 +454,7 @@ document.addEventListener('keydown', function (event) {
 // TODO: remove the draft if every is empty
 window.onbeforeunload = async function () {
     if (document.getElementById('title-input').value) {
-        return;
+        return undefined;
     }
 
     const texts = document.getElementsByClassName('text-input');

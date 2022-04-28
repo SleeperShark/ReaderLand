@@ -32,7 +32,7 @@ const updateDraft = async ({ userId, draftId, updateData }) => {
     }
 
     try {
-        const result = await Draft.updateOne({ _id: ObjectId(draftId), author: userId }, { $set: updateData }, { upsert: true });
+        const result = await Draft.updateOne({ _id: ObjectId(draftId), author: userId }, updateData, { upsert: true });
 
         console.log(result);
         console.log(updateData);

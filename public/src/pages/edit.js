@@ -26,22 +26,22 @@ async function appendNewparagraphAndSavingDraft(paragraphTimetamp) {
 
     addTextAreaProperty(newParagraph.dataset.timestamp);
 
-    const updateData = {};
-    updateData[`context.${paragraphTimetamp}.content`] = currArea.value;
-    updateData[`context.${paragraphTimetamp}.next`] = newParagraph.dataset.timestamp;
+    const updateData = { $set: {} };
+    updateData['$set'][`context.${paragraphTimetamp}.content`] = currArea.value;
+    updateData['$set'][`context.${paragraphTimetamp}.next`] = newParagraph.dataset.timestamp;
     //TODO: setting next attribute for previous textArea && collecting update Data
     if (!prevParagraph.dataset.next) {
         // append case
         prevParagraph.dataset.next = newParagraph.dataset.timestamp;
 
-        updateData[`context.${newParagraph.dataset.timestamp}`] = { content: '', next: undefined, type: 'text' };
+        updateData['$set'][`context.${newParagraph.dataset.timestamp}`] = { content: '', type: 'text' };
     } else {
         // insert case
         const temp = prevParagraph.dataset.next;
         prevParagraph.dataset.next = newParagraph.dataset.timestamp;
         newParagraph.dataset.next = temp;
 
-        updateData[`context.${newParagraph.dataset.timestamp}`] = { content: '', next: temp, type: 'text' };
+        updateData['$set'][`context.${newParagraph.dataset.timestamp}`] = { content: '', next: temp, type: 'text' };
     }
 
     newArea.focus();
@@ -57,20 +57,38 @@ async function appendNewparagraphAndSavingDraft(paragraphTimetamp) {
     console.log('saving success');
 }
 
-function removeEmptyParagraph(paragraphTimetamp) {
+async function removeEmptyParagraphAndSavingDraft(paragraphTimetamp) {
     const currParagraph = document.getElementById(paragraphTimetamp).parentElement;
     const nextParagraph = currParagraph.nextElementSibling;
     const prevParagraph = currParagraph.previousElementSibling;
 
+    const updateData = { $set: {}, $unset: {} };
+    updateData['$unset'][`context.${paragraphTimetamp}`] = '';
     if (!nextParagraph) {
+        // remove last paragraph
         prevParagraph.dataset.next = undefined;
         currParagraph.remove();
+
+        updateData['$unset'][`context.${prevParagraph.dataset.timestamp}.next`] = '';
     } else {
         prevParagraph.dataset.next = nextParagraph.dataset.timestamp;
         currParagraph.remove();
+
+        updateData['$set'][`context.${prevParagraph.dataset.timestamp}.next`] = nextParagraph.dataset.timestamp;
     }
 
     prevParagraph.querySelector('textarea').focus();
+
+    //TODO: update delete action
+    const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
+    if (error) {
+        console.error(status);
+        console.error(error);
+        alert('Error: update Draft after remove paragraph');
+        return;
+    }
+
+    console.log('update Success');
 }
 
 function addTextAreaProperty(paragraphTimetamp) {
@@ -91,8 +109,8 @@ function addTextAreaProperty(paragraphTimetamp) {
         .on('keyup', function () {
             clearTimeout(typingTimer);
             typingTimer = setTimeout(async () => {
-                const updateData = {};
-                updateData[`context.${paragraphTimetamp}.content`] = this.value;
+                const updateData = { $set: {} };
+                updateData['$set'][`context.${paragraphTimetamp}.content`] = this.value;
 
                 const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
 
@@ -100,6 +118,7 @@ function addTextAreaProperty(paragraphTimetamp) {
                     console.error(status);
                     console.error(error);
                     alert('Error: Autosaving content');
+                    return;
                 }
 
                 console.log('Auto saving success after keyup');
@@ -126,7 +145,7 @@ function addTextAreaProperty(paragraphTimetamp) {
         textarea.keydown(function (event) {
             if (event.which == 8 && this.value.length == 0) {
                 event.preventDefault();
-                removeEmptyParagraph(paragraphTimetamp);
+                removeEmptyParagraphAndSavingDraft(paragraphTimetamp);
             }
         });
     }
@@ -229,7 +248,7 @@ async function init() {
 
     //TODO: save title when blur
     titleInput.addEventListener('blur', async () => {
-        const { data, error, status } = await updateDraftAPI(token, draftId, { title: titleInput.value || '無標題' });
+        const { data, error, status } = await updateDraftAPI(token, draftId, { $set: { title: titleInput.value || '無標題' } });
 
         if (error) {
             console.error(status);

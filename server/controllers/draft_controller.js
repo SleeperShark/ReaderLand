@@ -13,6 +13,18 @@ const createDraft = async (req, res) => {
     res.status(200).json({ data: draftId });
 };
 
+const getDraftsList = async (req, res) => {
+    const { userId } = req.user;
+
+    const { data: drafts, error, status } = await Draft.getDraftsList(userId);
+
+    if (error) {
+        res.status(status).json({ error });
+    }
+
+    res.status(200).json({ data: drafts });
+};
+
 const getDraft = async (req, res) => {
     const { userId } = req.user;
     const { draftId } = req.params;
@@ -72,6 +84,7 @@ const deleteDraft = async (req, res) => {
 
 module.exports = {
     createDraft,
+    getDraftsList,
     getDraft,
     updateDraft,
     deleteDraft,

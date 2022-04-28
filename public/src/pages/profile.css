@@ -584,7 +584,7 @@ main {
 }
 
 .published-article {
-    width: 800px;
+    width: 90%;
     background-color: rgb(71, 67, 67);
     display: flex;
     flex-direction: column;
@@ -661,4 +661,53 @@ main {
 
 .published-feedback > * {
     margin-left: 24px;
+}
+
+/* ---------- Draft list ---------- */
+
+#draft-container {
+    padding-left: 20px;
+    padding-top: 30px;
+}
+
+.draft {
+    width: 90%;
+    background-color: rgb(71, 67, 67);
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.draft-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.draft-edit,
+.draft-discard {
+    font-size: 1.3rem;
+    cursor: pointer;
+    position: absolute;
+}
+
+.draft-edit {
+    top: 5px;
+    right: 35px;
+}
+
+.draft-discard {
+    top: 5px;
+    right: 5px;
+}
+
+.draft-date {
+    font-size: 1.1rem;
+    opacity: 0.6;
 }

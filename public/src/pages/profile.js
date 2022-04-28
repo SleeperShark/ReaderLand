@@ -4,6 +4,57 @@ function randomColor() {
     return `rgb(${Math.random() * 256}, ${Math.random() * 256}, ${Math.random() * 256})`;
 }
 
+async function renderDrafts() {
+    const { data: drafts, error, status } = await getDraftsListAPI(token);
+    if (error) {
+        console.error(status);
+        console.error(error);
+        alert('Error: getDraftAPI');
+        return;
+    }
+
+    drafts.sort((a, b) => new Date(b.lastUpdatedAt) - new Date(a.lastUpdatedAt));
+
+    const draftContainer = document.getElementById('draft-container');
+    for (let draft of drafts) {
+        const { title, _id, createdAt, lastUpdatedAt } = draft;
+        const draftDiv = document.createElement('div');
+        draftDiv.classList.add('draft');
+
+        console.log(createdAt);
+        console.log(lastUpdatedAt);
+
+        draftDiv.innerHTML = `
+<i class="fas fa-edit draft-edit"></i>
+<i class="fas fa-trash-alt draft-discard"></i>
+<div class="draft-title">${title}</div>
+<div class="draft-date createdAt">建立日期: ${timeTransformer(createdAt)}</div>
+<div class="draft-date LastUpdatedAt">上次更新: ${timeTransformer(lastUpdatedAt)}</div>`;
+        draftContainer.appendChild(draftDiv);
+
+        draftDiv.getElementsByClassName('draft-edit')[0].addEventListener('click', () => {
+            window.location.href = `/edit.html?draftId=${_id}`;
+        });
+
+        draftDiv.getElementsByClassName('draft-title')[0].addEventListener('click', () => {
+            window.location.href = `/edit.html?draftId=${_id}`;
+        });
+
+        draftDiv.getElementsByClassName('draft-discard')[0].addEventListener('click', async (e) => {
+            const { error, status } = await deleteDraftAPI(token, _id);
+
+            if (error) {
+                console.error(status);
+                console.error(error);
+                alert('Error: Delete draft API');
+                return;
+            }
+
+            draftDiv.remove();
+        });
+    }
+}
+
 //TODO: render favorite article
 function renderFavorite(favoriteArticles) {
     const favoritePage = document.getElementById('favorite-page');
@@ -321,6 +372,9 @@ async function init() {
         console.error(error);
         alert('系統異常: getUserProfileAPI');
     }
+
+    //TODO: render draft list
+    await renderDrafts();
 }
 
 init();

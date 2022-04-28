@@ -26,6 +26,17 @@ const createDraft = async (userId, head) => {
     }
 };
 
+const getDraftsList = async (userId) => {
+    try {
+        const drafts = await Draft.find({ author: userId }, { _id: 1, createdAt: 1, lastUpdatedAt: 1, title: 1 });
+
+        return { data: drafts };
+    } catch (error) {
+        console.error(error);
+        return { status: 500, error: 'Server error' };
+    }
+};
+
 const updateDraft = async ({ userId, draftId, updateData }) => {
     if (!ObjectId.isValid(draftId)) {
         return { error: 'Invalid draftId.', status: 400 };
@@ -102,6 +113,7 @@ const deleteDraft = async (userId, draftId) => {
 
 module.exports = {
     createDraft,
+    getDraftsList,
     updateDraft,
     getDraft,
     deleteDraft,

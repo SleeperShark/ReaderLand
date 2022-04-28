@@ -207,6 +207,15 @@ const deleteDraftAPI = (userToken, draftId) => {
     });
 };
 
+const getDraftsListAPI = (userToken) => {
+    return fetchHandler(`api/drafts`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+    });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

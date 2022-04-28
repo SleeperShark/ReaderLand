@@ -100,7 +100,11 @@ async function removeEmptyParagraphAndSavingDraft(paragraphTimetamp) {
 function moveToUpperTextarea(currTextareaID) {
     const currArea = document.getElementById(currTextareaID);
     if (currArea.parentElement.previousElementSibling) {
-        currArea.parentElement.previousElementSibling.children[0].focus();
+        const previoustextarea = currArea.parentElement.previousElementSibling.children[0];
+        previoustextarea.focus();
+
+        window.scrollTo(0, previoustextarea.offsetTop + previoustextarea.offsetHeight - 200);
+        console.log(previoustextarea.offsetTop + previoustextarea.offsetHeight);
     }
     cursorToTop = false;
     return;
@@ -109,7 +113,10 @@ function moveToUpperTextarea(currTextareaID) {
 function moveToLowerTextarea(currTextareaID) {
     const currArea = document.getElementById(currTextareaID);
     if (currArea.parentElement.nextElementSibling) {
-        currArea.parentElement.nextElementSibling.children[0].focus();
+        const nextTextarea = currArea.parentElement.nextElementSibling.children[0];
+        nextTextarea.focus();
+
+        window.scrollTo(0, nextTextarea.offsetTop - 100);
     }
     cursorToBottom = false;
     return;

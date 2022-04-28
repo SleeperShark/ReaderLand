@@ -160,6 +160,7 @@ const getArticle = async (articleId, userId = '') => {
                     category: 1,
                     comments: 1,
                     comments_reader: 1,
+                    head: 1,
                 },
             },
         ]);

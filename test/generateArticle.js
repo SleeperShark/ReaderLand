@@ -99,6 +99,7 @@ async function run() {
                 readCount,
                 comments,
                 preview: article.preview,
+                head: 'head',
             });
 
             console.log(result);

@@ -178,7 +178,7 @@ async function renderArticle(auth) {
 
     //TODO: render context
     const contextDiv = document.getElementById('context');
-    let cursor = 'head';
+    let cursor = article.head;
 
     while (cursor) {
         const newParagraph = document.createElement('div');

@@ -7,7 +7,6 @@ const createDraft = async (userId, head) => {
     context[head] = {
         type: 'text',
         content: '',
-        next: undefined,
     };
     try {
         const draft = await Draft.create({

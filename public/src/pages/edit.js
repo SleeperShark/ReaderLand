@@ -70,7 +70,7 @@ async function removeEmptyParagraphAndSavingDraft(paragraphTimetamp) {
     updateData['$unset'][`context.${paragraphTimetamp}`] = '';
     if (!nextParagraph) {
         // remove last paragraph
-        prevParagraph.dataset.next = undefined;
+        delete prevParagraph.dataset.next;
         currParagraph.remove();
 
         updateData['$unset'][`context.${prevParagraph.dataset.timestamp}.next`] = '';
@@ -205,18 +205,22 @@ async function renderDraft({ draft: { title, head, context }, headParagraph, def
     let currtTimestamp = head;
     headParagraph.dataset.timestamp = currtTimestamp;
     headParagraph.dataset.next = context[currtTimestamp].next;
+    headParagraph.dataset.type = context[currtTimestamp].type;
+
     defaultInput.id = currtTimestamp;
     defaultInput.value = context[currtTimestamp].content;
     addTextAreaProperty(defaultInput.id);
 
     // render rest of paragraph
-    while (context[currtTimestamp].next) {
+    while (context[currtTimestamp].next != undefined && context[currtTimestamp].next != 'undefined') {
         const newTimestamp = context[currtTimestamp].next;
         const newParagraph = await appendNewparagraphAndSavingDraft(currtTimestamp, newTimestamp, false);
         const newTextInput = newParagraph.children[0];
 
         newParagraph.dataset.timestamp = newTimestamp;
         newParagraph.dataset.next = context[newTimestamp].next;
+        newParagraph.dataset.type = context[newTimestamp].type;
+
         newTextInput.id = newTimestamp;
         newTextInput.value = context[newTimestamp].content;
 
@@ -321,52 +325,54 @@ async function init() {
         const paragraphs = document.querySelectorAll('.paragraph');
         let preview;
         let prevTimestamp;
-        paragraphs.forEach((paragraph, idx) => {
+        let head;
+
+        paragraphs.forEach((paragraph) => {
+            console.log(paragraph);
             const {
-                dataset: { type, timestamp },
+                dataset: { type, timestamp, next },
             } = paragraph;
 
             let content;
 
             switch (type) {
                 case 'text':
-                    const textInput = paragraph.querySelector('.text-input');
+                    const textInput = paragraph.children[0];
                     content = textInput.value;
-                    if (content && !preview) {
-                        preview = content.slice(0, 151);
-                    }
             }
 
-            if (!content) return;
+            // reorganize the linked list relation
+            if (content) {
+                if (!head) {
+                    head = timestamp;
+                } else {
+                    context[prevTimestamp].next = timestamp;
+                }
 
-            if (prevTimestamp) {
-                context[prevTimestamp].next = timestamp;
-            }
-
-            if (!context.head) {
-                // setting head node
-                context.head = {
-                    type,
-                    content,
-                };
-                prevTimestamp = 'head';
-            } else {
-                context[timestamp] = {
-                    type,
-                    content,
-                };
+                context[timestamp] = { content, type };
                 prevTimestamp = timestamp;
+
+                if (!preview) {
+                    preview = content.slice(0, 150);
+                }
             }
         });
+
+        if (!Object.keys(context).length) {
+            alert('請輸入內文');
+            return;
+        }
 
         // Store the info in the global vairable
         articleInfo = {
             preview,
             context,
             title,
+            head,
         };
 
         console.log(articleInfo);
+
         document.getElementById('submit-board').classList.remove('hide');
     });
 

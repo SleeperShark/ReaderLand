@@ -27,7 +27,7 @@ async function renderDrafts() {
         draftDiv.innerHTML = `
 <i class="fas fa-edit draft-edit"></i>
 <i class="fas fa-trash-alt draft-discard"></i>
-<div class="draft-title">${title}</div>
+<div class="draft-title">${title || '無標題'}</div>
 <div class="draft-date createdAt">建立日期: ${timeTransformer(createdAt)}</div>
 <div class="draft-date LastUpdatedAt">上次更新: ${timeTransformer(lastUpdatedAt)}</div>`;
         draftContainer.appendChild(draftDiv);

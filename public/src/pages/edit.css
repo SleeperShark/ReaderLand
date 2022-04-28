@@ -49,6 +49,7 @@ main {
 
 .text-input:focus {
     outline: 0px;
+    background-color: rgb(44, 41, 41);
 }
 
 .text-input:hover {

@@ -1,6 +1,8 @@
 let articleInfo;
 let draftId = new URL(window.location).searchParams.get('draftId');
 var typingTimer;
+var cursorToTop = false;
+var cursorToBottom = false;
 
 //TODO: append next paragraph and autosaving in the new structure
 async function appendNewparagraphAndSavingDraft(paragraphTimetamp, nextParagraphTimestamp = new Date().getTime(), saving = true) {
@@ -95,6 +97,24 @@ async function removeEmptyParagraphAndSavingDraft(paragraphTimetamp) {
     console.log('update Success');
 }
 
+function moveToUpperTextarea(currTextareaID) {
+    const currArea = document.getElementById(currTextareaID);
+    if (currArea.parentElement.previousElementSibling) {
+        currArea.parentElement.previousElementSibling.children[0].focus();
+    }
+    cursorToTop = false;
+    return;
+}
+
+function moveToLowerTextarea(currTextareaID) {
+    const currArea = document.getElementById(currTextareaID);
+    if (currArea.parentElement.nextElementSibling) {
+        currArea.parentElement.nextElementSibling.children[0].focus();
+    }
+    cursorToBottom = false;
+    return;
+}
+
 function addTextAreaProperty(paragraphTimetamp) {
     const textarea = $(`#${paragraphTimetamp}`);
 
@@ -110,8 +130,9 @@ function addTextAreaProperty(paragraphTimetamp) {
             }
         })
         //TODO: autosaving content of the context area
-        .on('keyup', function () {
+        .on('keyup', function (evt) {
             clearTimeout(typingTimer);
+
             typingTimer = setTimeout(async () => {
                 const updateData = { $set: {} };
                 updateData['$set'][`context.${paragraphTimetamp}.content`] = this.value;
@@ -127,6 +148,28 @@ function addTextAreaProperty(paragraphTimetamp) {
 
                 console.log('Auto saving success after keyup');
             }, 2000);
+
+            // TODO: move to upper text block
+            if (evt.target.selectionStart == 0) {
+                if (cursorToTop) {
+                    moveToUpperTextarea(evt.target.id);
+                } else {
+                    cursorToTop = true;
+                }
+            } else {
+                cursorToTop = false;
+            }
+
+            //TODO: move to lower text block
+            if (evt.target.selectionStart == evt.target.value.length) {
+                if (cursorToBottom) {
+                    moveToLowerTextarea(evt.target.id);
+                } else {
+                    cursorToBottom = true;
+                }
+            } else {
+                cursorToBottom = false;
+            }
         })
         .on('keydown', function () {
             clearTimeout(typingTimer);
@@ -267,7 +310,7 @@ async function init() {
     });
     //TODO: save title when blur
     titleInput.addEventListener('blur', async () => {
-        const { data, error, status } = await updateDraftAPI(token, draftId, { $set: { title: titleInput.value || '無標題' } });
+        const { data, error, status } = await updateDraftAPI(token, draftId, { $set: { title: titleInput.value } });
 
         if (error) {
             console.error(status);

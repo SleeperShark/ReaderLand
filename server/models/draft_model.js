@@ -14,7 +14,7 @@ const createDraft = async (userId, head) => {
             head,
             createdAt: new Date(Number(head)).toISOString(),
             context,
-            title: '無標題',
+            title: '',
         });
 
         console.log('Successfully creating new draft: ' + draft._id.toString());

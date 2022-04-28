@@ -208,7 +208,7 @@ const deleteDraftAPI = (userToken, draftId) => {
 };
 
 const getDraftsListAPI = (userToken) => {
-    return fetchHandler(`api/drafts`, {
+    return fetchHandler(`/api/drafts`, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${userToken}`,
@@ -217,7 +217,7 @@ const getDraftsListAPI = (userToken) => {
 };
 
 const readArticleAPI = (articleId) => {
-    return fetchHandler(`api/articles/${articleId}/read`, { method: 'PUT', headers: {} });
+    return fetchHandler(`/api/articles/${articleId}/read`, { method: 'PUT', headers: {} });
 };
 
 function timeTransformer(ISODateString) {

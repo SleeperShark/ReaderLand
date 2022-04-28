@@ -450,3 +450,20 @@ document.addEventListener('keydown', function (event) {
         document.getElementById('submit-board').classList.add('hide');
     }
 });
+
+// TODO: remove the draft if every is empty
+window.onbeforeunload = async function () {
+    if (document.getElementById('title-input').value) {
+        return;
+    }
+
+    const texts = document.getElementsByClassName('text-input');
+    for (let textInput of texts) {
+        if (textInput.value) {
+            return undefined;
+        }
+    }
+
+    await deleteDraftAPI(token, draftId);
+    return undefined;
+};

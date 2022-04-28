@@ -15,6 +15,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+app.get('/test', (req, res) => {
+    console.log('test');
+    res.status(200).json({ data: 'ok' });
+});
+
 // API routes
 app.use('/api', [require('./server/routes/user_route'), require('./server/routes/article_route'), require('./server/routes/draft_route')]);
 

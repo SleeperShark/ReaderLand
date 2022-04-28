@@ -1,3 +1,5 @@
+const articleId = new URL(window.location).searchParams.get('id');
+
 function toggleReplyEdit(replyBtn) {
     const replyEdit = replyBtn.nextSibling.nextSibling;
     const replySubmit = replyEdit.nextSibling.nextSibling;
@@ -124,7 +126,6 @@ function renderCommentBoard(article) {
 }
 
 async function renderArticle(auth) {
-    const articleId = new URL(window.location).searchParams.get('id');
     let result;
     if (auth) {
         result = await getFullArticleAPI(articleId, token);
@@ -379,5 +380,23 @@ document.getElementById('close-board-btn').addEventListener('click', toggleBoard
 document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         commentBoard.classList.add('hide');
+    }
+});
+
+//TODO: increase readCount when scroll to bottom
+$(window).scroll(async function () {
+    if ($(window).scrollTop() + $(window).height() + 110 >= $(document).height()) {
+        $(window).off('scroll');
+
+        const { data: readCount, error, status } = await readArticleAPI(articleId);
+
+        if (error) {
+            console.error(status);
+            console.error(error);
+            alert('Error: readArticleAPI');
+            return;
+        }
+
+        document.querySelector('#read .count').innerText = readCount;
     }
 });

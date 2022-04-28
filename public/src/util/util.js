@@ -216,6 +216,10 @@ const getDraftsListAPI = (userToken) => {
     });
 };
 
+const readArticleAPI = (articleId) => {
+    return fetchHandler(`api/articles/${articleId}/read`, { method: 'PUT', headers: {} });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

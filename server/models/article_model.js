@@ -733,15 +733,15 @@ const readArticle = async (articleId) => {
     }
 
     try {
-        const result = await Article.findByIdAndUpdate(
+        const { readCount } = await Article.findByIdAndUpdate(
             ObjectId(articleId),
             {
                 $inc: { readCount: 1 },
             },
-            { new: true, projection: { readCount: 1, _id: 1 } }
+            { new: true, projection: { readCount: 1, _id: 0 } }
         );
 
-        return { data: result };
+        return { data: readCount };
     } catch (error) {
         console.error(error);
         return { status: 500, error: 'Server error' };

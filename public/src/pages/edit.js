@@ -3,7 +3,7 @@ let draftId = new URL(window.location).searchParams.get('draftId');
 var typingTimer;
 
 //TODO: append next paragraph and autosaving in the new structure
-async function appendNewparagraphAndSavingDraft(paragraphTimetamp) {
+async function appendNewparagraphAndSavingDraft(paragraphTimetamp, nextParagraphTimestamp = new Date().getTime(), saving = true) {
     clearTimeout(typingTimer);
 
     const currArea = document.getElementById(paragraphTimetamp);
@@ -11,7 +11,7 @@ async function appendNewparagraphAndSavingDraft(paragraphTimetamp) {
     const newParagraph = document.createElement('div');
 
     newParagraph.classList.add('paragraph');
-    newParagraph.dataset.timestamp = new Date().getTime();
+    newParagraph.dataset.timestamp = nextParagraphTimestamp;
     newParagraph.dataset.type = 'text';
 
     // Text area attibute setting
@@ -46,15 +46,19 @@ async function appendNewparagraphAndSavingDraft(paragraphTimetamp) {
 
     newArea.focus();
 
-    //TODO: update draft
-    const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
-    if (error) {
-        console.error(status);
-        console.error(error);
-        alert('Error: updateDraftAPI after apeending');
+    if (saving) {
+        //TODO: update draft
+        const { error, status } = await updateDraftAPI(token, draftId, updateData);
+        if (error) {
+            console.error(status);
+            console.error(error);
+            alert('Error: updateDraftAPI after apeending');
+        }
+
+        console.log('saving success');
     }
 
-    console.log('saving success');
+    return newParagraph;
 }
 
 async function removeEmptyParagraphAndSavingDraft(paragraphTimetamp) {
@@ -192,6 +196,34 @@ async function renderCategoriesSelection() {
     }
 }
 
+async function renderDraft({ draft: { title, head, context }, headParagraph, defaultInput, titleInput }) {
+    titleInput.value = title;
+    headParagraph.dataset.timestamp = head;
+    defaultInput.id = head;
+
+    // render first paragraph content
+    let currtTimestamp = head;
+    headParagraph.dataset.timestamp = currtTimestamp;
+    headParagraph.dataset.next = context[currtTimestamp].next;
+    defaultInput.id = currtTimestamp;
+    defaultInput.value = context[currtTimestamp].content;
+    addTextAreaProperty(defaultInput.id);
+
+    // render rest of paragraph
+    while (context[currtTimestamp].next) {
+        const newTimestamp = context[currtTimestamp].next;
+        const newParagraph = await appendNewparagraphAndSavingDraft(currtTimestamp, newTimestamp, false);
+        const newTextInput = newParagraph.children[0];
+
+        newParagraph.dataset.timestamp = newTimestamp;
+        newParagraph.dataset.next = context[newTimestamp].next;
+        newTextInput.id = newTimestamp;
+        newTextInput.value = context[newTimestamp].content;
+
+        currtTimestamp = newTimestamp;
+    }
+}
+
 async function createDraft(token, initTimeStamp) {
     const { data: draftId, error, status } = await createDraftAPI(token, initTimeStamp);
     if (error) {
@@ -207,30 +239,14 @@ async function init() {
     const auth = await authenticate();
     await renderHeader(auth);
     await renderCategoriesSelection();
+
     //TODO: change create article button text
     const submitArticle = document.getElementById('create-article');
     submitArticle.querySelector('span').innerText = '準備發佈';
     submitArticle.href = '#';
 
     const headParagraph = document.querySelector('.paragraph');
-    //TODO: set defaultInput div timeStamp
-    // const headTimeStamp =
-    headParagraph.dataset.timestamp = new Date().getTime();
-    headParagraph.dataset.type = 'text';
-
-    //TODO: init first paragraph
     const defaultInput = document.querySelector('.text-input');
-    defaultInput.id = headParagraph.dataset.timestamp;
-    addTextAreaProperty(headParagraph.dataset.timestamp);
-
-    //TODO: create draft object
-    if (!draftId) {
-        draftId = await createDraft(token, headParagraph.dataset.timestamp);
-        if (history.pushState) {
-            var newurl = window.location.protocol + '//' + window.location.host + window.location.pathname + `?draftId=${draftId}`;
-            window.history.pushState({ path: newurl }, '', newurl);
-        }
-    }
 
     const titleInput = document.getElementById('title-input');
     //TODO: title enter to focus to first paragraph
@@ -245,7 +261,6 @@ async function init() {
             document.querySelector('.text-input').focus();
         }
     });
-
     //TODO: save title when blur
     titleInput.addEventListener('blur', async () => {
         const { data, error, status } = await updateDraftAPI(token, draftId, { $set: { title: titleInput.value || '無標題' } });
@@ -259,6 +274,36 @@ async function init() {
 
         console.log('Saving title success');
     });
+
+    if (!draftId) {
+        //TODO: init default paragraph and create draft object
+
+        // set defaultInput div timeStamp
+        headParagraph.dataset.timestamp = new Date().getTime();
+        headParagraph.dataset.type = 'text';
+
+        // init first paragraph
+        defaultInput.id = headParagraph.dataset.timestamp;
+        addTextAreaProperty(headParagraph.dataset.timestamp);
+
+        draftId = await createDraft(token, headParagraph.dataset.timestamp);
+        if (history.pushState) {
+            var newurl = window.location.protocol + '//' + window.location.host + window.location.pathname + `?draftId=${draftId}`;
+            window.history.pushState({ path: newurl }, '', newurl);
+        }
+    } else {
+        //TODO: render draft
+        const { data: draft, error, status } = await getDraftAPI(token, draftId);
+
+        if (error) {
+            console.error(status);
+            console.error(error);
+            alert('Error: getDraftAPIs');
+        } else {
+            await renderDraft({ draft, headParagraph, defaultInput, titleInput });
+        }
+        defaultInput.focus();
+    }
 
     //TODO: create-article btn event listener
     document.getElementById('create-article').addEventListener('click', (e) => {
@@ -382,6 +427,8 @@ async function init() {
         alert(`新增成功，文章id: ${articleId}`);
         window.location.href = `/article.html?id=${articleId}`;
     });
+
+    $('html').scrollTop(0);
 }
 
 init();

@@ -189,6 +189,15 @@ const updateDraftAPI = (userToken, draftId, updateData) => {
     });
 };
 
+const getDraftAPI = (userToken, draftId) => {
+    return fetchHandler(`/api/drafts/${draftId}`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+    });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

@@ -726,4 +726,38 @@ const replyComment = async ({ userId, articleId, reply, commentId }) => {
     }
 };
 
-module.exports = { createArticle, getArticle, generateNewsFeed, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle, replyComment };
+const readArticle = async (articleId) => {
+    if (!ObjectId.isValid(articleId)) {
+        console.error('Invalid articleId.');
+        return { error: 'Invalid articleId.', status: 400 };
+    }
+
+    try {
+        const result = await Article.findByIdAndUpdate(
+            ObjectId(articleId),
+            {
+                $inc: { readCount: 1 },
+            },
+            { new: true, projection: { readCount: 1, _id: 1 } }
+        );
+
+        return { data: result };
+    } catch (error) {
+        console.error(error);
+        return { status: 500, error: 'Server error' };
+    }
+};
+
+module.exports = {
+    createArticle,
+    getArticle,
+    generateNewsFeed,
+    getNewsFeed,
+    likeArticle,
+    unlikeArticle,
+    getCategories,
+    getLatestArticles,
+    commentArticle,
+    replyComment,
+    readArticle,
+};

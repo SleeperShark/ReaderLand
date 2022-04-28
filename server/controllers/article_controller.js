@@ -170,4 +170,17 @@ const replyComment = async (req, res) => {
     res.status(200).json({ data });
 };
 
-module.exports = { createArticle, getArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle, replyComment };
+const readArticle = async (req, res) => {
+    const { articleId } = req.params;
+
+    const { data: readCount, error, status } = await Article.readArticle(articleId);
+
+    if (error) {
+        res.status(status).json({ error });
+        return;
+    }
+
+    res.status(200).json({ data: readCount });
+};
+
+module.exports = { createArticle, getArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle, replyComment, readArticle };

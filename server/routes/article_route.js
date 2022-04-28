@@ -10,6 +10,7 @@ const {
     getLatestArticles,
     commentArticle,
     replyComment,
+    readArticle,
 } = require('../controllers/article_controller');
 
 const { USER_ROLE } = require('../models/user_model');
@@ -19,6 +20,8 @@ router.route('/articles/newsfeed').get(authentication(USER_ROLE.ALL), wrapAsync(
 
 router.route('/articles/latest').get(authentication(USER_ROLE.ALL, false), wrapAsync(getLatestArticles));
 router.route('/articles/categories').get(wrapAsync(getCategories));
+
+router.route('/articles/:articleId/read').put(wrapAsync(readArticle));
 
 router.route('/articles/:articleId/like').post(authentication(USER_ROLE.ALL), wrapAsync(likeArticle));
 router.route('/articles/:articleId/like').delete(authentication(USER_ROLE.ALL), wrapAsync(unlikeArticle));

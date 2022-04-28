@@ -117,7 +117,6 @@ function moveToLowerTextarea(currTextareaID) {
 
 function addTextAreaProperty(paragraphTimetamp) {
     const textarea = $(`#${paragraphTimetamp}`);
-
     textarea
         .css({
             height: this.scrollHeight,
@@ -150,25 +149,29 @@ function addTextAreaProperty(paragraphTimetamp) {
             }, 2000);
 
             // TODO: move to upper text block
-            if (evt.target.selectionStart == 0) {
-                if (cursorToTop) {
-                    moveToUpperTextarea(evt.target.id);
+            if (evt.keyCode == 38) {
+                if (evt.target.selectionStart == 0) {
+                    if (cursorToTop) {
+                        moveToUpperTextarea(evt.target.id);
+                    } else {
+                        cursorToTop = true;
+                    }
                 } else {
-                    cursorToTop = true;
+                    cursorToTop = false;
                 }
-            } else {
-                cursorToTop = false;
             }
 
             //TODO: move to lower text block
-            if (evt.target.selectionStart == evt.target.value.length) {
-                if (cursorToBottom) {
-                    moveToLowerTextarea(evt.target.id);
+            if (evt.keyCode == 40) {
+                if (evt.target.selectionStart == evt.target.value.length) {
+                    if (cursorToBottom) {
+                        moveToLowerTextarea(evt.target.id);
+                    } else {
+                        cursorToBottom = true;
+                    }
                 } else {
-                    cursorToBottom = true;
+                    cursorToBottom = false;
                 }
-            } else {
-                cursorToBottom = false;
             }
         })
         .on('keydown', function () {
@@ -239,6 +242,19 @@ async function renderCategoriesSelection() {
     }
 }
 
+//TODO: resize after fill in content
+function resizeTextarea(textareaId) {
+    const textarea = $(`#${textareaId}`);
+
+    textarea.on('focus', function () {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    });
+
+    textarea.focus();
+    textarea.unbind('focus');
+}
+
 async function renderDraft({ draft: { title, head, context }, headParagraph, defaultInput, titleInput }) {
     titleInput.value = title;
     headParagraph.dataset.timestamp = head;
@@ -253,6 +269,7 @@ async function renderDraft({ draft: { title, head, context }, headParagraph, def
     defaultInput.id = currtTimestamp;
     defaultInput.value = context[currtTimestamp].content;
     addTextAreaProperty(defaultInput.id);
+    resizeTextarea(defaultInput.id);
 
     // render rest of paragraph
     while (context[currtTimestamp].next != undefined && context[currtTimestamp].next != 'undefined') {
@@ -266,6 +283,7 @@ async function renderDraft({ draft: { title, head, context }, headParagraph, def
 
         newTextInput.id = newTimestamp;
         newTextInput.value = context[newTimestamp].content;
+        resizeTextarea(newTextInput.id);
 
         currtTimestamp = newTimestamp;
     }

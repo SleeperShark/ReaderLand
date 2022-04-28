@@ -431,6 +431,11 @@ async function init() {
         }
 
         alert(`新增成功，文章id: ${articleId}`);
+
+        //TODO: delete draft
+        const result = await deleteDraftAPI(token, draftId);
+        console.log(result);
+
         window.location.href = `/article.html?id=${articleId}`;
     });
 

@@ -77,8 +77,32 @@ const getDraft = async (userId, draftId) => {
     }
 };
 
+const deleteDraft = async (userId, draftId) => {
+    if (!ObjectId.isValid(draftId)) {
+        console.error('Invalid draftId');
+        return { error: 'Invalid draftId.', status: 400 };
+    }
+
+    try {
+        const { deletedCount } = await Draft.deleteOne({ _id: ObjectId(draftId), author: userId });
+
+        if (!deletedCount) {
+            console.error('Unmatched draftId or author.');
+            return { error: 'Unmatched draftId or author.', status: 400 };
+        }
+
+        console.log(`Successfully delete the draft: ${draftId}...`);
+
+        return { data: 'ok' };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 module.exports = {
     createDraft,
     updateDraft,
     getDraft,
+    deleteDraft,
 };

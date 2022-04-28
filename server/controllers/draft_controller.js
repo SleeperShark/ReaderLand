@@ -51,8 +51,28 @@ const updateDraft = async (req, res) => {
     res.status(200).json({ data: 'ok' });
 };
 
+const deleteDraft = async (req, res) => {
+    const { userId } = req.user;
+    const { draftId } = req.params;
+
+    if (!draftId) {
+        res.status(400).json({ error: 'draftId is required' });
+        return;
+    }
+
+    const { error, status } = await Draft.deleteDraft(userId, draftId);
+
+    if (error) {
+        res.status(status).json({ error });
+        return;
+    }
+
+    res.status(200).json({ data: 'ok' });
+};
+
 module.exports = {
     createDraft,
     getDraft,
     updateDraft,
+    deleteDraft,
 };

@@ -45,10 +45,12 @@ main {
     color: white;
     resize: none;
     border: 0px;
+    line-height: 2.2rem;
+    letter-spacing: 1px;
 }
 
 .text-input:focus {
-    outline: 0px;
+    outline: 1px solid white;
     background-color: rgb(44, 41, 41);
 }
 

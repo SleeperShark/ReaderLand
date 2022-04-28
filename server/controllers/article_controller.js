@@ -4,7 +4,7 @@ const Cache = require('../../util/cache');
 const createArticle = async (req, res) => {
     try {
         const author = req.user.userId;
-        const { title, category, context, preview } = req.body;
+        const { title, category, context, preview, head } = req.body;
 
         const articleInfo = {
             title,
@@ -12,11 +12,12 @@ const createArticle = async (req, res) => {
             context,
             preview,
             author,
+            head,
         };
 
         const values = Object.values(articleInfo);
         if (values.includes('') || values.includes(null) || values.includes(undefined)) {
-            res.status(400).json({ error: 'Title, category, context and preview are all required.' });
+            res.status(400).json({ error: 'Title, category, context, head and preview are all required.' });
             return;
         }
 

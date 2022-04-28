@@ -122,14 +122,14 @@ const replyCommentAPI = ({ userToken, articleId, commentId, reply }) => {
     });
 };
 
-const postArticleAPI = ({ title, context, preview, category, userToken }) => {
+const postArticleAPI = ({ title, context, preview, category, userToken, head }) => {
     return fetchHandler(`/api/articles`, {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${userToken}`,
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, context, preview, category }),
+        body: JSON.stringify({ title, context, preview, category, head }),
     });
 };
 

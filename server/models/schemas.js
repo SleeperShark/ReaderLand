@@ -112,6 +112,7 @@ const articleSchema = mongoose.Schema({
     likes: [mongoose.SchemaTypes.ObjectId],
     comments: [commentSchema],
     category: [String],
+    head: String,
 });
 
 articleSchema.index({ title: 1, author: 1 }, { unique: true });

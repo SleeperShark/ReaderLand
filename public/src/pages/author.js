@@ -2,6 +2,8 @@ const authorId = new URL(window.location).searchParams.get('id');
 
 // TODO: render author's info
 function renderAuthorInfo(auth, authorProfile) {
+    // bordertop random color
+    document.getElementById('author-info').style.borderTop = `100px solid rgb( ${Math.random() * 256}, ${Math.random() * 256}, ${Math.random() * 256})`;
     // avatar
     document.getElementById('author-avatar').src = authorProfile.picture;
     // name

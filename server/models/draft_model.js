@@ -32,9 +32,12 @@ const updateDraft = async ({ userId, draftId, updateData }) => {
     }
 
     try {
-        const result = await Draft.updateOne({ _id: ObjectId(draftId), author: userId }, { $set: updateData });
+        const result = await Draft.updateOne({ _id: ObjectId(draftId), author: userId }, { $set: updateData }, { upsert: true });
 
-        if (!acknowledged || !result.modifiedCount || !matchedCount) {
+        console.log(result);
+        console.log(updateData);
+
+        if (!result.matchedCount) {
             console.error('Unmatched draft info.');
             console.log(updateData);
             return { status: 400, error: 'Unmatched draft info.' };

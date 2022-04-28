@@ -2,9 +2,11 @@ let articleInfo;
 let draftId = new URL(window.location).searchParams.get('draftId');
 var typingTimer;
 
-function appendNewparagraph(paragraphTimetamp) {
-    const currArea = document.getElementById(paragraphTimetamp);
+//TODO: append next paragraph and autosaving in the new structure
+async function appendNewparagraphAndSavingDraft(paragraphTimetamp) {
+    clearTimeout(typingTimer);
 
+    const currArea = document.getElementById(paragraphTimetamp);
     const prevParagraph = currArea.parentElement;
     const newParagraph = document.createElement('div');
 
@@ -24,18 +26,35 @@ function appendNewparagraph(paragraphTimetamp) {
 
     addTextAreaProperty(newParagraph.dataset.timestamp);
 
-    //TODO: setting next attribute for previous textArea
+    const updateData = {};
+    updateData[`context.${paragraphTimetamp}.content`] = currArea.value;
+    updateData[`context.${paragraphTimetamp}.next`] = newParagraph.dataset.timestamp;
+    //TODO: setting next attribute for previous textArea && collecting update Data
     if (!prevParagraph.dataset.next) {
         // append case
         prevParagraph.dataset.next = newParagraph.dataset.timestamp;
+
+        updateData[`context.${newParagraph.dataset.timestamp}`] = { content: '', next: undefined, type: 'text' };
     } else {
         // insert case
         const temp = prevParagraph.dataset.next;
         prevParagraph.dataset.next = newParagraph.dataset.timestamp;
         newParagraph.dataset.next = temp;
+
+        updateData[`context.${newParagraph.dataset.timestamp}`] = { content: '', next: temp, type: 'text' };
     }
 
     newArea.focus();
+
+    //TODO: update draft
+    const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
+    if (error) {
+        console.error(status);
+        console.error(error);
+        alert('Error: updateDraftAPI after apeending');
+    }
+
+    console.log('saving success');
 }
 
 function removeEmptyParagraph(paragraphTimetamp) {
@@ -83,7 +102,7 @@ function addTextAreaProperty(paragraphTimetamp) {
                     alert('Error: Autosaving content');
                 }
 
-                alert('儲存成功');
+                console.log('Auto saving success after keyup');
             }, 2000);
         })
         .on('keydown', function () {
@@ -92,11 +111,13 @@ function addTextAreaProperty(paragraphTimetamp) {
         .keypress(function (event) {
             if (event.which == 13 && !event.shiftKey) {
                 event.preventDefault();
+                clearTimeout(typingTimer);
 
                 if (this.value.trim().length == 0) {
                     return;
                 }
-                appendNewparagraph(paragraphTimetamp);
+
+                appendNewparagraphAndSavingDraft(paragraphTimetamp);
             }
         });
 
@@ -208,7 +229,7 @@ async function init() {
 
     //TODO: save title when blur
     titleInput.addEventListener('blur', async () => {
-        const { data, error, status } = await updateDraftAPI(token, draftId, { title: titleInput.value });
+        const { data, error, status } = await updateDraftAPI(token, draftId, { title: titleInput.value || '無標題' });
 
         if (error) {
             console.error(status);
@@ -217,7 +238,7 @@ async function init() {
             return;
         }
 
-        alert(data);
+        console.log('Saving title success');
     });
 
     //TODO: create-article btn event listener

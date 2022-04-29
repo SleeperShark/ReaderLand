@@ -14,6 +14,7 @@ const {
     getSubscription,
     updateUserProfile,
     getAuthorProfile,
+    getUploadAvatarUrl,
 } = require('../controllers/user_controller');
 
 const { USER_ROLE } = require('../models/user_model');
@@ -22,6 +23,9 @@ router.route('/user/info').get(authentication(USER_ROLE.ALL), wrapAsync(getUserI
 
 router.route('/user/signup').post(wrapAsync(signUp));
 router.route('/user/signin').post(wrapAsync(signIn));
+
+router.route('/user/uploadAvatarURL').get(authentication(USER_ROLE.ALL), wrapAsync(getUploadAvatarUrl));
+
 router.route('/user/profile').get(authentication(USER_ROLE.ALL), wrapAsync(getUserProfile));
 router.route('/user/profile').put(authentication(USER_ROLE.ALL), wrapAsync(updateUserProfile));
 

@@ -220,6 +220,15 @@ const readArticleAPI = (articleId) => {
     return fetchHandler(`/api/articles/${articleId}/read`, { method: 'PUT', headers: {} });
 };
 
+const getUploadUrlAPI = (userToken) => {
+    return fetchHandler('/api/user/uploadAvatarURL', {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+    });
+};
+
 function timeTransformer(ISODateString) {
     const targetTimestamp = new Date(ISODateString).getTime();
     const currentTimestamp = new Date().getTime();

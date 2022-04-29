@@ -2,7 +2,9 @@ require('dotenv').config();
 const { promisify } = require('util'); // util from native nodejs library
 const jwt = require('jsonwebtoken');
 const User = require('../server/models/user_model');
+const crypto = require('crypto');
 const { TOKEN_SECRET } = process.env;
+const randomBytes = promisify(crypto.randomBytes);
 
 const wrapAsync = (fn) => {
     return function (req, res, next) {
@@ -80,8 +82,41 @@ const timeDecayer = (curr, createdAt) => {
     return decayWeight;
 };
 
+// S3 upload img
+const aws = require('aws-sdk');
+const { S3_REGION: region, S3_BUCKET_NAME: bucketName, S3_ACCESS_KEY: accessKeyId, S3_SECRET_ACCESS_KEY: secretAccessKey } = process.env;
+
+console.log(accessKeyId);
+console.log(secretAccessKey);
+console.log(region);
+console.log(bucketName);
+
+const s3 = new aws.S3({
+    region,
+    accessKeyId,
+    secretAccessKey,
+    signatureVersion: 'v4',
+});
+
+const generateUploadURL = async (folder = '') => {
+    const rawByte = await randomBytes(16);
+    const imageName = rawByte.toString('hex') + '.jpg';
+
+    const params = {
+        Bucket: bucketName,
+        Key: folder + imageName,
+        Expires: 60,
+        ContentType: 'image/jpeg',
+    };
+
+    const uploadURL = await s3.getSignedUrlPromise('putObject', params);
+
+    return { uploadURL, imageName };
+};
+
 module.exports = {
     wrapAsync,
     authentication,
     timeDecayer,
+    generateUploadURL,
 };

@@ -273,6 +273,7 @@ const updateUserProfile = async (userId, updateInfo) => {
         console.log('Succeefully update user profile: ' + Object.keys(updateInfo).join(', '));
 
         user = JSON.parse(JSON.stringify(user));
+
         for (let key in updateInfo) {
             if (['name', 'email', 'picture'].includes(key)) {
                 //Remake JWT for new info
@@ -289,6 +290,8 @@ const updateUserProfile = async (userId, updateInfo) => {
                 break;
             }
         }
+
+        user.picture = IMAGE_URL + '/avatar/' + user.picture;
 
         return { data: user };
     } catch (error) {

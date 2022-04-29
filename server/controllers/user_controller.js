@@ -1,6 +1,7 @@
 require('dotenv').config();
 const validator = require('validator');
 const User = require('../models/user_model');
+const { generateUploadURL } = require('../../util/util');
 
 const getUserInfo = async (req, res) => {
     let { name, email, picture, userId } = req.user;
@@ -280,6 +281,16 @@ const getAuthorProfile = async (req, res) => {
     res.status(200).json({ data });
 };
 
+const getUploadAvatarUrl = async (req, res) => {
+    try {
+        const { uploadURL, imageName } = await generateUploadURL('avatar/');
+        res.status(200).json({ data: { uploadURL, avatarName: imageName, avatarURL: process.env.IMAGE_URL + '/avatar/' + imageName } });
+    } catch (error) {
+        console.error(error);
+        res.status('500').json({ error: 'Server error' });
+    }
+};
+
 module.exports = {
     getUserProfile,
     getAuthorProfile,
@@ -294,4 +305,5 @@ module.exports = {
     unfavorite,
     getUserInfo,
     getSubscription,
+    getUploadAvatarUrl,
 };

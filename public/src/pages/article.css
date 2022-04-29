@@ -366,7 +366,7 @@ footer {
 /* no comment box */
 
 #no-comment-box {
-    background-image: url('/img/icon/pencil_writing.jpg');
+    background-image: url('https://reader-land.s3.ap-northeast-1.amazonaws.com/icon/pencil_writing.jpg');
     background-position: 50% 20%;
     background-repeat: no-repeat;
     /* background-color: rgb(231, 231, 236); */

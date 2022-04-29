@@ -524,3 +524,59 @@ publishedTag.addEventListener('click', () => {
     draftTag.classList.remove('selected');
     draftContainer.classList.add('hide');
 });
+
+//TODO: show choose file when click camera icon
+const changeAvatarBtn = document.getElementById('change-avatar-btn');
+const fileInput = document.getElementById('change-avatar');
+changeAvatarBtn.addEventListener('click', () => {
+    fileInput.value = null;
+    fileInput.click();
+});
+
+fileInput.addEventListener('change', async () => {
+    console.log(token);
+
+    if (!fileInput.value) {
+        return;
+    }
+
+    var {
+        data: { uploadURL, avatarName, avatarURL },
+        error,
+        status,
+    } = await getUploadUrlAPI(token);
+
+    if (error) {
+        console.error(status);
+        console.error(error);
+        alert('Error: getUploadURLAPI');
+        return;
+    }
+
+    let res = await fetch(uploadURL, {
+        method: 'PUT',
+        headers: { ContentType: 'image/jpeg	' },
+        body: fileInput.files[0],
+    });
+
+    if (res.status != 200) {
+        await res.json();
+        alert('Error in uploading new avatar');
+        console.error(res);
+        return;
+    }
+
+    //TODO: save new avatar image name
+    var { data: user, error, status } = await updateUserProfileAPI(token, { picture: avatarName });
+    if (error) {
+        console.error(status);
+        console.error(error);
+        alert('Error: update new picture name in db.');
+        return;
+    }
+
+    //TODO: replace with new avatar, reset token and header profile image
+    document.getElementById('profile-avatar').src = user.picture;
+    window.localStorage.setItem('ReaderLandToken', user.accessToken);
+    document.getElementById('avatar').src = user.picture;
+});

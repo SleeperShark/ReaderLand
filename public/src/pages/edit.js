@@ -3,6 +3,14 @@ let draftId = new URL(window.location).searchParams.get('draftId');
 var typingTimer;
 var cursorToTop = false;
 var cursorToBottom = false;
+const savingHint = document.getElementById('saving-hint');
+
+function showSavingHint() {
+    savingHint.classList.add('show');
+    setTimeout(() => {
+        savingHint.classList.remove('show');
+    }, 5000);
+}
 
 //TODO: append next paragraph and autosaving in the new structure
 async function appendNewparagraphAndSavingDraft(paragraphTimetamp, nextParagraphTimestamp = new Date().getTime(), saving = true) {
@@ -49,6 +57,7 @@ async function appendNewparagraphAndSavingDraft(paragraphTimetamp, nextParagraph
     newArea.focus();
 
     if (saving) {
+        showSavingHint();
         //TODO: update draft
         const { error, status } = await updateDraftAPI(token, draftId, updateData);
         if (error) {
@@ -86,6 +95,7 @@ async function removeEmptyParagraphAndSavingDraft(paragraphTimetamp) {
     prevParagraph.querySelector('textarea').focus();
 
     //TODO: update delete action
+    showSavingHint();
     const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
     if (error) {
         console.error(status);
@@ -143,6 +153,7 @@ function addTextAreaProperty(paragraphTimetamp) {
                 const updateData = { $set: {} };
                 updateData['$set'][`context.${paragraphTimetamp}.content`] = this.value;
 
+                showSavingHint();
                 const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
 
                 if (error) {
@@ -333,9 +344,11 @@ async function init() {
             document.querySelector('.text-input').focus();
         }
     });
+
     //TODO: save title when blur
     titleInput.addEventListener('blur', async () => {
-        const { data, error, status } = await updateDraftAPI(token, draftId, { $set: { title: titleInput.value } });
+        showSavingHint();
+        const { error, status } = await updateDraftAPI(token, draftId, { $set: { title: titleInput.value } });
 
         if (error) {
             console.error(status);

@@ -11,6 +11,28 @@ main {
     display: flex;
     justify-content: center;
     padding-bottom: 50px;
+    position: relative;
+}
+
+/* Saving hint animation */
+#saving-hint {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    color: transparent;
+    font-size: 1.4rem;
+    display: none;
+}
+
+#saving-hint.show {
+    display: block;
+    animation: blink 1.2s 3;
+}
+
+@keyframes blink {
+    50% {
+        color: rgba(255, 255, 255, 0.644);
+    }
 }
 
 #editor {

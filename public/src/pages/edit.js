@@ -4,6 +4,8 @@ var typingTimer;
 var cursorToTop = false;
 var cursorToBottom = false;
 const savingHint = document.getElementById('saving-hint');
+const textCountingSpan = document.getElementById('text-counting').children[0];
+let textCounting = 0;
 
 function showSavingHint() {
     savingHint.classList.add('show');
@@ -114,7 +116,6 @@ function moveToUpperTextarea(currTextareaID) {
         previoustextarea.focus();
 
         window.scrollTo(0, previoustextarea.offsetTop + previoustextarea.offsetHeight - 200);
-        console.log(previoustextarea.offsetTop + previoustextarea.offsetHeight);
     }
     cursorToTop = false;
     return;
@@ -144,6 +145,15 @@ function addTextAreaProperty(paragraphTimetamp) {
                 this.style.height = 'auto';
                 this.style.height = this.scrollHeight + 'px';
             }
+
+            textCountingSpan.innerText = textCounting + this.value.length;
+        })
+        //TODO: blur and focus event to adjust text counting
+        .on('blur', function () {
+            textCounting += this.value.length;
+        })
+        .on('focus', function () {
+            textCounting -= this.value.length;
         })
         //TODO: autosaving content of the context area
         .on('keyup', function (evt) {
@@ -264,13 +274,15 @@ async function renderCategoriesSelection() {
 function resizeTextarea(textareaId) {
     const textarea = $(`#${textareaId}`);
 
-    textarea.on('focus', function () {
+    function temporaryAdjustHieght() {
         this.style.height = 'auto';
         this.style.height = this.scrollHeight + 'px';
-    });
+    }
+
+    textarea.on('focus', temporaryAdjustHieght);
 
     textarea.focus();
-    textarea.unbind('focus');
+    textarea.unbind('focus', temporaryAdjustHieght);
 }
 
 async function renderDraft({ draft: { title, head, context }, headParagraph, defaultInput, titleInput }) {
@@ -286,9 +298,11 @@ async function renderDraft({ draft: { title, head, context }, headParagraph, def
 
     defaultInput.id = currtTimestamp;
     defaultInput.value = context[currtTimestamp].content;
+
     addTextAreaProperty(defaultInput.id);
     resizeTextarea(defaultInput.id);
 
+    textCounting += defaultInput.value.length;
     // render rest of paragraph
     while (context[currtTimestamp].next != undefined && context[currtTimestamp].next != 'undefined') {
         const newTimestamp = context[currtTimestamp].next;
@@ -303,8 +317,13 @@ async function renderDraft({ draft: { title, head, context }, headParagraph, def
         newTextInput.value = context[newTimestamp].content;
         resizeTextarea(newTextInput.id);
 
+        textCounting += newTextInput.value.length;
+
         currtTimestamp = newTimestamp;
+        newTextInput.blur();
     }
+
+    textCountingSpan.innerText = textCounting;
 }
 
 async function createDraft(token, initTimeStamp) {
@@ -319,6 +338,8 @@ async function createDraft(token, initTimeStamp) {
 }
 
 async function init() {
+    textCountingSpan.innerText = textCounting;
+
     const auth = await authenticate();
     await renderHeader(auth);
     await renderCategoriesSelection();
@@ -387,7 +408,6 @@ async function init() {
         } else {
             await renderDraft({ draft, headParagraph, defaultInput, titleInput });
         }
-        defaultInput.focus();
     }
 
     //TODO: create-article btn event listener

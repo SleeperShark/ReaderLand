@@ -35,6 +35,19 @@ main {
     }
 }
 
+#text-counting {
+    color: white;
+    position: fixed;
+    right: 20px;
+    bottom: 15px;
+    font-size: 1.4rem;
+}
+
+#text-counting > span {
+    margin-left: 7px;
+    margin-right: 7px;
+}
+
 #editor {
     width: 800px;
     /* border: 1px white solid; */

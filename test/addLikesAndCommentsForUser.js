@@ -1,4 +1,3 @@
-const { use } = require('bcrypt/promises');
 const { Article, ObjectId } = require('../server/models/schemas');
 
 async function main(userId) {

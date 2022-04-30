@@ -115,7 +115,7 @@ const articleSchema = mongoose.Schema({
     head: String,
 });
 
-articleSchema.index({ title: 1, author: 1 }, { unique: true });
+// articleSchema.index({ title: 1, author: 1 });
 
 const draftSchema = mongoose.Schema({
     title: String,

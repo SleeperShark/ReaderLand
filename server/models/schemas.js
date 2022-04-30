@@ -1,7 +1,11 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
+const { MONGO_USER, MONGO_PASSWORD, MONGO_DATABASE } = process.env;
+
+const connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
 
 mongoose.connect(
-    'mongodb://localhost/ReaderLand',
+    connectURL,
     () => {
         console.log('MongoDB is connected...');
     },

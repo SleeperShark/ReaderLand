@@ -86,11 +86,6 @@ const timeDecayer = (curr, createdAt) => {
 const aws = require('aws-sdk');
 const { S3_REGION: region, S3_BUCKET_NAME: bucketName, S3_ACCESS_KEY: accessKeyId, S3_SECRET_ACCESS_KEY: secretAccessKey } = process.env;
 
-console.log(accessKeyId);
-console.log(secretAccessKey);
-console.log(region);
-console.log(bucketName);
-
 const s3 = new aws.S3({
     region,
     accessKeyId,

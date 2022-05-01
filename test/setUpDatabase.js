@@ -1,7 +1,6 @@
 const { Article, User, Category, Draft, Notification } = require('../server/models/schemas');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
-const { use } = require('bcrypt/promises');
 
 const categories = [
     '政治與評論',
@@ -158,6 +157,13 @@ function processArticles(articles) {
 
 async function insertArticle(articles) {
     const authors = await User.aggregate([{ $sort: { _id: 1 } }, { $limit: 10 }, { $project: { _id: 1, name: 1 } }]);
+    const authorsId = authors.map((elem) => elem._id.toString());
+
+    const notification = authors.reduce((prev, elem) => {
+        prev[elem._id.toString()] = [];
+        return prev;
+    }, {});
+
     let usersId = await User.find({}, { _id: 1 });
     usersId = usersId.map((elem) => elem._id.toString());
 
@@ -179,8 +185,12 @@ async function insertArticle(articles) {
         articleOrder.sort(() => 0.5 - Math.random());
 
         for (let articleIdx of articleOrder) {
+            const tempNotification = {};
+
             let { author, title, category, preview, context } = articles[articleIdx];
             author = authors.find((elem) => elem.name == author)._id.toString();
+
+            tempNotification[author] = [];
 
             const createdAt = new Date(fakeTimeStamp).toISOString();
 
@@ -192,28 +202,39 @@ async function insertArticle(articles) {
             const praise = ['超級讚', '非常喜歡', '期待下一篇', '敲碗敲碗', '沙發', '精闢的見解', '太驚艷惹', '<3~', '⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾', '(◉３◉)', '(*´∀`)~♥', '｡:.ﾟヽ(*´∀`)ﾉﾟ.:｡'];
             let commentTime = fakeTimeStamp;
 
+            //TODO: create comment
             for (let c = 0; c < Math.floor(Math.random() * likes.length); c++) {
                 commentTime += Math.floor(1000 * 60 * 60 * Math.random());
+                const reader = usersId[Math.floor(Math.random() * usersId.length)];
 
                 const comment = {
                     context: praise[Math.floor(Math.random() * praise.length)],
-                    createdAt: new Date(commentTime),
-                    reader: usersId[Math.floor(Math.random() * usersId.length)],
+                    createdAt: new Date(commentTime).toISOString(),
+                    reader,
                 };
+
+                tempNotification[author].push({ type: 'comment', subject: reader, createdAt: new Date(commentTime).toISOString() });
 
                 // Reply
                 if (Math.floor(Math.random() * 10) % 3 == 0) {
+                    const replyTime = new Date(commentTime + Math.floor(1000 * 60 * 60 * Math.random())).toISOString();
+
                     comment.authorReply = {
                         context: '感謝支持',
-                        createdAt: new Date(commentTime + Math.floor(1000 * 60 * 60 * Math.random())),
+                        createdAt: replyTime,
                     };
+
+                    if (authorsId.includes(reader)) {
+                        tempNotification[reader] = tempNotification[reader] || [];
+                        tempNotification[reader].push({ type: 'reply', subject: author, createdAt: replyTime });
+                    }
                 }
 
                 comments.push(comment);
             }
 
             //TODO: insert articles
-            await Article.create({
+            let article = await Article.create({
                 title,
                 author,
                 category,
@@ -226,11 +247,30 @@ async function insertArticle(articles) {
                 head: '0',
             });
 
+            for (let id in tempNotification) {
+                tempNotification[id].forEach((elem) => (elem['articleId'] = article._id));
+
+                notification[id].push(...tempNotification[id]);
+            }
+
+            //TODO: timestamp for next article
             fakeTimeStamp += timeInterval;
         }
     }
 
     console.log('Finish inserting articles...');
+
+    //TODO: insert Notification
+    for (let id in notification) {
+        const notifications = notification[id];
+        notifications.sort((a, b) => {
+            new Date(a.createdAt) - new Date(b.createdAt);
+        });
+
+        // await Notification.create({ _id: id, notifications, unread: notifications.length });
+        await Notification.updateOne({ _id: id }, { $set: { notifications, unread: notifications.length } });
+        console.log(`Successfully insert ${id}'s notification...`);
+    }
 }
 
 async function assignFavorite() {
@@ -262,6 +302,7 @@ async function initDatabase() {
         await Article.deleteMany();
         await Category.deleteMany();
         await Draft.deleteMany();
+        await Notification.deleteMany();
         console.log('Clear all collections...');
 
         await insertCategory();

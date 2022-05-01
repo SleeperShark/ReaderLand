@@ -1,5 +1,6 @@
 const token = localStorage.getItem('ReaderLandToken');
 let user;
+let loadedNotification = 0;
 
 async function authenticate() {
     if (!token) {
@@ -48,6 +49,24 @@ async function renderUnreadCount() {
 `;
 }
 
+async function renderNotification(evt) {
+    if (evt.target != evt.currentTarget) {
+        return;
+    }
+    // clear unreadCount
+    document.getElementById('notification-unread')?.remove();
+
+    // show notification container
+    const container = document.getElementById('notification-container');
+    container.classList.toggle('hide');
+
+    if (loadedNotification) {
+        return;
+    }
+
+    // load first ten notification
+}
+
 async function renderHeader(auth) {
     let rightElementHTML;
 
@@ -61,7 +80,7 @@ async function renderHeader(auth) {
 
     ${await renderUnreadCount()}
 
-    <div id="notification-container">
+    <div id="notification-container" class="hide">
 
         <div class="notification">
             <div class='notification-icon'>
@@ -177,8 +196,19 @@ async function renderHeader(auth) {
             window.location.href = '/index.html';
         });
 
-        //TODO: notification count
+        //TODO: fetch Notification when click icon
+        document.getElementById('notification').addEventListener('click', renderNotification);
 
-        await renderUnreadCount();
+        const notificationContainer = document.getElementById('notification-container');
+        let showNotificationTimer;
+        notificationContainer.addEventListener('mouseleave', () => {
+            showNotificationTimer = setTimeout(() => {
+                notificationContainer.classList.add('hide');
+            }, 1000);
+        });
+
+        notificationContainer.addEventListener('mouseover', () => {
+            clearTimeout(showNotificationTimer);
+        });
     }
 }

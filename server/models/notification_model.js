@@ -68,4 +68,16 @@ const replyNotification = async (articleId, commentId) => {
     }
 };
 
-module.exports = { followNotification, newPostNotification, commentNotification, replyNotification };
+const getUnreadCount = async (userId) => {
+    try {
+        const { unread } = await Notification.findById(userId, { unread: 1, _id: 0 });
+
+        return { data: unread };
+    } catch (error) {
+        console.error('Error: getUnreadCount');
+        console.error(error);
+        return { status: 500, error: 'Server error' };
+    }
+};
+
+module.exports = { followNotification, newPostNotification, commentNotification, replyNotification, getUnreadCount };

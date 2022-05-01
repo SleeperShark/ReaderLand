@@ -125,6 +125,25 @@ header {
 
 /* Notification System */
 
+#notification-unread {
+    position: absolute;
+    background-color: red;
+    top: -5px;
+    right: -8px;
+    font-size: 1rem;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+}
+
+#unread-count {
+    text-align: center;
+}
+
 #notification {
     color: white;
     font-size: 2rem;
@@ -148,12 +167,15 @@ header {
     border-radius: 5px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     font-size: 1rem;
+    max-height: 400px;
+    overflow-y: scroll;
 }
 
 #notification-container > .divider {
-    width: 100%;
-    margin: 0px;
+    width: 96%;
 }
 
 .notification {
@@ -165,6 +187,11 @@ header {
     padding: 8px 8px 15px;
 
     position: relative;
+    opacity: 0.7;
+}
+
+.notification:hover {
+    opacity: 1;
 }
 
 .notification-icon {
@@ -189,7 +216,22 @@ header {
     right: 3px;
     font-weight: 100;
     font-size: 0.85rem;
-    opacity: 0.8;
+    opacity: 0.7;
+}
+
+#notification-load {
+    text-align: center;
+    width: 95%;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 8px;
+    padding: 8px;
+    border-radius: 10%;
+}
+
+#notification-load:hover {
+    color: rgb(182, 194, 254);
+    background-color: rgba(49, 46, 129, 0.75);
 }
 
 /* -------------------------------- */

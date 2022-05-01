@@ -21,7 +21,12 @@ app.get('/test', (req, res) => {
 });
 
 // API routes
-app.use('/api', [require('./server/routes/user_route'), require('./server/routes/article_route'), require('./server/routes/draft_route')]);
+app.use('/api', [
+    require('./server/routes/user_route'),
+    require('./server/routes/article_route'),
+    require('./server/routes/draft_route'),
+    require('./server/routes/notification_route'),
+]);
 
 // Page not found
 app.use((req, res, next) => {

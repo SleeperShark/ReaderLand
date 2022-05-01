@@ -34,6 +34,11 @@ async function renderHeader(auth) {
     <span>建立貼文</span>
 </a>
 <i id="notification" class="fas fa-bell">
+
+    <div id="notification-unread">
+        <sapn id="unread-count">10</span>
+    </div>
+
     <div id="notification-container">
 
         <div class="notification">
@@ -72,7 +77,7 @@ async function renderHeader(auth) {
             </div> 
         </div>
 
-            <div class="divider"></div>
+        <div class="divider"></div>
 
         <div class="notification">
             <div class='notification-icon'>
@@ -86,7 +91,10 @@ async function renderHeader(auth) {
             <span class="notification-time">2022-02-15</span>
         </div>
 
-       
+        <div class="divider"></div>
+
+        <div id="notification-load">載入更多</div>
+
 
     </div>
 </i>
@@ -106,6 +114,7 @@ async function renderHeader(auth) {
 </div>
         `;
     } else {
+        // TODO: Render unauth header
         rightElementHTML = `
 <a href="/login.html" id="login-btn">登入</a>
         `;
@@ -144,5 +153,7 @@ async function renderHeader(auth) {
             alert('已成功登出 🚪');
             window.location.href = '/index.html';
         });
+
+        //TODO: notification count
     }
 }

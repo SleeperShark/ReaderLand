@@ -685,6 +685,8 @@ const commentArticle = async ({ userId, articleId, comment }) => {
 
         console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
 
+        Notification.commentNotification(articleId, userId);
+
         const article = await getUpdatedFeedback(articleId);
 
         return { data: article };

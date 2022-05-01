@@ -1,4 +1,4 @@
-const { Notification, User } = require('./schemas');
+const { Notification, User, Article } = require('./schemas');
 
 const followNotification = async (followeeId, followerId) => {
     console.log(followerId);
@@ -27,4 +27,16 @@ const newPostNotification = async (authorId, articleId) => {
     console.log('Finish New Post Notification...');
 };
 
-module.exports = { followNotification, newPostNotification };
+const commentNotification = async (articleId, readerId) => {
+    try {
+        const { author: authorId } = await Article.findById(articleId, { _id: 0, author: 1 });
+
+        await Notification.updateOne({ _id: authorId }, { $push: { notifications: { type: 'comment', subject: readerId, articleId, createdAt: new Date().toISOString() } } });
+        console.log('Finish comment Notification to Author...');
+    } catch (error) {
+        console.error('ERROR: commentNotification');
+        console.error(error);
+    }
+};
+
+module.exports = { followNotification, newPostNotification, commentNotification };

@@ -722,6 +722,7 @@ const replyComment = async ({ userId, articleId, reply, commentId }) => {
         );
 
         console.log('Successfully update reply content, ready to return uodated comment...');
+        Notification.replyNotification(articleId, commentId);
 
         const article = await getUpdatedFeedback(articleId);
 

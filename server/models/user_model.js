@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { User, ObjectId, Category, Article, Notification } = require('./schemas');
+const { User, ObjectId, Category, Article } = require('./schemas');
+const Notification = require('./notification_model');
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET, IMAGE_URL } = process.env;
 const bcrypt = require('bcrypt');
@@ -353,13 +354,7 @@ const follow = async (userId, followerId) => {
         ]);
         console.log("Successfully update follower's followee list...");
 
-        Notification.findByIdAndUpdate(followerId, { $push: { notifications: { type: 'follow', subject: userId, createdAt: new Date().toISOString() } } }, {}, (err, doc, res) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            console.log('Successfully push notification to follower...');
-        });
+        Notification.followNotification(userId, followerId);
 
         return { follow: 1 };
     } catch (error) {

@@ -1,7 +1,8 @@
 require('dotenv').config();
 const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, IMAGE_URL } = process.env;
-const { Article, ObjectId, User, Category, Notification } = require('./schemas');
-const { timeDecayer, authentication } = require('../../util/util');
+const { Article, ObjectId, User, Category } = require('./schemas');
+const Notification = require('./notification_model');
+const { timeDecayer } = require('../../util/util');
 const Cache = require('../../util/cache');
 
 //get userid: { _id, picture, name } object
@@ -66,20 +67,6 @@ const pushToNewsfeed = async (article) => {
     }
 };
 
-async function newPostNotification(authorId, articleId) {
-    const { followee: followees } = await User.findById(authorId, { _id: 0, followee: 1 });
-    const timestamp = new Date().toISOString();
-
-    for (let followee of followees) {
-        try {
-            await Notification.updateOne({ _id: followee }, { $push: { notifications: { type: 'newPost', subject: authorId, articleId, createdAt: timestamp } } });
-        } catch (error) {
-            console.error(error);
-        }
-    }
-    console.log('Finish New Post Notification...');
-}
-
 const createArticle = async (articleInfo) => {
     // articleInfo: title, author, context, category
     try {
@@ -101,7 +88,7 @@ const createArticle = async (articleInfo) => {
             pushToNewsfeed(article);
         }
 
-        newPostNotification(article.author, article._id);
+        Notification.newPostNotification(article.author, article._id);
 
         return { article };
     } catch (error) {

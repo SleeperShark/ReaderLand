@@ -131,6 +131,7 @@ header {
     border-radius: 50%;
     padding: 7px;
     position: relative;
+    cursor: pointer;
 }
 
 #notification:hover {
@@ -157,11 +158,13 @@ header {
 
 .notification {
     width: 100%;
-    min-height: 75px;
+    min-height: 80px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    padding: 8px;
+    padding: 8px 8px 15px;
+
+    position: relative;
 }
 
 .notification-icon {
@@ -171,15 +174,6 @@ header {
     margin-right: 8px;
 }
 
-/* -------------------------------- */
-
-#avatar {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
 .notification-content {
     font-weight: normal;
     line-height: 1.4rem;
@@ -187,6 +181,24 @@ header {
 
 .notification-subject {
     font-weight: bolder;
+}
+
+.notification-time {
+    position: absolute;
+    bottom: 5px;
+    right: 3px;
+    font-weight: 100;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* -------------------------------- */
+
+#avatar {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 #avatar:hover {

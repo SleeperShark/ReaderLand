@@ -43,7 +43,8 @@ async function renderHeader(auth) {
             <div class="notification-content">
                 <span class="notification-subject">魚骨書籤</span>
                 追蹤了你。
-            </div>     
+            </div>
+            <span class="notification-time">一天前</span>
         </div>
 
             <div class="divider"></div>
@@ -55,7 +56,8 @@ async function renderHeader(auth) {
             <div class="notification-content">
                 <span class="notification-subject">魚骨書籤</span>
                 回復了你的文章。
-            </div> 
+            </div>
+            <span class="notification-time">2022-02-15</span>
         </div>
 
             <div class="divider"></div>
@@ -80,7 +82,8 @@ async function renderHeader(auth) {
                 你追蹤的作者    
                 <span class="notification-subject">魚骨書籤</span>
                 發表了新文章，快去看看吧！
-            </div> 
+            </div>
+            <span class="notification-time">2022-02-15</span>
         </div>
 
        

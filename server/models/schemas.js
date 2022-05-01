@@ -147,6 +147,10 @@ const NotificationSchema = mongoose.Schema({
         ref: 'User',
     },
     notifications: [Object],
+    unread: {
+        type: Number,
+        default: 0,
+    },
 });
 
 module.exports = {

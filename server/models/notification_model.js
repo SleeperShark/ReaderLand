@@ -5,16 +5,16 @@ function ISOTimestamp() {
 }
 
 const followNotification = async (followeeId, followerId) => {
-    console.log(followerId);
-    console.log(followeeId);
+    try {
+        await Notification.updateOne(
+            { _id: followerId },
+            { $inc: { unread: 1 }, $push: { notifications: { type: 'follow', subject: followeeId, createdAt: ISOTimestamp(), isread: false } } }
+        );
 
-    Notification.findByIdAndUpdate(followerId, { $push: { notifications: { type: 'follow', subject: followeeId, createdAt: ISOTimestamp() } } }, {}, (err) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
         console.log('Successfully push notification to follower...');
-    });
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 const newPostNotification = async (authorId, articleId) => {
@@ -23,7 +23,10 @@ const newPostNotification = async (authorId, articleId) => {
 
     for (let followee of followees) {
         try {
-            await Notification.updateOne({ _id: followee }, { $push: { notifications: { type: 'newPost', subject: authorId, articleId, createdAt: timestamp } } });
+            await Notification.updateOne(
+                { _id: followee },
+                { $inc: { unread: 1 }, $push: { notifications: { type: 'newPost', subject: authorId, articleId, createdAt: timestamp, isread: false } } }
+            );
         } catch (error) {
             console.error(error);
         }
@@ -35,7 +38,10 @@ const commentNotification = async (articleId, readerId) => {
     try {
         const { author: authorId } = await Article.findById(articleId, { _id: 0, author: 1 });
 
-        await Notification.updateOne({ _id: authorId }, { $push: { notifications: { type: 'comment', subject: readerId, articleId, createdAt: ISOTimestamp() } } });
+        await Notification.updateOne(
+            { _id: authorId },
+            { $inc: { unread: 1 }, $push: { notifications: { type: 'comment', subject: readerId, articleId, createdAt: ISOTimestamp(), isread: false } } }
+        );
         console.log('Finish comment Notification to Author...');
     } catch (error) {
         console.error('ERROR: commentNotification');
@@ -51,7 +57,10 @@ const replyNotification = async (articleId, commentId) => {
             { $project: { author: 1, reader: '$comment.reader' } },
         ]);
 
-        await Notification.updateOne({ _id: reader }, { $push: { notifications: { type: 'reply', subject: author, articleId, createdAt: ISOTimestamp() } } });
+        await Notification.updateOne(
+            { _id: reader },
+            { $inc: { unread: 1 }, $push: { notifications: { type: 'reply', subject: author, articleId, createdAt: ISOTimestamp(), isread: false } } }
+        );
         console.log('Finish Reply Notification...');
     } catch (error) {
         console.error('ERROR: replyNotification');

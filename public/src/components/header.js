@@ -26,7 +26,7 @@ async function authenticate() {
 }
 
 async function renderUnreadCount() {
-    let { data: unreadCount, error, status } = await getUnreadNotificationCount(token);
+    let { data: unreadCount, error, status } = await getUnreadNotificationCountAPI(token);
 
     if (error) {
         console.error(status);
@@ -65,6 +65,14 @@ async function renderNotification(evt) {
     }
 
     // load first ten notification
+    const { data, error, status } = await getNotificationsAPI(token, loadedNotification);
+    if (error) {
+        console.error(status);
+        console.error(error);
+        return;
+    }
+
+    console.log(data);
 }
 
 async function renderHeader(auth) {

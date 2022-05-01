@@ -229,8 +229,17 @@ const getUploadUrlAPI = (userToken) => {
     });
 };
 
-const getUnreadNotificationCount = (userToken) => {
+const getUnreadNotificationCountAPI = (userToken) => {
     return fetchHandler('/api/notifications/unreadCount', {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+        },
+    });
+};
+
+const getNotificationsAPI = (token, offset) => {
+    return fetchHandler(`/api/notifications/${offset}`, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${userToken}`,

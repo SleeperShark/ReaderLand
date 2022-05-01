@@ -80,4 +80,24 @@ const getUnreadCount = async (userId) => {
     }
 };
 
-module.exports = { followNotification, newPostNotification, commentNotification, replyNotification, getUnreadCount };
+const getNotifications = async (userId, offset) => {
+    try {
+        const result = await Notification.aggregate([
+            { $match: { _id: userId } },
+            {
+                $project: {
+                    _id: 1,
+                    notifications: {
+                        $slice: [{ $reverseArray: '$notifications' }, offset, offset + 10],
+                    },
+                },
+            },
+        ]);
+        return { data: result };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
+module.exports = { followNotification, newPostNotification, commentNotification, replyNotification, getUnreadCount, getNotifications };

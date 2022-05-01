@@ -141,10 +141,19 @@ const draftSchema = mongoose.Schema({
     lastUpdatedAt: Date,
 });
 
+const NotificationSchema = mongoose.Schema({
+    _id: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'User',
+    },
+    otifications: [Object],
+});
+
 module.exports = {
     User: mongoose.model('User', userSchema, 'User'),
     Article: mongoose.model('Article', articleSchema, 'Article'),
     Category: mongoose.model('Category', categorySchema, 'Category'),
     Draft: mongoose.model('Draft', draftSchema, 'Draft'),
+    Notification: mongoose.model('Notification', NotificationSchema, 'Notification'),
     ObjectId: mongoose.Types.ObjectId,
 };

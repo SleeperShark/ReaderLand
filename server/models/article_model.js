@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, IMAGE_URL } = process.env;
-const { Article, ObjectId, User, Category } = require('./schemas');
+const { Article, ObjectId, User, Category, Notification } = require('./schemas');
 const { timeDecayer, authentication } = require('../../util/util');
 const Cache = require('../../util/cache');
 
@@ -66,12 +66,27 @@ const pushToNewsfeed = async (article) => {
     }
 };
 
+async function newPostNotification(authorId, articleId) {
+    const { followee: followees } = await User.findById(authorId, { _id: 0, followee: 1 });
+    const timestamp = new Date().toISOString();
+
+    for (let followee of followees) {
+        try {
+            await Notification.updateOne({ _id: followee }, { $push: { notifications: { type: 'newPost', subject: authorId, articleId, createdAt: timestamp } } });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    console.log('Finish New Post Notification...');
+}
+
 const createArticle = async (articleInfo) => {
     // articleInfo: title, author, context, category
     try {
         //TODO: Validate all categories of the article are valid
         let categories = await Category.find({}, { category: 1, _id: 0 });
         categories = categories.map((elem) => elem.category);
+
         for (let cat of articleInfo.category) {
             if (!categories.includes(cat)) {
                 return { error: `Invalid category: ${cat}`, status: 400 };
@@ -85,6 +100,8 @@ const createArticle = async (articleInfo) => {
         if (Cache.ready) {
             pushToNewsfeed(article);
         }
+
+        newPostNotification(article.author, article._id);
 
         return { article };
     } catch (error) {

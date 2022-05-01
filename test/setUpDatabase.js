@@ -1,4 +1,4 @@
-const { Article, User, Category, Draft } = require('../server/models/schemas');
+const { Article, User, Category, Draft, Notification } = require('../server/models/schemas');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const { use } = require('bcrypt/promises');
@@ -52,10 +52,16 @@ async function insertAuthor(authors, categories) {
     const authorsId = [];
     const followeeList = {};
 
-    users.forEach((user) => {
+    for (let user of users) {
         authorsId.push(user._id.toString());
         authors.find((elem) => elem.name == user.name)._id = user._id.toString();
-    });
+
+        //TODO: create Notification document
+        await Notification.create({
+            _id: user._id,
+            notifications: [],
+        });
+    }
 
     //TODO: assign follower and followee
     authors.forEach((user) => {
@@ -92,7 +98,7 @@ async function insertReader(authorsId, categories) {
 
     for (let i = 0; i < 90; i++) {
         const name = `Reader-${i}`;
-        const email = `Reader_${i}@@ReaderLand.com`;
+        const email = `Reader_${i}@ReaderLand.com`;
         const password = bcrypt.hashSync('password', 10);
         const bio = `我只是個普通的讀者，讀者${i}號`;
         const picture = `default-${Math.floor(Math.random() * 9)}.jpg`;
@@ -106,6 +112,12 @@ async function insertReader(authorsId, categories) {
 
         //TODO: insert document and get the reader ID
         const reader = await User.create({ name, email, password, bio, picture, subscribe });
+
+        //TODO: create Notification document
+        await Notification.create({
+            _id: reader._id,
+            notifications: [],
+        });
 
         //TODO: assign follower and record followee
         const followers = authorsId.sort(() => 0.5 - Math.random()).slice(0, 6);

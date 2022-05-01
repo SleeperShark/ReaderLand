@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { User, ObjectId, Category, Article } = require('./schemas');
+const { User, ObjectId, Category, Article, Notification } = require('./schemas');
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET, IMAGE_URL } = process.env;
 const bcrypt = require('bcrypt');
@@ -318,6 +318,7 @@ const follow = async (userId, followerId) => {
     try {
         // check if followe exist
         let exist = await User.countDocuments({ _id: followerId });
+
         if (!exist) {
             return { error: "FollowerId doesn't exist.", status: 400 };
         }
@@ -351,6 +352,14 @@ const follow = async (userId, followerId) => {
             },
         ]);
         console.log("Successfully update follower's followee list...");
+
+        Notification.findByIdAndUpdate(followerId, { $push: { notifications: { type: 'follow', subject: userId, createdAt: new Date().toISOString() } } }, {}, (err, doc, res) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            console.log('Successfully push notification to follower...');
+        });
 
         return { follow: 1 };
     } catch (error) {

@@ -146,7 +146,7 @@ const NotificationSchema = mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'User',
     },
-    otifications: [Object],
+    notifications: [Object],
 });
 
 module.exports = {

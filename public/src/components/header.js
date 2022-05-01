@@ -24,6 +24,30 @@ async function authenticate() {
     }
 }
 
+async function renderUnreadCount() {
+    let { data: unreadCount, error, status } = await getUnreadNotificationCount(token);
+
+    if (error) {
+        console.error(status);
+        console.error(error);
+        return '';
+    }
+
+    if (!unreadCount) {
+        return '';
+    }
+
+    if (unreadCount > 99) {
+        unreadCount = 99;
+    }
+
+    return `
+<div id="notification-unread">
+    <sapn id="unread-count">${unreadCount}</span>
+</div>
+`;
+}
+
 async function renderHeader(auth) {
     let rightElementHTML;
 
@@ -35,9 +59,7 @@ async function renderHeader(auth) {
 </a>
 <i id="notification" class="fas fa-bell">
 
-    <div id="notification-unread">
-        <sapn id="unread-count">10</span>
-    </div>
+    ${await renderUnreadCount()}
 
     <div id="notification-container">
 
@@ -134,6 +156,7 @@ async function renderHeader(auth) {
         window.location.href = '/index.html';
     });
 
+    //TODO: auth function
     if (auth) {
         document.getElementById('user-avatar').addEventListener('click', () => {
             const userActions = document.getElementById('user-actions');
@@ -155,5 +178,7 @@ async function renderHeader(auth) {
         });
 
         //TODO: notification count
+
+        await renderUnreadCount();
     }
 }

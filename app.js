@@ -42,4 +42,6 @@ if (NODE_ENV != 'production') {
         });
         console.log(`Listening on port: ${port}`);
     });
+} else {
+    module.exports = app;
 }

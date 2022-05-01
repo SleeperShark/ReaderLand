@@ -4,15 +4,15 @@ const { MONGO_USER, MONGO_PASSWORD, MONGO_DATABASE } = process.env;
 
 const connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
 
-mongoose.connect(
-    connectURL,
-    () => {
-        console.log('MongoDB is connected...');
-    },
-    (e) => {
-        console.error(e);
-    }
-);
+// mongoose.connect(
+//     connectURL,
+//     () => {
+//         console.log('MongoDB is connected...');
+//     },
+//     (e) => {
+//         console.error(e);
+//     }
+// );
 
 const userSchema = mongoose.Schema({
     name: String,

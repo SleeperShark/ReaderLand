@@ -1,6 +1,7 @@
 const token = localStorage.getItem('ReaderLandToken');
 let user;
 let loadedNotification = 0;
+let notificationHeight = 0;
 
 async function authenticate() {
     if (!token) {
@@ -49,6 +50,62 @@ async function renderUnreadCount() {
 `;
 }
 
+function appendNotifications(notifications) {
+    const container = document.getElementById('notification-container');
+    const loadBtn = document.getElementById('notification-load');
+
+    for (let notification of notifications) {
+        const { type, subject, createdAt } = notification;
+
+        const notificationDiv = document.createElement('div');
+        notificationDiv.classList.add('notification');
+
+        const divider = document.createElement('div');
+        divider.classList.add('divider');
+
+        // icon class
+        let iconClass;
+        let contentHTML;
+        switch (type) {
+            case 'comment':
+                iconClass = 'fas fa-comment';
+                contentHTML = `<span class="notification-subject">${subject.name}</span>在你的文章中留言。`;
+                break;
+            case 'reply':
+                iconClass = 'fas fa-comments';
+                contentHTML = `作者<span class="notification-subject">${subject.name}</span>回復了你的留言。`;
+                break;
+            case 'follow':
+                iconClass = 'fas fa-thumbs-up';
+                contentHTML = `<span class="notification-subject">${subject.name}</span>追蹤了你。`;
+                break;
+            case 'newPost':
+                iconClass = 'fas fa-file-alt';
+                contentHTML`你追蹤的作者<span class="notification-subject">${subject.name}</span>發表了新文章，快去看看吧！`;
+                break;
+        }
+
+        notificationDiv.innerHTML = `
+    <div class='notification-icon'>
+                <i class="${iconClass}"></i>
+            </div> 
+
+            <div class="notification-content">
+                ${contentHTML}
+            </div>
+
+    <span class="notification-time">${timeTransformer(createdAt)}</span>
+    `;
+
+        container.insertBefore(notificationDiv, loadBtn);
+        container.insertBefore(divider, loadBtn);
+
+        notificationHeight += 1 + notificationDiv.offsetHeight;
+    }
+
+    container.style.paddingTop = `${notificationHeight > 390 ? notificationHeight - 390 : 0}px`;
+}
+
 async function renderNotification(evt) {
     if (evt.target != evt.currentTarget) {
         return;
@@ -65,14 +122,21 @@ async function renderNotification(evt) {
     }
 
     // load first ten notification
-    const { data, error, status } = await getNotificationsAPI(token, loadedNotification);
+    const {
+        data: { notifications },
+        error,
+        status,
+    } = await getNotificationsAPI(token, loadedNotification);
     if (error) {
         console.error(status);
         console.error(error);
         return;
     }
 
-    console.log(data);
+    notifications.reverse();
+
+    // appending notification
+    appendNotifications(notifications);
 }
 
 async function renderHeader(auth) {
@@ -89,62 +153,7 @@ async function renderHeader(auth) {
     ${await renderUnreadCount()}
 
     <div id="notification-container" class="hide">
-
-        <div class="notification">
-            <div class='notification-icon'>
-                <i class="fas fa-thumbs-up"></i>
-            </div> 
-            <div class="notification-content">
-                <span class="notification-subject">魚骨書籤</span>
-                追蹤了你。
-            </div>
-            <span class="notification-time">一天前</span>
-        </div>
-
-            <div class="divider"></div>
-
-        <div class="notification">
-            <div class='notification-icon'>
-                <i class="fas fa-comment"></i>
-            </div> 
-            <div class="notification-content">
-                <span class="notification-subject">魚骨書籤</span>
-                回復了你的文章。
-            </div>
-            <span class="notification-time">2022-02-15</span>
-        </div>
-
-            <div class="divider"></div>
-
-        <div class="notification">
-            <div class='notification-icon'>
-                <i class="fas fa-comments"></i>
-            </div> 
-            <div class="notification-content">
-                <span class="notification-subject">魚骨書籤</span>
-                回復了你在'文章'的留言。
-            </div> 
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="notification">
-            <div class='notification-icon'>
-                <i class="fas fa-file-alt"></i>
-            </div> 
-            <div class="notification-content">
-                你追蹤的作者    
-                <span class="notification-subject">魚骨書籤</span>
-                發表了新文章，快去看看吧！
-            </div>
-            <span class="notification-time">2022-02-15</span>
-        </div>
-
-        <div class="divider"></div>
-
         <div id="notification-load">載入更多</div>
-
-
     </div>
 </i>
 <div id="user-avatar">
@@ -209,11 +218,11 @@ async function renderHeader(auth) {
 
         const notificationContainer = document.getElementById('notification-container');
         let showNotificationTimer;
-        notificationContainer.addEventListener('mouseleave', () => {
-            showNotificationTimer = setTimeout(() => {
-                notificationContainer.classList.add('hide');
-            }, 1000);
-        });
+        // notificationContainer.addEventListener('mouseleave', () => {
+        //     showNotificationTimer = setTimeout(() => {
+        //         notificationContainer.classList.add('hide');
+        //     }, 1000);
+        // });
 
         notificationContainer.addEventListener('mouseover', () => {
             clearTimeout(showNotificationTimer);

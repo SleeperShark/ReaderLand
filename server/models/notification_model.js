@@ -1,4 +1,4 @@
-const { Notification, User, Article } = require('./schemas');
+const { Notification, User, Article, ObjectId } = require('./schemas');
 
 function ISOTimestamp() {
     return new Date().toISOString();
@@ -8,7 +8,7 @@ const followNotification = async (followeeId, followerId) => {
     try {
         await Notification.updateOne(
             { _id: followerId },
-            { $inc: { unread: 1 }, $push: { notifications: { type: 'follow', subject: followeeId, createdAt: ISOTimestamp(), isread: false } } }
+            { $inc: { unread: 1 }, $push: { notifications: { type: 'follow', subject: ObjectId(followeeId), createdAt: ISOTimestamp(), isread: false } } }
         );
 
         console.log('Successfully push notification to follower...');
@@ -25,7 +25,10 @@ const newPostNotification = async (authorId, articleId) => {
         try {
             await Notification.updateOne(
                 { _id: followee },
-                { $inc: { unread: 1 }, $push: { notifications: { type: 'newPost', subject: authorId, articleId, createdAt: timestamp, isread: false } } }
+                {
+                    $inc: { unread: 1 },
+                    $push: { notifications: { type: 'newPost', subject: ObjectId(authorId), articleId: ObjectId(articleId), createdAt: timestamp, isread: false } },
+                }
             );
         } catch (error) {
             console.error(error);
@@ -40,7 +43,10 @@ const commentNotification = async (articleId, readerId) => {
 
         await Notification.updateOne(
             { _id: authorId },
-            { $inc: { unread: 1 }, $push: { notifications: { type: 'comment', subject: readerId, articleId, createdAt: ISOTimestamp(), isread: false } } }
+            {
+                $inc: { unread: 1 },
+                $push: { notifications: { type: 'comment', subject: ObjectId(readerId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false } },
+            }
         );
         console.log('Finish comment Notification to Author...');
     } catch (error) {
@@ -59,7 +65,10 @@ const replyNotification = async (articleId, commentId) => {
 
         await Notification.updateOne(
             { _id: reader },
-            { $inc: { unread: 1 }, $push: { notifications: { type: 'reply', subject: author, articleId, createdAt: ISOTimestamp(), isread: false } } }
+            {
+                $inc: { unread: 1 },
+                $push: { notifications: { type: 'reply', subject: ObjectId(author), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false } },
+            }
         );
         console.log('Finish Reply Notification...');
     } catch (error) {
@@ -82,18 +91,47 @@ const getUnreadCount = async (userId) => {
 
 const getNotifications = async (userId, offset) => {
     try {
-        const result = await Notification.aggregate([
+        offset;
+        let [{ notifications, length, subject_info }] = await Notification.aggregate([
             { $match: { _id: userId } },
             {
                 $project: {
                     _id: 1,
                     notifications: {
-                        $slice: [{ $reverseArray: '$notifications' }, offset, offset + 10],
+                        $slice: ['$notifications', { $subtract: [{ $size: '$notifications' }, offset + 10] }, 10],
                     },
+                    length: { $size: '$notifications' },
+                },
+            },
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'notifications.subject',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                            },
+                        },
+                    ],
+                    as: 'subject_info',
                 },
             },
         ]);
-        return { data: result };
+
+        // Process subject info into notification
+        subject_info = subject_info.reduce((prev, curr) => {
+            prev[curr._id.toString()] = curr;
+            return prev;
+        }, {});
+
+        notifications.forEach((elem) => {
+            elem.subject = subject_info[elem.subject.toString()];
+        });
+
+        return { data: { notifications, length } };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

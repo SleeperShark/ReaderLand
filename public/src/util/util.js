@@ -238,7 +238,7 @@ const getUnreadNotificationCountAPI = (userToken) => {
     });
 };
 
-const getNotificationsAPI = (token, offset) => {
+const getNotificationsAPI = (userToken, offset) => {
     return fetchHandler(`/api/notifications/${offset}`, {
         method: 'GET',
         headers: {

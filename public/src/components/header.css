@@ -171,6 +171,7 @@ header {
     align-items: center;
     font-size: 1rem;
     max-height: 400px;
+    padding-top: 400px;
     overflow-y: scroll;
 }
 

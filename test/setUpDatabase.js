@@ -1,4 +1,4 @@
-const { Article, User, Category, Draft, Notification } = require('../server/models/schemas');
+const { Article, User, Category, Draft, Notification, ObjectId } = require('../server/models/schemas');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 
@@ -213,7 +213,7 @@ async function insertArticle(articles) {
                     reader,
                 };
 
-                tempNotification[author].push({ type: 'comment', subject: reader, createdAt: new Date(commentTime).toISOString() });
+                tempNotification[author].push({ type: 'comment', subject: ObjectId(reader), createdAt: new Date(commentTime).toISOString() });
 
                 // Reply
                 if (Math.floor(Math.random() * 10) % 3 == 0) {
@@ -226,7 +226,7 @@ async function insertArticle(articles) {
 
                     if (authorsId.includes(reader)) {
                         tempNotification[reader] = tempNotification[reader] || [];
-                        tempNotification[reader].push({ type: 'reply', subject: author, createdAt: replyTime });
+                        tempNotification[reader].push({ type: 'reply', subject: ObjectId(author), createdAt: replyTime });
                     }
                 }
 

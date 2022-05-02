@@ -133,7 +133,14 @@ const getNotifications = async (userId, offset) => {
         });
 
         // Update notification unread state
-        await Notification.updateOne({ _id: userId }, { $set: { unread: 0 } });
+        const unsetObj = {};
+        const start = length - offset - 10;
+        for (let i = 0; i < 10; i++) {
+            const key = `notifications.${start + i}.isread`;
+            unsetObj[key] = '';
+        }
+
+        await Notification.updateOne({ _id: userId }, { $set: { unread: 0 }, $unset: unsetObj });
 
         return { data: { notifications, length } };
     } catch (error) {

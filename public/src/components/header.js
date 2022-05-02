@@ -65,6 +65,7 @@ function appendNotifications(notifications) {
         // icon class
         let iconClass;
         let contentHTML;
+        let unreadHTML = '';
         switch (type) {
             case 'comment':
                 iconClass = 'fas fa-comment';
@@ -84,6 +85,9 @@ function appendNotifications(notifications) {
                 break;
         }
 
+        if (notification.hasOwnProperty('isread')) {
+            unreadHTML = '<span class="unread"></span>';
+        }
         notificationDiv.innerHTML = `
     <div class='notification-icon'>
                 <i class="${iconClass}"></i>
@@ -94,6 +98,7 @@ function appendNotifications(notifications) {
             </div>
 
     <span class="notification-time">${timeTransformer(createdAt)}</span>
+    ${unreadHTML}
     `;
 
         container.insertBefore(notificationDiv, loadBtn);

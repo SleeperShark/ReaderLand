@@ -238,6 +238,18 @@ header {
     background-color: rgba(49, 46, 129, 0.75);
 }
 
+span.unread {
+    position: absolute;
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: red;
+    top: 8px;
+    right: 8px;
+    opacity: 1;
+}
+
 /* -------------------------------- */
 
 #avatar {

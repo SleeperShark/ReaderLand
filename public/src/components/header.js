@@ -1,7 +1,6 @@
 const token = localStorage.getItem('ReaderLandToken');
 let user;
 let loadedNotification = 0;
-let notificationHeight = 0;
 
 async function authenticate() {
     if (!token) {
@@ -55,7 +54,7 @@ function appendNotifications(notifications) {
     const loadBtn = document.getElementById('notification-load');
 
     for (let notification of notifications) {
-        const { type, subject, createdAt } = notification;
+        const { type, subject, createdAt, articleId } = notification;
 
         const notificationDiv = document.createElement('div');
         notificationDiv.classList.add('notification');
@@ -100,26 +99,17 @@ function appendNotifications(notifications) {
         container.insertBefore(notificationDiv, loadBtn);
         container.insertBefore(divider, loadBtn);
 
-        notificationHeight += 1 + notificationDiv.offsetHeight;
+        if (articleId) {
+            notificationDiv.addEventListener('click', () => {
+                window.location.href = `/article.html?id=${articleId}`;
+            });
+        }
     }
-
-    container.style.paddingTop = `${notificationHeight > 390 ? notificationHeight - 390 : 0}px`;
 }
 
 async function renderNotification(evt) {
-    if (evt.target != evt.currentTarget) {
-        return;
-    }
     // clear unreadCount
     document.getElementById('notification-unread')?.remove();
-
-    // show notification container
-    const container = document.getElementById('notification-container');
-    container.classList.toggle('hide');
-
-    if (loadedNotification) {
-        return;
-    }
 
     // load first ten notification
     const {
@@ -127,16 +117,51 @@ async function renderNotification(evt) {
         error,
         status,
     } = await getNotificationsAPI(token, loadedNotification);
+
     if (error) {
         console.error(status);
         console.error(error);
         return;
     }
 
-    notifications.reverse();
+    if (notifications.length) {
+        notifications.reverse();
+        // appending notification
+        appendNotifications(notifications);
 
-    // appending notification
-    appendNotifications(notifications);
+        loadedNotification += notifications.length;
+    }
+
+    // clear this event listener
+    evt.target.removeEventListener('click', renderNotification);
+}
+
+async function loadingNotification(evt) {
+    // load first ten notification
+    const {
+        data: { notifications },
+        error,
+        status,
+    } = await getNotificationsAPI(token, loadedNotification);
+
+    if (error) {
+        console.error(status);
+        console.error(error);
+        alert('Error: getNotificationsAPI');
+        return;
+    }
+
+    if (notifications.length) {
+        notifications.reverse();
+        // appending notification
+        appendNotifications(notifications);
+
+        loadedNotification += notifications.length;
+
+        if (notifications.length < 10) {
+            evt.target.remove();
+        }
+    }
 }
 
 async function renderHeader(auth) {
@@ -156,6 +181,7 @@ async function renderHeader(auth) {
         <div id="notification-load">載入更多</div>
     </div>
 </i>
+
 <div id="user-avatar">
     <img id="avatar" src="${user.picture}" alt="user avatar" />
     
@@ -213,19 +239,30 @@ async function renderHeader(auth) {
             window.location.href = '/index.html';
         });
 
-        //TODO: fetch Notification when click icon
-        document.getElementById('notification').addEventListener('click', renderNotification);
-
+        const notificationIcon = document.getElementById('notification');
         const notificationContainer = document.getElementById('notification-container');
+        //TODO: first fetch Notification when click icon
+        notificationIcon.addEventListener('click', renderNotification);
+        //TODO: show container
+        notificationIcon.addEventListener('click', (evt) => {
+            if (evt.target == notificationIcon) {
+                notificationContainer.classList.toggle('hide');
+            }
+        });
+
         let showNotificationTimer;
+
         // notificationContainer.addEventListener('mouseleave', () => {
         //     showNotificationTimer = setTimeout(() => {
         //         notificationContainer.classList.add('hide');
         //     }, 1000);
         // });
 
-        notificationContainer.addEventListener('mouseover', () => {
-            clearTimeout(showNotificationTimer);
-        });
+        // notificationContainer.addEventListener('mouseover', () => {
+        //     clearTimeout(showNotificationTimer);
+        // });
+
+        //TODO: load more btn
+        document.getElementById('notification-load').addEventListener('click', loadingNotification);
     }
 }

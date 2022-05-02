@@ -162,16 +162,13 @@ header {
     left: -210px;
     top: 55px;
     width: 245px;
+    height: 400px;
     background-color: rgb(75, 74, 74);
     border: 2px solid rgba(182, 182, 182, 0.83);
     border-radius: 5px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     font-size: 1rem;
-    max-height: 400px;
-    padding-top: 400px;
     overflow-y: scroll;
 }
 

@@ -225,17 +225,15 @@ async function renderHeader(auth) {
 
     //TODO: auth function
     if (auth) {
-        document.getElementById('user-avatar').addEventListener('click', () => {
-            const userActions = document.getElementById('user-actions');
-            switch (userActions.dataset.status) {
-                case 'hide':
-                    userActions.classList.remove('hide');
-                    userActions.dataset.status = 'show';
-                    break;
-                case 'show':
-                    userActions.classList.add('hide');
-                    userActions.dataset.status = 'hide';
-            }
+        const notificationIcon = document.getElementById('notification');
+        const notificationContainer = document.getElementById('notification-container');
+        const avatar = document.getElementById('user-avatar');
+        const userActions = document.getElementById('user-actions');
+
+        avatar.addEventListener('click', () => {
+            // Hide Notification
+            notificationContainer.classList.add('hide');
+            userActions.classList.toggle('hide');
         });
 
         document.getElementById('action-signout').addEventListener('click', () => {
@@ -244,14 +242,13 @@ async function renderHeader(auth) {
             window.location.href = '/index.html';
         });
 
-        const notificationIcon = document.getElementById('notification');
-        const notificationContainer = document.getElementById('notification-container');
         //TODO: first fetch Notification when click icon
         notificationIcon.addEventListener('click', renderNotification);
         //TODO: show container
         notificationIcon.addEventListener('click', (evt) => {
             if (evt.target == notificationIcon) {
                 notificationContainer.classList.toggle('hide');
+                userActions.classList.add('hide');
             }
         });
 

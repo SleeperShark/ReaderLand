@@ -80,7 +80,7 @@ function appendNotifications(notifications) {
                 break;
             case 'newPost':
                 iconClass = 'fas fa-file-alt';
-                contentHTML`你追蹤的作者<span class="notification-subject">${subject.name}</span>發表了新文章，快去看看吧！`;
+                contentHTML = `你追蹤的作者<span class="notification-subject">${subject.name}</span>發表了新文章，快去看看吧！`;
                 break;
         }
 

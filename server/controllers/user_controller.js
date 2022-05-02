@@ -152,6 +152,7 @@ const follow = async (req, res) => {
 };
 
 const unfollow = async (req, res) => {
+    console.log(req.body);
     const { followerId } = req.body;
     const { userId } = req.user;
 

@@ -136,8 +136,8 @@ const commentArticle = async (req, res) => {
     const { articleId } = req.params;
     const { comment } = req.body;
 
-    if (!articleId || !comment) {
-        res.status(400).json({ error: 'articleId and context are both required.' });
+    if (!comment) {
+        res.status(400).json({ error: 'comment is required.' });
         return;
     }
 

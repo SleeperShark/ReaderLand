@@ -1,4 +1,4 @@
-const { User, Notification, Article, ObjectId } = require('../server/models/schemas');
+const { User, Article } = require('../server/models/schemas');
 const fs = require('fs');
 const axios = require('axios');
 const API_URL = 'http://localhost:3000/api';
@@ -176,12 +176,12 @@ async function run() {
                 await authorReply(othersArticles, userId, userEmail, others);
                 break;
         }
-    }, 1000 * 3);
+    }, 1000 * 10);
 
     //TODO: new Post Generator
     setInterval(async () => {
         await postGenerator(articleMaterial, authors);
-    }, 3000);
+    }, 5000);
 }
 
 run();

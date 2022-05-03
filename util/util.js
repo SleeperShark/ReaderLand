@@ -3,7 +3,7 @@ const { promisify } = require('util'); // util from native nodejs library
 const jwt = require('jsonwebtoken');
 const User = require('../server/models/user_model');
 const crypto = require('crypto');
-const { TOKEN_SECRET } = process.env;
+const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, TOKEN_SECRET } = process.env;
 const randomBytes = promisify(crypto.randomBytes);
 
 const wrapAsync = (fn) => {
@@ -109,9 +109,39 @@ const generateUploadURL = async (folder = '') => {
     return { uploadURL, imageName };
 };
 
+const articleWeightCounter = (article, userPreference) => {
+    let { category, readCount, likeCount, commentCount, createdAt, author } = article;
+    let { subscribe, follower } = userPreference;
+
+    let weight = 0;
+    weight += category.reduce((prev, curr) => prev + (parseInt(subscribe[curr]) || 0), 1);
+
+    if (author) {
+        weight *= follower.includes(author._id) ? 3 : 1;
+    }
+
+    if (readCount) {
+        weight *= Math.pow(parseInt(READ_WEIGHT), Math.floor(readCount / READ_DIVISION));
+    }
+    if (likeCount) {
+        weight *= Math.pow(parseInt(LIKE_WEIGHT), Math.floor(likeCount / LIKE_DIVISION));
+    }
+    if (commentCount) {
+        weight *= Math.pow(parseInt(COMMENT_WEIGHT), Math.floor(commentCount / COMMENT_DIVISION));
+    }
+    // console.log(READ_WEIGHT, LIKE_WEIGHT, COMMENT_WEIGHT);
+
+    const decayWeight = timeDecayer(new Date(), createdAt);
+
+    weight = Number((weight / decayWeight).toFixed(3));
+
+    return weight;
+};
+
 module.exports = {
     wrapAsync,
     authentication,
     timeDecayer,
     generateUploadURL,
+    articleWeightCounter,
 };

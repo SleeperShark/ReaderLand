@@ -2,7 +2,7 @@ require('dotenv').config();
 const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
 const Notification = require('./notification_model');
-const { timeDecayer } = require('../../util/util');
+const { articleWeightCounter } = require('../../util/util');
 const Cache = require('../../util/cache');
 
 //get userid: { _id, picture, name } object
@@ -302,24 +302,12 @@ const generateNewsFeed = async (userId, lastArticleId) => {
         const currTime = new Date();
 
         // Caclulate weight for each article in newsfeedMaterial
-        newsfeedMaterial.forEach(({ author, likeCount, commentCount, readCount, category, createdAt }, idx, arr) => {
-            let weight = 0;
-            weight += category.reduce((prev, curr) => prev + (subscribe[curr] || 0), 1);
-
-            weight *= follower.includes(author._id) ? 3 : 1;
-
-            weight *= Math.pow(READ_WEIGHT, Math.floor(readCount / READ_DIVISION));
-            weight *= Math.pow(LIKE_WEIGHT, Math.floor(likeCount / LIKE_DIVISION));
-            weight *= Math.floor(COMMENT_WEIGHT, Math.floor(commentCount / COMMENT_DIVISION));
-
-            const decayWeight = timeDecayer(currTime, createdAt);
-
-            weight = (weight / decayWeight).toFixed(3);
-
-            arr[idx]['weight'] = weight;
+        newsfeedMaterial.forEach((article, idx, arr) => {
+            arr[idx]['weight'] = articleWeightCounter(article, userPreference);
         });
 
         if (Cache.ready) {
+            console.log('Saving Newsfeed into cache...');
             const cacheFeed = [];
             // const record = [];
             for (let i = 0; i < newsfeedMaterial.length; i += 50) {
@@ -330,10 +318,9 @@ const generateNewsFeed = async (userId, lastArticleId) => {
                 cacheFeed.push(...temp.map((elem) => elem._id));
             }
 
-            // console.log(cacheFeed);
-
             await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
             // fs.writeFileSync('NewsFeed.json', JSON.stringify(record));
+            await Cache.set(`${userId}_timestamp`, new Date().getTime());
 
             return { cache: 1 };
         } else {

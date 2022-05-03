@@ -161,27 +161,27 @@ async function run() {
     articleMaterial = processArticles(articleMaterial, authors);
 
     //TODO: Notification Generator
-    // setInterval(async function () {
-    //     switch (Math.floor(Math.random() * 4)) {
-    //         case 0:
-    //             await getFollowed(userId, others);
-    //             break;
-    //         case 1:
-    //             await followersNewPost(userId, articleMaterial, authors);
-    //             break;
-    //         case 2:
-    //             await readerComment(userArticles, others);
-    //             break;
-    //         case 3:
-    //             await authorReply(othersArticles, userId, userEmail, others);
-    //             break;
-    //     }
-    // }, 1000 * 3);
+    setInterval(async function () {
+        switch (Math.floor(Math.random() * 4)) {
+            case 0:
+                await getFollowed(userId, others);
+                break;
+            case 1:
+                await followersNewPost(userId, articleMaterial, authors);
+                break;
+            case 2:
+                await readerComment(userArticles, others);
+                break;
+            case 3:
+                await authorReply(othersArticles, userId, userEmail, others);
+                break;
+        }
+    }, 1000 * 3);
 
     //TODO: new Post Generator
-    // setInterval(async () => {
-    //     await postGenerator(articleMaterial, authors);
-    // }, 3000);
+    setInterval(async () => {
+        await postGenerator(articleMaterial, authors);
+    }, 3000);
 }
 
 run();

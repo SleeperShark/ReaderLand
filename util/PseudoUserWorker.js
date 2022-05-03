@@ -1,19 +1,14 @@
 const { User, Notification, Article, ObjectId } = require('../server/models/schemas');
 const fs = require('fs');
 const axios = require('axios');
-const { get } = require('express/lib/response');
 const API_URL = 'http://localhost:3000/api';
 
 //TODO: process article's author and context field
-function processArticles(articles, followedAuthors) {
-    const namePool = followedAuthors.map((elem) => elem.name);
-    const name_id = followedAuthors.reduce((prev, curr) => {
+function processArticles(articles, authors) {
+    const name_id = authors.reduce((prev, curr) => {
         prev[curr.name] = curr._id;
         return prev;
     }, {});
-
-    // process articles
-    articles = articles.filter((elem) => namePool.includes(elem.author));
 
     articles.forEach((article) => {
         article.author = name_id[article.author];
@@ -53,15 +48,23 @@ async function getFollowed(userId, others) {
     console.log(`Event: ${fans._id.toString()} follow user...`);
 }
 
-async function followersNewPost(articles, authorsInfo) {
+async function followersNewPost(userId, articles, authorsInfo) {
+    articles = articles.filter((elem) => elem.author.toString() != userId.toString());
     const { title, category, context, preview, head, author } = articles[Math.floor(Math.random() * articles.length)];
 
     const [{ email }] = authorsInfo.filter((elem) => elem._id.toString() == author.toString());
     const authorToken = await getToken(email);
 
-    await axios({ method: 'POST', url: `${API_URL}/articles`, headers: { Authorization: `Bearer ${authorToken}` }, data: { title, category, context, preview, head } });
+    const {
+        data: { data: newPostId },
+    } = await axios({
+        method: 'POST',
+        url: `${API_URL}/articles`,
+        headers: { Authorization: `Bearer ${authorToken}` },
+        data: { title, category, context, preview, head },
+    });
 
-    console.log(`Event: newPost...`);
+    console.log(`Event: newPost ${newPostId}...`);
 }
 
 async function readerComment(userArticles, others) {
@@ -82,7 +85,7 @@ async function readerComment(userArticles, others) {
     console.log('Event: reader comment...');
 }
 
-async function authorReply(articles, userEmail, others) {
+async function authorReply(articles, userId, userEmail, others) {
     const articleId = articles[Math.floor(Math.random() * articles.length)];
     //TODO: user leave comment
     const userToken = await getToken(userEmail);
@@ -128,6 +131,8 @@ async function run() {
         },
         { $project: { _id: 1, email: 1, follower: 1 } },
     ]);
+    let others = await User.find({ _id: { $ne: userId } }, { _id: 1, email: 1 });
+    let authors = await User.find({}, { _id: 1, name: 1, email: 1 }).limit(10);
 
     // Collect articles's id for reply and comment
     const allArticles = await Article.find({}, { _id: 1, author: 1 });
@@ -135,24 +140,22 @@ async function run() {
     const othersArticles = allArticles.filter((elem) => elem.author.toString() != userId.toString()).map((elem) => elem._id);
 
     let { articles: articleMaterial } = JSON.parse(fs.readFileSync(`${__dirname}/../test/testCase.json`), 'utf-8');
-    articleMaterial = processArticles(articleMaterial, followedAuthors);
+    articleMaterial = processArticles(articleMaterial, authors);
 
-    let others = await User.find({ _id: { $ne: userId } }, { _id: 1, email: 1 });
-
-    const timeInterval = 1000 * 60;
+    const timeInterval = 1000 * 3;
     setInterval(async function () {
         switch (Math.floor(Math.random() * 4)) {
             case 0:
                 await getFollowed(userId, others);
                 break;
             case 1:
-                await followersNewPost(articleMaterial, others);
+                await followersNewPost(userId, articleMaterial, authors);
                 break;
             case 2:
                 await readerComment(userArticles, others);
                 break;
             case 3:
-                await authorReply(othersArticles, userEmail, others);
+                await authorReply(othersArticles, userId, userEmail, others);
                 break;
         }
     }, timeInterval);

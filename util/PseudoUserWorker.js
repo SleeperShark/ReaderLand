@@ -1,6 +1,7 @@
 const { User, Notification, Article, ObjectId } = require('../server/models/schemas');
 const fs = require('fs');
 const axios = require('axios');
+const { get } = require('express/lib/response');
 const API_URL = 'http://localhost:3000/api';
 
 //TODO: process article's author and context field
@@ -81,6 +82,37 @@ async function readerComment(userArticles, others) {
     console.log('Event: reader comment...');
 }
 
+async function authorReply(articles, userEmail, others) {
+    const articleId = articles[Math.floor(Math.random() * articles.length)];
+    //TODO: user leave comment
+    const userToken = await getToken(userEmail);
+    let {
+        data: {
+            data: { comments },
+        },
+    } = await axios({
+        method: 'POST',
+        url: `${API_URL}/articles/${articleId.toString()}/comment`,
+        headers: { Authorization: `Bearer ${userToken}` },
+        data: { comment: `User ghost comment...` },
+    });
+
+    const commentId = comments[comments.length - 1]._id.toString();
+
+    //TODO: author reply comment
+    // get author id
+    const { author: authorId } = await Article.findById(articleId, { author: 1 });
+    const authorToken = await getToken(others.filter((elem) => elem._id.toString() == authorId.toString())[0].email);
+    await axios({
+        method: 'POST',
+        url: `${API_URL}/articles/${articleId.toString()}/replyComment`,
+        headers: { Authorization: `Bearer ${authorToken}` },
+        data: { reply: 'Author ghost reply...', commentId },
+    });
+
+    console.log('Event: author reply...');
+}
+
 //Target User
 async function run() {
     const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
@@ -97,30 +129,33 @@ async function run() {
         { $project: { _id: 1, email: 1, follower: 1 } },
     ]);
 
-    const userArticles = await Article.find({ author: userId }, { _id: 1 });
+    // Collect articles's id for reply and comment
+    const allArticles = await Article.find({}, { _id: 1, author: 1 });
+    const userArticles = allArticles.filter((elem) => elem.author.toString() == userId.toString()).map((elem) => elem._id);
+    const othersArticles = allArticles.filter((elem) => elem.author.toString() != userId.toString()).map((elem) => elem._id);
 
-    let { articles } = JSON.parse(fs.readFileSync(`${__dirname}/../test/testCase.json`), 'utf-8');
-    articles = processArticles(articles, followedAuthors);
+    let { articles: articleMaterial } = JSON.parse(fs.readFileSync(`${__dirname}/../test/testCase.json`), 'utf-8');
+    articleMaterial = processArticles(articleMaterial, followedAuthors);
 
     let others = await User.find({ _id: { $ne: userId } }, { _id: 1, email: 1 });
 
-    // const timeInterval = 1000;
-    // setInterval(async function () {
-    //     switch (Math.floor(Math.random() * 4)) {
-    //         case 0:
-    //             await getFollowed(userId, others);
-    //             break;
-    //         case 1:
-    //             console.log(1);
-    //             break;
-    //         case 2:
-    //             console.log(2);
-    //             break;
-    //         case 3:
-    //             console.log(3);
-    //             break;
-    //     }
-    // }, timeInterval);
+    const timeInterval = 1000 * 60;
+    setInterval(async function () {
+        switch (Math.floor(Math.random() * 4)) {
+            case 0:
+                await getFollowed(userId, others);
+                break;
+            case 1:
+                await followersNewPost(articleMaterial, others);
+                break;
+            case 2:
+                await readerComment(userArticles, others);
+                break;
+            case 3:
+                await authorReply(othersArticles, userEmail, others);
+                break;
+        }
+    }, timeInterval);
 }
 
 run();

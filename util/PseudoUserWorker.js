@@ -116,6 +116,24 @@ async function authorReply(articles, userId, userEmail, others) {
     console.log('Event: author reply...');
 }
 
+async function postGenerator(articles, authorsInfo) {
+    const { title, category, context, preview, head, author } = articles[Math.floor(Math.random() * articles.length)];
+
+    const [{ email }] = authorsInfo.filter((elem) => elem._id.toString() == author.toString());
+    const authorToken = await getToken(email);
+
+    const {
+        data: { data: newPostId },
+    } = await axios({
+        method: 'POST',
+        url: `${API_URL}/articles`,
+        headers: { Authorization: `Bearer ${authorToken}` },
+        data: { title, category, context, preview, head },
+    });
+
+    console.log(`Post Generator ${newPostId}...`);
+}
+
 //Target User
 async function run() {
     const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
@@ -142,23 +160,28 @@ async function run() {
     let { articles: articleMaterial } = JSON.parse(fs.readFileSync(`${__dirname}/../test/testCase.json`), 'utf-8');
     articleMaterial = processArticles(articleMaterial, authors);
 
-    const timeInterval = 1000 * 3;
-    setInterval(async function () {
-        switch (Math.floor(Math.random() * 4)) {
-            case 0:
-                await getFollowed(userId, others);
-                break;
-            case 1:
-                await followersNewPost(userId, articleMaterial, authors);
-                break;
-            case 2:
-                await readerComment(userArticles, others);
-                break;
-            case 3:
-                await authorReply(othersArticles, userId, userEmail, others);
-                break;
-        }
-    }, timeInterval);
+    //TODO: Notification Generator
+    // setInterval(async function () {
+    //     switch (Math.floor(Math.random() * 4)) {
+    //         case 0:
+    //             await getFollowed(userId, others);
+    //             break;
+    //         case 1:
+    //             await followersNewPost(userId, articleMaterial, authors);
+    //             break;
+    //         case 2:
+    //             await readerComment(userArticles, others);
+    //             break;
+    //         case 3:
+    //             await authorReply(othersArticles, userId, userEmail, others);
+    //             break;
+    //     }
+    // }, 1000 * 3);
+
+    //TODO: new Post Generator
+    // setInterval(async () => {
+    //     await postGenerator(articleMaterial, authors);
+    // }, 3000);
 }
 
 run();

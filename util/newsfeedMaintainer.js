@@ -153,6 +153,8 @@ async function main() {
     console.log(`${new Date().toISOString()}: Newsfeed Maintainer awake...`);
     console.time();
 
+    console.log(process.env.CACHE_PASSWORD);
+
     const job = parseInt(process.argv[2]);
 
     //Sleep a while for redis connecction

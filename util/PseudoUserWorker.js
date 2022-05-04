@@ -166,20 +166,20 @@ async function run() {
 
     try {
         while (true) {
-            // switch (Math.floor(Math.random() * 4)) {
-            //     case 0:
-            //         await getFollowed(userId, others);
-            //         break;
-            //     case 1:
-            //         await followersNewPost(userId, articleMaterial, authors);
-            //         break;
-            //     case 2:
-            //         await readerComment(userArticles, others);
-            //         break;
-            //     case 3:
-            //         await authorReply(othersArticles, userId, userEmail, others);
-            //         break;
-            // }
+            switch (Math.floor(Math.random() * 4)) {
+                case 0:
+                    await getFollowed(userId, others);
+                    break;
+                case 1:
+                    await followersNewPost(userId, articleMaterial, authors);
+                    break;
+                case 2:
+                    await readerComment(userArticles, others);
+                    break;
+                case 3:
+                    await authorReply(othersArticles, userId, userEmail, others);
+                    break;
+            }
 
             await postGenerator(articleMaterial, authors);
             await new Promise((r) => setTimeout(r, 3000));

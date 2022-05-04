@@ -74,7 +74,8 @@ function shuffleTwo(newsfeed, pullfeed) {
             newArr = evenlyDistribute(small, large);
             break;
         default:
-            console.log('ERROR: Please specify shuffle policy');
+            console.error(new Date().toISOString());
+            console.error('ERROR: Please specify shuffle policy');
     }
 
     return newArr;
@@ -131,8 +132,6 @@ async function pullNewsFeed() {
         console.log('pull length: ' + pullArticles.length);
         console.log('insert after: ' + inertedArray.length);
     }
-    console.log('Task finish...');
-    console.timeEnd();
 }
 
 async function regenerateNewsfeed() {
@@ -144,8 +143,7 @@ async function regenerateNewsfeed() {
         console.log(`Regenerate User ${usersId[i]}'s newsfeed...`);
         await ArticleModel.generateNewsFeed(usersId[i]);
     }
-    console.log('Task finish...');
-    console.timeEnd();
+
     return;
 }
 
@@ -166,6 +164,7 @@ async function main() {
     });
 
     if (!Cache.ready) {
+        console.error(new Date().toISOString());
         console.error('ERROR: Cache conneted failed, please check redis status...');
         return;
     }
@@ -180,8 +179,13 @@ async function main() {
             await regenerateNewsfeed();
             break;
         default:
+            console.error(new Date().toISOString());
             console.error('ERROR: Please provide task type as 3rd argument');
     }
+
+    console.log('Task finish...');
+    console.timeEnd();
+    console.log('-------------------------------------');
 
     process.exit();
 }

@@ -1,9 +1,9 @@
 require('dotenv');
-const { User: UserSchema } = require(`${__dirname}/../server/models/schemas`);
+const { User: UserSchema, Article: ArticleSchema } = require(`${__dirname}/../server/models/schemas`);
 const ArticleModel = require(`${__dirname}/../server/models/article_model`);
 const { articleWeightCounter } = require(`${__dirname}/util`);
-
 const Cache = require(`${__dirname}/cache`);
+const { SHUFFLE_POLICY } = process.env;
 
 function randomDistribute(small, large) {
     const tempArr = [];
@@ -61,11 +61,21 @@ function shuffleTwo(newsfeed, pullfeed) {
         small = newsfeed;
     }
 
-    // TODO: method A
-    // const newArr = evenlyDistribute(small, large);
+    let newArr;
 
-    // TODO: method B
-    const newArr = randomDistribute(small, large);
+    switch (SHUFFLE_POLICY) {
+        case '1':
+            console.log('shuffle Policy: Random');
+            newArr = randomDistribute(small, large);
+            break;
+
+        case '2':
+            console.log('Shuffle Policy: Even');
+            newArr = evenlyDistribute(small, large);
+            break;
+        default:
+            console.log('ERROR: Please specify shuffle policy');
+    }
 
     return newArr;
 }
@@ -75,6 +85,8 @@ async function pullNewsFeed() {
 
     for (let feedKey of newsfeedKeys) {
         const userId = feedKey.split('_')[0];
+        console.log(`Pulling new articles for User ${userId}`);
+
         const timestampKey = userId + '_timestamp';
         let timeStamp = await Cache.get(timestampKey);
         timeStamp = new Date(Number(timeStamp)).toISOString();
@@ -82,12 +94,16 @@ async function pullNewsFeed() {
         //TODO: collect Article After this time stamp
         const { subscribe, follower } = await UserSchema.findById(userId, { follower: 1, subscribe: 1 });
 
-        let pullArticles = await Article.find(
+        let pullArticles = await ArticleSchema.find(
             { createdAt: { $gte: timeStamp }, author: { $nin: follower }, category: { $in: Object.keys(subscribe) } },
             { _id: 1, category: 1, createdAt: 1, readCount: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments' } }
         );
-
         const currTimestamp = new Date().getTime();
+
+        if (!pullArticles.length) {
+            console.log('No new articles for user...');
+            continue;
+        }
 
         pullArticles = JSON.parse(JSON.stringify(pullArticles));
 
@@ -106,11 +122,17 @@ async function pullNewsFeed() {
         // await Cache.rpush(`${userId}_newsfeed`, ...inertedArray);
         // await Cache.set(`${userId}_timestamp`, currTimestamp);
 
+        if (!inertedArray) {
+            console.log('No Shuffle Policy, Dropping the task...');
+            break;
+        }
+
         console.log('insert before: ' + newsFeed.length);
         console.log('pull length: ' + pullArticles.length);
         console.log('insert after: ' + inertedArray.length);
-        console.log('finish...');
     }
+    console.log('Task finish...');
+    console.timeEnd();
 }
 
 async function regenerateNewsfeed() {
@@ -119,7 +141,45 @@ async function regenerateNewsfeed() {
     usersId = usersId.map((elem) => elem.split('_')[0]);
 
     for (let i = 0; i < usersId.length; i++) {
+        console.log(`Regenerate User ${usersId[i]}'s newsfeed...`);
         await ArticleModel.generateNewsFeed(usersId[i]);
     }
+    console.log('Task finish...');
+    console.timeEnd();
     return;
 }
+
+async function main() {
+    console.log(`${new Date().toISOString()}: Newsfeed Maintainer awake...`);
+    console.time();
+
+    const job = parseInt(process.argv[2]);
+
+    //Sleep a while for redis connecction
+    await new Promise((r) => {
+        setTimeout(() => {
+            console.log('Waiting for Redis Connection...');
+            r();
+        }, 2000);
+    });
+
+    if (!Cache.ready) {
+        console.error('ERROR: Cache conneted failed, please check redis status...');
+        return;
+    }
+
+    switch (job) {
+        case 1:
+            console.log('Ready to perform pull feeds task...');
+            pullNewsFeed();
+            break;
+        case 2:
+            console.log('Ready to regenerate newsfeed...');
+            regenerateNewsfeed();
+            break;
+        default:
+            console.error('ERROR: Please provide task type as 3rd argument');
+    }
+}
+
+main();

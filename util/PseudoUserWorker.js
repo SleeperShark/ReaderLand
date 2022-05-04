@@ -1,7 +1,7 @@
 const { User, Article } = require('../server/models/schemas');
 const fs = require('fs');
 const axios = require('axios');
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://127.0.0.1:3000/api';
 
 //TODO: process article's author and context field
 function processArticles(articles, authors) {
@@ -185,7 +185,7 @@ async function run() {
             await new Promise((r) => setTimeout(r, 3000));
         }
     } catch (error) {
-        console.error(error);
+        console.error(error.message);
     }
 }
 

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, IMAGE_URL } = process.env;
+const { IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
 const Notification = require('./notification_model');
 const { articleWeightCounter } = require('../../util/util');
@@ -440,13 +440,6 @@ const getNewsFeed = async (userId) => {
                     createdAt: 1,
                     readCount: 1,
                     likes: 1,
-                    // liked: {
-                    //     $cond: {
-                    //         if: { $in: [userId, '$likes'] },
-                    //         then: true,
-                    //         else: false,
-                    //     },
-                    // },
                     comments: 1,
                     category: 1,
                 },

@@ -1,5 +1,6 @@
 require('dotenv');
-const { User, Article } = require(`${__dirname}/../server/models/schemas`);
+const { User: UserSchema } = require(`${__dirname}/../server/models/schemas`);
+const ArticleModel = require(`${__dirname}/../server/models/article_model`);
 const { articleWeightCounter } = require(`${__dirname}/util`);
 
 const Cache = require(`${__dirname}/cache`);
@@ -79,12 +80,13 @@ async function pullNewsFeed() {
         timeStamp = new Date(Number(timeStamp)).toISOString();
 
         //TODO: collect Article After this time stamp
-        const { subscribe, follower } = await User.findById(userId, { follower: 1, subscribe: 1 });
+        const { subscribe, follower } = await UserSchema.findById(userId, { follower: 1, subscribe: 1 });
 
         let pullArticles = await Article.find(
             { createdAt: { $gte: timeStamp }, author: { $nin: follower }, category: { $in: Object.keys(subscribe) } },
             { _id: 1, category: 1, createdAt: 1, readCount: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments' } }
         );
+
         const currTimestamp = new Date().getTime();
 
         pullArticles = JSON.parse(JSON.stringify(pullArticles));
@@ -111,4 +113,13 @@ async function pullNewsFeed() {
     }
 }
 
-pullNewsFeed();
+async function regenerateNewsfeed() {
+    //TODO: get all user's newsfeed key in cache
+    let usersId = await Cache.keys('*_newsfeed');
+    usersId = usersId.map((elem) => elem.split('_')[0]);
+
+    for (let i = 0; i < usersId.length; i++) {
+        await ArticleModel.generateNewsFeed(usersId[i]);
+    }
+    return;
+}

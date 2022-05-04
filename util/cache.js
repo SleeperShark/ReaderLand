@@ -1,4 +1,4 @@
-require('dotenv').config({ path: __dirname + '../.env' });
+require('dotenv').config();
 const Redis = require('ioredis');
 const { CACHE_HOST, CACHE_PORT, CACHE_USER, CACHE_PASSWORD, NODE_ENV } = process.env;
 const retryTimes = NODE_ENV === 'development' ? 1 : 5;

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 require('dotenv');
 const { User: UserSchema, Article: ArticleSchema } = require(`${__dirname}/../server/models/schemas`);
 const ArticleModel = require(`${__dirname}/../server/models/article_model`);

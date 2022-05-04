@@ -299,8 +299,6 @@ const generateNewsFeed = async (userId, lastArticleId) => {
             skip += limitInterval;
         }
 
-        const currTime = new Date();
-
         // Caclulate weight for each article in newsfeedMaterial
         newsfeedMaterial.forEach((article, idx, arr) => {
             arr[idx]['weight'] = articleWeightCounter(article, userPreference);

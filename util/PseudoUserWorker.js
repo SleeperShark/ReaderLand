@@ -36,6 +36,7 @@ async function getToken(email) {
 }
 
 async function getFollowed(userId, others) {
+    console.log('Ready to make follow notification...');
     const fans = others[Math.floor(Math.random() * others.length)];
 
     const fansToken = await getToken(fans.email);
@@ -49,6 +50,7 @@ async function getFollowed(userId, others) {
 }
 
 async function followersNewPost(userId, articles, authorsInfo) {
+    console.log('Ready to Generate Post Notification...');
     articles = articles.filter((elem) => elem.author.toString() != userId.toString());
     const { title, category, context, preview, head, author } = articles[Math.floor(Math.random() * articles.length)];
 
@@ -68,6 +70,7 @@ async function followersNewPost(userId, articles, authorsInfo) {
 }
 
 async function readerComment(userArticles, others) {
+    console.log('Ready to Comment...');
     //TODO: find a random article
     const article = userArticles[Math.floor(Math.random() * userArticles.length)];
 
@@ -86,6 +89,7 @@ async function readerComment(userArticles, others) {
 }
 
 async function authorReply(articles, userId, userEmail, others) {
+    console.log('Ready to Rely user...');
     const articleId = articles[Math.floor(Math.random() * articles.length)];
     //TODO: user leave comment
     const userToken = await getToken(userEmail);
@@ -160,8 +164,7 @@ async function run() {
     let { articles: articleMaterial } = JSON.parse(fs.readFileSync(`${__dirname}/../test/testCase.json`), 'utf-8');
     articleMaterial = processArticles(articleMaterial, authors);
 
-    //TODO: Notification Generator
-    setInterval(async function () {
+    while (true) {
         switch (Math.floor(Math.random() * 4)) {
             case 0:
                 await getFollowed(userId, others);
@@ -176,12 +179,14 @@ async function run() {
                 await authorReply(othersArticles, userId, userEmail, others);
                 break;
         }
-    }, 1000 * 10);
+
+        await new Promise((r) => setTimeout(r, 10000));
+    }
 
     //TODO: new Post Generator
-    setInterval(async () => {
-        await postGenerator(articleMaterial, authors);
-    }, 5000);
+    // setInterval(async () => {
+    //     await postGenerator(articleMaterial, authors);
+    // }, 5000);
 }
 
 run();

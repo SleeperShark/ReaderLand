@@ -4,6 +4,71 @@ const { articleWeightCounter } = require(`${__dirname}/util`);
 
 const Cache = require(`${__dirname}/cache`);
 
+function randomDistribute(small, large) {
+    const tempArr = [];
+    let rand = [];
+
+    for (let i = 0; i < large.length; i++) {
+        tempArr.push(i);
+    }
+
+    for (let i = 0; i < small.length; i++) {
+        const j = Math.floor(Math.random() * tempArr.length);
+        rand.push(tempArr[j]);
+        tempArr.splice(j, 1);
+    }
+
+    rand.sort((a, b) => a - b);
+
+    const newArr = [];
+    let lastPos = 0;
+    for (let i = 0; i < small.length; i++) {
+        const pos = rand[i];
+        newArr.push(...large.slice(lastPos, pos), small[i]);
+
+        lastPos = pos;
+    }
+    newArr.push(...large.slice(lastPos, large.length));
+
+    return newArr;
+}
+
+function evenlyDistribute(small, large) {
+    let newArr = [];
+    const interval = parseInt(large.length / small.length);
+
+    //TODO: method A: distributed evenly
+    for (let i = 0; i < small.length; i++) {
+        const insertTarget = small[i];
+        const subArr = large.slice(i * interval, (i + 1) * interval);
+        const pos = Math.floor(Math.random() * interval);
+
+        newArr.push(...subArr.slice(0, pos), insertTarget, ...subArr.slice(pos, interval));
+    }
+    newArr.push(...large.slice(interval * small.length, large.length));
+    return newArr;
+}
+
+function shuffleTwo(newsfeed, pullfeed) {
+    let large, small;
+
+    if (newsfeed.length > pullfeed.length) {
+        large = newsfeed;
+        small = pullfeed;
+    } else {
+        large = pullfeed;
+        small = newsfeed;
+    }
+
+    // TODO: method A
+    // const newArr = evenlyDistribute(small, large);
+
+    // TODO: method B
+    const newArr = randomDistribute(small, large);
+
+    return newArr;
+}
+
 async function pullNewsFeed() {
     const newsfeedKeys = await Cache.keys('*_newsfeed');
 
@@ -15,16 +80,34 @@ async function pullNewsFeed() {
 
         //TODO: collect Article After this time stamp
         const { subscribe, follower } = await User.findById(userId, { follower: 1, subscribe: 1 });
-        const pullArticles = await Article.find(
+
+        let pullArticles = await Article.find(
             { createdAt: { $gte: timeStamp }, author: { $nin: follower }, category: { $in: Object.keys(subscribe) } },
             { _id: 1, category: 1, createdAt: 1, readCount: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments' } }
         );
+        const currTimestamp = new Date().getTime();
+
+        pullArticles = JSON.parse(JSON.stringify(pullArticles));
 
         // count article weight
-
         for (let article of pullArticles) {
-            console.log(articleWeightCounter(article, { subscribe }));
+            article.weight = articleWeightCounter(article, { subscribe });
         }
+        pullArticles.sort((a, b) => b.weight - a.weight);
+        pullArticles = pullArticles.map((elem) => elem._id.toString());
+
+        //TODO: insert new article into news feed
+        const newsFeed = await Cache.lrange(`${userId}_newsfeed`, 0, -1);
+
+        const inertedArray = shuffleTwo(newsFeed, pullArticles);
+        // await Cache.del(`${userId}_newsfeed`);
+        // await Cache.rpush(`${userId}_newsfeed`, ...inertedArray);
+        // await Cache.set(`${userId}_timestamp`, currTimestamp);
+
+        console.log('insert before: ' + newsFeed.length);
+        console.log('pull length: ' + pullArticles.length);
+        console.log('insert after: ' + inertedArray.length);
+        console.log('finish...');
     }
 }
 

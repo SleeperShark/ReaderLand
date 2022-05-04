@@ -171,15 +171,17 @@ async function main() {
     switch (job) {
         case 1:
             console.log('Ready to perform pull feeds task...');
-            pullNewsFeed();
+            await pullNewsFeed();
             break;
         case 2:
             console.log('Ready to regenerate newsfeed...');
-            regenerateNewsfeed();
+            await regenerateNewsfeed();
             break;
         default:
             console.error('ERROR: Please provide task type as 3rd argument');
     }
+
+    process.exit();
 }
 
 main();

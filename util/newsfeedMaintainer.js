@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 const { User: UserSchema, Article: ArticleSchema } = require(`${__dirname}/../server/models/schemas`);
 const ArticleModel = require(`${__dirname}/../server/models/article_model`);
 const { articleWeightCounter } = require(`${__dirname}/util`);

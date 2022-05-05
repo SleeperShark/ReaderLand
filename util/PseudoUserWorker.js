@@ -140,53 +140,64 @@ async function postGenerator(articles, authorsInfo) {
 
 //Target User
 async function run() {
-    const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
-        { $match: { name: '魚骨書籤' } },
-        {
-            $lookup: {
-                from: 'User',
-                localField: 'follower',
-                foreignField: '_id',
-                pipeline: [{ $project: { _id: 1, name: 1, email: 1 } }],
-                as: 'follower',
-            },
-        },
-        { $project: { _id: 1, email: 1, follower: 1 } },
-    ]);
-    let others = await User.find({ _id: { $ne: userId } }, { _id: 1, email: 1 });
-    let authors = await User.find({}, { _id: 1, name: 1, email: 1 }).limit(10);
-
-    // Collect articles's id for reply and comment
-    const allArticles = await Article.find({}, { _id: 1, author: 1 });
-    const userArticles = allArticles.filter((elem) => elem.author.toString() == userId.toString()).map((elem) => elem._id);
-    const othersArticles = allArticles.filter((elem) => elem.author.toString() != userId.toString()).map((elem) => elem._id);
-
-    let { articles: articleMaterial } = JSON.parse(fs.readFileSync(`${__dirname}/../test/testCase.json`), 'utf-8');
-    articleMaterial = processArticles(articleMaterial, authors);
-
     try {
-        while (true) {
-            switch (Math.floor(Math.random() * 4)) {
-                case 0:
-                    await getFollowed(userId, others);
-                    break;
-                case 1:
-                    await followersNewPost(userId, articleMaterial, authors);
-                    break;
-                case 2:
-                    await readerComment(userArticles, others);
-                    break;
-                case 3:
-                    await authorReply(othersArticles, userId, userEmail, others);
-                    break;
-            }
+        console.log(new Date().toISOString());
+        console.log('User Action Generator awake...');
 
-            await postGenerator(articleMaterial, authors);
-            await new Promise((r) => setTimeout(r, 3000));
+        console.log('Collecting User Info...');
+        const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
+            { $match: { name: '魚骨書籤' } },
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'follower',
+                    foreignField: '_id',
+                    pipeline: [{ $project: { _id: 1, name: 1, email: 1 } }],
+                    as: 'follower',
+                },
+            },
+            { $project: { _id: 1, email: 1, follower: 1 } },
+        ]);
+        let others = await User.find({ _id: { $ne: userId } }, { _id: 1, email: 1 });
+        let authors = await User.find({}, { _id: 1, name: 1, email: 1 }).limit(10);
+
+        // Collect articles's id for reply and comment
+        console.log('Collecting Article info...');
+        const allArticles = await Article.find({}, { _id: 1, author: 1 });
+        const userArticles = allArticles.filter((elem) => elem.author.toString() == userId.toString()).map((elem) => elem._id);
+        const othersArticles = allArticles.filter((elem) => elem.author.toString() != userId.toString()).map((elem) => elem._id);
+
+        console.log('Parsing Article Material...');
+        let { articles: articleMaterial } = JSON.parse(fs.readFileSync(`${__dirname}/../test/testCase.json`), 'utf-8');
+        articleMaterial = processArticles(articleMaterial, authors);
+
+        console.log('Preparation complete, ready to generate action...');
+        switch (Math.floor(Math.random() * 4)) {
+            case 0:
+                await getFollowed(userId, others);
+                break;
+            case 1:
+                await followersNewPost(userId, articleMaterial, authors);
+                break;
+            case 2:
+                await readerComment(userArticles, others);
+                break;
+            case 3:
+                await authorReply(othersArticles, userId, userEmail, others);
+                break;
         }
+
+        console.log('Ready to create new Post...');
+        await postGenerator(articleMaterial, authors);
+        console.log('All Task finished, Bye Bye~');
+        console.log('--------------------------------------------------------------------');
     } catch (error) {
-        console.error(error.message);
+        console.log('ERROR: Genrating User Acting');
+        console.error(new Date().toISOString());
+        console.error(error);
     }
+
+    process.exit();
 }
 
 run();

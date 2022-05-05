@@ -319,7 +319,7 @@ const generateNewsFeed = async (userId, lastArticleId) => {
             await Cache.del(`${userId}_newsfeed`);
             await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
             // fs.writeFileSync('NewsFeed.json', JSON.stringify(record));
-            await Cache.set(`${userId}_timestamp`, new Date().getTime());
+            await Cache.set(`${userId}_timestamp`, new Date().toISOString());
 
             console.log("Update User's newsfeed successfully");
 

@@ -90,7 +90,6 @@ async function pullNewsFeed() {
 
         const timestampKey = userId + '_timestamp';
         let timeStamp = await Cache.get(timestampKey);
-        timeStamp = new Date(Number(timeStamp)).toISOString();
 
         //TODO: collect Article After this time stamp
         const { subscribe, follower } = await UserSchema.findById(userId, { follower: 1, subscribe: 1 });
@@ -99,7 +98,7 @@ async function pullNewsFeed() {
             { createdAt: { $gte: timeStamp }, author: { $nin: follower }, category: { $in: Object.keys(subscribe) } },
             { _id: 1, category: 1, createdAt: 1, readCount: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments' } }
         );
-        const currTimestamp = new Date().getTime();
+        const currTimestamp = new Date().toISOString();
 
         if (!pullArticles.length) {
             console.log('No new articles for user...');

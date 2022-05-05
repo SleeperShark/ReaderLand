@@ -105,7 +105,7 @@ async function insertReader(authorsId, categories) {
         const picture = `default-${Math.floor(Math.random() * 9)}.jpg`;
         const subscribe = categories
             .sort(() => 0.5 - Math.random())
-            .slice(0, 6)
+            .slice(0, 15)
             .reduce((prev, cat) => {
                 prev[cat] = Math.floor(Math.random() * 10) + 1;
                 return prev;
@@ -121,7 +121,7 @@ async function insertReader(authorsId, categories) {
         });
 
         //TODO: assign follower and record followee
-        const followers = authorsId.sort(() => 0.5 - Math.random()).slice(0, 6);
+        const followers = authorsId.sort(() => 0.5 - Math.random()).slice(0, 4);
 
         followers.forEach((id) => {
             followeeList[id] = followeeList[id] || [];

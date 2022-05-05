@@ -13,7 +13,7 @@ const createArticle = async (req, res) => {
             preview,
             author,
             head,
-            crearedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
         };
 
         const values = Object.values(articleInfo);

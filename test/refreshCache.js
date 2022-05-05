@@ -7,6 +7,7 @@ async function main() {
     await new Promise((r) => {
         setTimeout(() => {
             console.log('Waiting DB Connection...');
+            r();
         }, 1000);
     });
     await Cache.flushall();

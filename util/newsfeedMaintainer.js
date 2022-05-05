@@ -185,7 +185,7 @@ async function main() {
 
     console.log('Task finish...');
     console.timeEnd();
-    console.log('-------------------------------------');
+    console.log('');
 
     process.exit();
 }

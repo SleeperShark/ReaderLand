@@ -144,6 +144,13 @@ async function run() {
         console.log(new Date().toISOString());
         console.log('User Action Generator awake...');
 
+        //TODO: wait for MONGODB connection
+        await new Promise((r) => {
+            setTimeout(() => {
+                r();
+            }, 1000);
+        });
+
         console.log('Collecting User Info...');
         const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
             { $match: { name: '魚骨書籤' } },

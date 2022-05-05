@@ -1,3 +1,5 @@
+let auth;
+
 async function favoriteArticle(e) {
     const articleId = e.dataset.id;
     if (e.classList.contains('favored')) {
@@ -53,7 +55,7 @@ function appendArticle(article, auth) {
         // show follow button
         if (user.userId != article.author._id) {
             followBtn = `
-<button class='profile-follow-btn${followed ? ' followed' : ' nofollow'}' data-authorid="${article.author._id}">
+<button class='profile-follow-btn${followed ? ' followed' : ' nofollow'} ${article.author._id}'>
     <span class="nofollow-text" >
         <i class="fas fa-thumbs-up"></i>
         追蹤
@@ -120,9 +122,71 @@ function appendArticle(article, auth) {
 
     // TODO: add event listener to author name and avatar to redirect to auhtor page
     articleElem.querySelector('.details .author').addEventListener('click', redirectToAuthorPage);
-    articleElem.querySelector('.author-picture').addEventListener('click', redirectToAuthorPage);
     articleElem.querySelector('.profile-picture').addEventListener('click', redirectToAuthorPage);
     articleElem.querySelector('.profile-name').addEventListener('click', redirectToAuthorPage);
+
+    //TODO: add show/hide profile event listener
+    const authorPicture = articleElem.querySelector('.author-picture');
+    authorPicture.addEventListener('click', redirectToAuthorPage);
+    const $profile = $(authorPicture).next();
+
+    $(authorPicture)
+        .mouseover(function () {
+            $profile.css('display', 'flex');
+        })
+        .mouseleave(async function () {
+            await new Promise((r) => {
+                setTimeout(() => r(), 800);
+            });
+
+            if (!$(this).next().is(':hover')) {
+                $profile.hide();
+            }
+        });
+
+    $profile
+        .mouseover(function () {
+            $profile.css('display', 'flex');
+        })
+        .mouseleave(function () {
+            $profile.hide();
+        });
+
+    //TODO: follow/unfollow user EventListener
+    $profile.children('.profile-follow-btn').click(async function () {
+        const btnClass = $(this).attr('class');
+
+        if (btnClass.includes('followed')) {
+            // TODO: unfollow user
+            const { error, status } = await unFollowAuthorAPI(token, article.author._id.toString());
+            if (error) {
+                console.error(status);
+                console.error(error);
+                alert('取消失敗，請稍後在試');
+                return;
+            }
+
+            $(`.profile-follow-btn.${article.author._id}`).each(function () {
+                $(this).addClass('nofollow');
+                $(this).removeClass('followed');
+            });
+        } else {
+            // TODO: follow user
+            const { error, status } = await followAuthorAPI(token, article.author._id.toString());
+            if (error) {
+                console.error(status);
+                console.error(error);
+                alert('取消失敗，請稍後在試');
+                return;
+            }
+
+            $(`.profile-follow-btn.${article.author._id}`).each(function () {
+                $(this).removeClass('nofollow');
+                $(this).addClass('followed');
+            });
+        }
+    });
+
     return;
 }
 
@@ -153,62 +217,6 @@ async function renderArticles(auth) {
             });
         }
     }
-
-    //TODO: profile presentation when hover
-    document.querySelectorAll('.author-picture').forEach((elem) => {
-        //TODO: click to redirect to author.html
-
-        const profile = elem.nextSibling.nextSibling;
-        profile.addEventListener('mouseover', () => {
-            profile.dataset.status = 'show';
-        });
-        profile.addEventListener('mouseleave', () => {
-            profile.dataset.status = 'hide';
-            profile.style.display = 'none';
-        });
-        elem.addEventListener('mouseover', () => {
-            profile.style.display = 'flex';
-        });
-        elem.addEventListener('mouseleave', () => {
-            setTimeout(() => {
-                if (profile.dataset.status === 'hide') {
-                    console.log('test');
-                    profile.style.display = 'none';
-                }
-            }, 600);
-        });
-    });
-
-    //TODO: follow/unfollow user EventListener
-    document.querySelectorAll('.profile-follow-btn').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-            const authorId = btn.dataset.authorid;
-
-            // check follow state
-
-            if (btn.classList.contains('followed')) {
-                // TODO: UNFOLLOW the author
-
-                const result = await unFollowAuthorAPI(token, authorId);
-
-                if (result.data) {
-                    changeFollowerState({ authorId, remove: 'followed', add: 'nofollow' });
-                } else {
-                    console.log(result);
-                    console.log('系統異常，請稍後再試');
-                }
-            } else {
-                // TODO: FOLLOW the user
-                const result = await followAuthorAPI(token, authorId);
-                if (result.data) {
-                    changeFollowerState({ authorId, add: 'followed', remove: 'nofollow' });
-                } else {
-                    console.log(result);
-                    console.log('系統異常，請稍後再試');
-                }
-            }
-        });
-    });
 }
 
 function appendCategories(subscription) {
@@ -255,10 +263,30 @@ async function renderCategories(auth) {
 }
 
 async function init() {
-    const auth = await authenticate();
+    auth = await authenticate();
     await renderHeader(auth);
     await renderCategories(auth);
     await renderArticles(auth);
 }
 
 init();
+
+var loading = false;
+//TODO: Load more feed when scroll to btm
+$(window).scroll(async function () {
+    if ($(window).scrollTop() + $(window).height() + 110 >= $(document).height()) {
+        if (loading || !auth) {
+            return;
+        }
+
+        loading = true;
+        const { data: articles, error, status } = await getNewsfeed(token);
+        if (error) {
+            console.error(status);
+            console.error(error);
+            return;
+        }
+
+        console.log(data);
+    }
+});

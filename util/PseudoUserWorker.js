@@ -195,8 +195,13 @@ async function run() {
         }
 
         console.log('Ready to create new Post...');
-        await postGenerator(articleMaterial, authors);
+
+        for (let i = 0; i < 10; i++) {
+            await postGenerator(articleMaterial, authors);
+        }
+
         console.log('All Task finished, Bye Bye~');
+
         console.log('');
     } catch (error) {
         console.log('ERROR: Genrating User Acting');

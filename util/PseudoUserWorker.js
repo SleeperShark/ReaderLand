@@ -1,4 +1,4 @@
-const { User, Article } = require('../server/models/schemas');
+const { User, Article } = require(`${__dirname}/../server/models/schemas`);
 const fs = require('fs');
 const axios = require('axios');
 const API_URL = 'http://127.0.0.1:3000/api';

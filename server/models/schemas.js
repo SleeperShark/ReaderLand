@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: `${__dirname}/../../.env` });
 const mongoose = require('mongoose');
 const { MONGO_USER, MONGO_PASSWORD, MONGO_DATABASE } = process.env;
 

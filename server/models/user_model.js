@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { User, ObjectId, Category, Article } = require('./schemas');
+const ArticleModel = require(`${__dirname}/article_model`);
 const Notification = require('./notification_model');
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET, IMAGE_URL } = process.env;
@@ -7,11 +8,62 @@ const bcrypt = require('bcrypt');
 const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 
 const USER_ROLE = {
     ALL: -1,
     ADMIN: 1,
     USER: 2,
+};
+
+const authentication = (roleId, required = true) => {
+    return async function (req, res, next) {
+        let accessToken = req.get('Authorization');
+
+        if (!accessToken) {
+            if (!required) {
+                return next();
+            }
+
+            res.status(401).json({ error: 'Unauthorized' });
+            return;
+        }
+
+        accessToken = accessToken.replace('Bearer ', '');
+        if (accessToken == 'null') {
+            res.status(401).json({ error: 'Unauthorized' });
+            return;
+        }
+
+        try {
+            const user = await promisify(jwt.verify)(accessToken, TOKEN_SECRET);
+            req.user = user;
+            if (roleId == null) {
+                next();
+            } else {
+                let result;
+                if (roleId == USER_ROLE.ALL) {
+                    result = await getUserDetail(user.email);
+                } else {
+                    result = await getUserDetail(user.email, roleId);
+                }
+                if (result.error) {
+                    res.status(403).json({ error: 'Forbidden' });
+                } else {
+                    const userDetail = result.user;
+                    console.log(`User ${req.user.name} pass authentication...`);
+                    req.user.userId = userDetail._id;
+                    req.user.roleId = userDetail.role;
+                    next();
+                }
+            }
+            return;
+        } catch (error) {
+            console.log(error);
+            res.status(403).json({ error: 'Forbidden' });
+            return;
+        }
+    };
 };
 
 const signUp = async (name, email, password) => {
@@ -420,6 +472,9 @@ const subscribe = async (userId, subscribe) => {
         const updateResult = await User.findByIdAndUpdate(userId, { $set: { subscribe: updateSub } }, { projection: { subscribe: 1 }, new: true });
         console.log(`Successfully update user's subscription...`);
 
+        console.log('Regenerate newsfeed...');
+        await ArticleModel.generateNewsFeed(userId);
+
         return { data: updateResult };
     } catch (error) {
         console.error(error);
@@ -553,6 +608,7 @@ const getAuthorProfile = async (authorId) => {
 
 module.exports = {
     USER_ROLE,
+    authentication,
     nativeSignIn,
     signUp,
     getUserDetail,

@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { USER_ROLE } = require('../models/user_model');
-const { authentication, wrapAsync } = require('../../util/util');
+const { wrapAsync } = require('../../util/util');
+const { authentication } = require('../models/user_model');
 
 const { getUnreadCount, getNotifications } = require('../controllers/notification_controller');
 

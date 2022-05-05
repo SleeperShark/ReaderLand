@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const { USER_ROLE } = require('../models/user_model');
-const { authentication, wrapAsync } = require('../../util/util');
+const { wrapAsync } = require('../../util/util');
+const { authentication } = require('../models/user_model');
+
 const { createDraft, updateDraft, getDraft, deleteDraft, getDraftsList } = require('../controllers/draft_controller');
 
 router.route('/drafts').post(authentication(USER_ROLE.ALL), wrapAsync(createDraft));

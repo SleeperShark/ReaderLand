@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { wrapAsync, authentication } = require('../../util/util');
+const { wrapAsync } = require('../../util/util');
 const {
     getUserInfo,
     signUp,
@@ -17,7 +17,7 @@ const {
     getUploadAvatarUrl,
 } = require('../controllers/user_controller');
 
-const { USER_ROLE } = require('../models/user_model');
+const { USER_ROLE, authentication } = require('../models/user_model');
 
 router.route('/user/info').get(authentication(USER_ROLE.ALL), wrapAsync(getUserInfo));
 

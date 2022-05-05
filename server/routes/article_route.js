@@ -1,5 +1,6 @@
 const router = require('express').Router();
-const { wrapAsync, authentication } = require('../../util/util');
+const { wrapAsync } = require('../../util/util');
+const { authentication } = require('../models/user_model');
 const {
     createArticle,
     getArticle,

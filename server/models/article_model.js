@@ -2,7 +2,7 @@ require('dotenv').config();
 const { IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
 const Notification = require('./notification_model');
-const { articleWeightCounter } = require('../../util/util');
+const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
 
 //get userid: { _id, picture, name } object

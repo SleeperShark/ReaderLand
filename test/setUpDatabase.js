@@ -308,6 +308,8 @@ async function generateCacheNewsFeed() {
 }
 
 async function initDatabase() {
+    console.log(new Date().toISOString());
+    console.log('Reset Database...');
     try {
         await User.deleteMany();
         await Article.deleteMany();
@@ -336,8 +338,12 @@ async function initDatabase() {
 
         console.log('Finish Inserting Database...');
     } catch (error) {
+        console.log('Error: Setting Database');
+        console.error('Error: Setting Database');
         console.error(error);
+        console.error();
     }
+    console.log();
     process.exit();
 }
 

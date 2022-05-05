@@ -1,4 +1,6 @@
-const { Article, User, Category, Draft, Notification, ObjectId } = require('../server/models/schemas');
+const { Article, User, Category, Notification, Draft, ObjectId } = require(`${__dirname}/../server/models/schemas`);
+const { generateNewsFeed } = require(`${__dirname}/../server/models/article_model`);
+const Cache = require(`${__dirname}/../util/cache`);
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 
@@ -38,7 +40,7 @@ async function insertAuthor(authors, categories) {
         authors.map((elem, idx) => {
             const subscribe = categories
                 .sort(() => 0.5 - Math.random())
-                .slice(0, 6)
+                .slice(0, 15)
                 .reduce((prev, cat) => {
                     prev[cat] = Math.floor(Math.random() * 10) + 1;
                     return prev;
@@ -69,7 +71,7 @@ async function insertAuthor(authors, categories) {
         let idx = follower.indexOf(user._id);
         follower.splice(idx, 1);
 
-        follower = follower.sort(() => 0.5 - Math.random()).slice(0, 7);
+        follower = follower.sort(() => 0.5 - Math.random()).slice(0, 3);
 
         user.follower = follower;
         follower.forEach((id) => {
@@ -296,6 +298,15 @@ async function assignFavorite() {
     console.log('Finish inserting favorite articles...');
 }
 
+async function generateCacheNewsFeed() {
+    let usersId = await User.find({}, { _id: 1 }).limit(20);
+
+    for (let { _id } of usersId) {
+        console.log(`Regenerate User ${_id}'s newsfeed...`);
+        await generateNewsFeed(_id);
+    }
+}
+
 async function initDatabase() {
     try {
         await User.deleteMany();
@@ -303,7 +314,8 @@ async function initDatabase() {
         await Category.deleteMany();
         await Draft.deleteMany();
         await Notification.deleteMany();
-        console.log('Clear all collections...');
+        await Cache.flushall();
+        console.log('Clear all collections and cache...');
 
         await insertCategory();
         console.log('Insert categories...');
@@ -318,9 +330,15 @@ async function initDatabase() {
         await insertArticle(articles, authorsArr);
 
         await assignFavorite();
+
+        console.log('Generate Newsfeed in Cache...');
+        await generateCacheNewsFeed();
+
+        console.log('Finish Inserting Database...');
     } catch (error) {
         console.error(error);
     }
+    process.exit();
 }
 
 initDatabase();

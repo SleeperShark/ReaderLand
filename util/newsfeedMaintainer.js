@@ -119,9 +119,9 @@ async function pullNewsFeed() {
         const newsFeed = await Cache.lrange(`${userId}_newsfeed`, 0, -1);
 
         const inertedArray = shuffleTwo(newsFeed, pullArticles);
-        // await Cache.del(`${userId}_newsfeed`);
-        // await Cache.rpush(`${userId}_newsfeed`, ...inertedArray);
-        // await Cache.set(`${userId}_timestamp`, currTimestamp);
+        await Cache.del(`${userId}_newsfeed`);
+        await Cache.rpush(`${userId}_newsfeed`, ...inertedArray);
+        await Cache.set(`${userId}_timestamp`, currTimestamp);
 
         if (!inertedArray) {
             console.log('No Shuffle Policy, Dropping the task...');

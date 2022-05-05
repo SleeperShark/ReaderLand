@@ -32,17 +32,23 @@ function appendArticle(article, auth) {
         window.open(`/author.html?id=${article.author._id}`, '_blank').focus();
     }
 
-    const categoryHTML = article.category.map((elem) => `<span class="category">${elem}</span>`).join(' ');
-    const articleElem = document.createElement('article');
-    articleElem.classList.add('article');
-    articleElem.dataset.id = article._id;
-
     const {
         favorited,
         liked,
         commented,
-        author: { followed },
+        author: { followed, _id: authorId, picture, name, bio },
+        _id: articleId,
+        createdAt,
+        title,
+        readCount,
+        likeCount,
+        commentCount,
     } = article;
+
+    const categoryHTML = article.category.map((elem) => `<span class="category">${elem}</span>`).join(' ');
+    const articleElem = document.createElement('article');
+    articleElem.classList.add('article');
+    articleElem.dataset.id = articleId;
 
     let bookmark = '';
     let followBtn = '';
@@ -50,12 +56,12 @@ function appendArticle(article, auth) {
     if (auth) {
         // show bookmark
         let bookmarkClass = favorited ? 'fas fa-bookmark favored favorite' : 'far fa-bookmark favorite';
-        bookmark = `<i class="${bookmarkClass}" onclick="favoriteArticle(this)" data-id="${article._id}"></i>`;
+        bookmark = `<i class="${bookmarkClass}" onclick="favoriteArticle(this)" data-id="${articleId}"></i>`;
 
         // show follow button
-        if (user.userId != article.author._id) {
+        if (user.userId != authorId) {
             followBtn = `
-<button class='profile-follow-btn${followed ? ' followed' : ' nofollow'} ${article.author._id}'>
+<button class='profile-follow-btn${followed ? ' followed' : ' nofollow'} ${authorId}'>
     <span class="nofollow-text" >
         <i class="fas fa-thumbs-up"></i>
         追蹤
@@ -72,28 +78,28 @@ function appendArticle(article, auth) {
     articleElem.innerHTML = ` 
 <div class="article-header">
     <div class='author-info'>
-        <img class="author-picture" src="${article.author.picture}" alt="" />
+        <img class="author-picture" src="${picture}" alt="" />
 
         <div class='author-profile'>
-            <img class="profile-picture" src="${article.author.picture}" alt="" />
-            <div class="profile-name">${article.author.name}</div>
+            <img class="profile-picture" src="${picture}" alt="" />
+            <div class="profile-name">${name}</div>
             <div class='profile-bio'>
-                ${article.author.bio || ''}
+                ${bio || ''}
             </div>
             ${followBtn}
         </div>
 
     </div>
 
-    <div class="details" data-id="${article.author._id}">
-        <span class="author">${article.author.name}</span>
-        <span class="date">${timeTransformer(article.createdAt)}</span>
+    <div class="details" data-id="${authorId}">
+        <span class="author">${name}</span>
+        <span class="date">${timeTransformer(createdAt)}</span>
     </div>
 
     ${bookmark}
 </div>
 
-<a href="/article.html?id=${article._id}" target="blank"  class="title">${article.title}</a>
+<a href="/article.html?id=${article._id}" target="blank"  class="title">${title}</a>
 
 <div class="categories">
     ${categoryHTML}
@@ -105,15 +111,15 @@ function appendArticle(article, auth) {
 <div class="article-footer">
     <div class="feedback read">
         <i class="far fa-eye"></i>
-        <span class="count">${article.readCount}</span>
+        <span class="count">${readCount}</span>
     </div>
     <div class="feedback like">
         <i class="fas fa-heart${liked ? ' favored' : ''}"></i>
-        <span class="count">${article.likeCount}</span>
+        <span class="count">${likeCount}</span>
     </div>
     <div class="feedback comment">
         <i class="far fa-comment-dots${commented ? ' favored' : ''}"></i>
-        <span class="count">${article.commentCount}</span>
+        <span class="count">${commentCount}</span>
     </div>
 </div>
     `;
@@ -280,13 +286,7 @@ $(window).scroll(async function () {
         }
 
         loading = true;
-        const { data: articles, error, status } = await getNewsfeed(token);
-        if (error) {
-            console.error(status);
-            console.error(error);
-            return;
-        }
-
-        console.log(data);
+        await renderArticles(auth);
+        loading = false;
     }
 });

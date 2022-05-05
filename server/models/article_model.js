@@ -82,6 +82,7 @@ const createArticle = async (articleInfo) => {
 
         const article = await Article.create(articleInfo);
         console.log(`User ${articleInfo.author.toString()} successfully create article: ${article._id}`);
+        console.log(article.createdAt);
 
         // TODO: Insert the new article to followee's newsfeed Queue
         if (Cache.ready) {

@@ -107,7 +107,6 @@ const articleSchema = mongoose.Schema({
     createdAt: {
         type: Date,
         immutable: true,
-        default: new Date().toISOString(),
     },
     readCount: {
         type: Number,

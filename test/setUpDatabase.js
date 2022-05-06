@@ -322,7 +322,7 @@ async function initDatabase() {
         await insertCategory();
         console.log('Insert categories...');
 
-        const { authors: authorsArr, articles } = JSON.parse(fs.readFileSync('./test/testCase.json'), 'utf-8');
+        const { authors: authorsArr, articles } = JSON.parse(fs.readFileSync(`${__dirname}/testCase.json`), 'utf-8');
 
         const authorsId = await insertAuthor(authorsArr, categories);
 

@@ -227,11 +227,13 @@ async function renderHeader(auth) {
         // Socket handler
         //TODO: process notification when get from socket
         socket.on(`notifcations`, (msg) => {
-            const {
+            let {
                 data: { notifications, length, unread },
             } = JSON.parse(msg);
 
-            if (!unread) {
+            console.log(unread);
+
+            if (unread) {
                 notifcationUnreadHint.style.display = 'flex';
                 unread = unread > 99 ? 99 : unread;
                 document.getElementById('unread-count').innerText = unread;

@@ -6,6 +6,10 @@ function ISOTimestamp() {
 
 const followNotification = async (followeeId, followerId, io) => {
     try {
+        //pull old follow notification if exist
+        const record = await Notification.findById(followerId, { notifications: { $elemMatch: { type: 'follow' } } });
+        console.log(record);
+
         const { unread: unreadCount } = await Notification.findByIdAndUpdate(
             followerId,
             {
@@ -16,9 +20,6 @@ const followNotification = async (followeeId, followerId, io) => {
         );
 
         console.log('Successfully push notification to follower...');
-
-        //TODO: Sending io for update notification
-        io.emit(`${followerId}-notify`, JSON.stringify({ unreadCount, newNotifications: { type: 'follow', subject: followeeId.toString() } }));
     } catch (error) {
         console.error(error);
     }

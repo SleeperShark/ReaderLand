@@ -72,14 +72,17 @@ const socketAuthentication = () => {
             const { userId } = await promisify(jwt.verify)(token, TOKEN_SECRET);
 
             const exist = await User.countDocuments({ _id: userId });
+
             if (!exist) {
                 next(new Error('Unauthorized'));
             }
+
             socket.userId = userId;
             next();
         } catch (error) {
             console.error('[ERROR] SocketAuthentication');
             console.error(error);
+            next(error);
         }
     };
 };

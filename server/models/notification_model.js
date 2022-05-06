@@ -4,23 +4,69 @@ function ISOTimestamp() {
     return new Date().toISOString();
 }
 
-const followNotification = async (followeeId, followerId, io) => {
+const pushFollowNotification = async (followeeId, followerId, io) => {
     try {
-        //pull old follow notification if exist
-        const record = await Notification.findById(followerId, { notifications: { $elemMatch: { type: 'follow' } } });
-        console.log(record);
-
+        const newNotification = { type: 'follow', subject: ObjectId(followeeId), createdAt: ISOTimestamp(), isread: false };
         const { unread: unreadCount } = await Notification.findByIdAndUpdate(
             followerId,
             {
                 $inc: { unread: 1 },
-                $push: { notifications: { type: 'follow', subject: ObjectId(followeeId), createdAt: ISOTimestamp(), isread: false } },
+                $push: { notifications: newNotification },
             },
             { new: true, projection: { unread: 1 } }
         );
+        const { name } = await User.findById(Object(followeeId), { name: 1 });
+        newNotification.subject = { _id: followeeId.toString(), name };
 
         console.log('Successfully push notification to follower...');
+
+        const socketId = io.usersId_socketId[followerId.toString()];
+        console.log('Socket id: ' + socketId);
+        if (socketId) {
+            io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
+        }
     } catch (error) {
+        console.error(error);
+    }
+};
+
+const pullFollowNotification = async (followerId, followeeId, io) => {
+    try {
+        let result = await Notification.aggregate([
+            { $match: { _id: ObjectId(followerId) } },
+            {
+                $project: {
+                    followNotification: {
+                        $filter: {
+                            input: '$notifications',
+                            as: 'notification',
+                            cond: { $and: [{ $eq: ['$$notification.type', 'follow'] }, { $eq: ['$$notification.subject', followeeId] }] },
+                        },
+                    },
+                },
+            },
+        ]);
+
+        const [{ followNotification: record }] = JSON.parse(JSON.stringify(result));
+        const updateObject = { $pull: { notifications: { $and: [{ type: 'follow' }, { subject: followeeId }] } } };
+        await Notification.updateOne({ _id: followerId }, updateObject);
+
+        if (record[record.length - 1].hasOwnProperty('isread')) {
+            await Notification.updateOne({ _id: followerId }, [{ $set: { unread: { $cond: { if: { $eq: ['$unread', 0] }, then: 0, else: { $subtract: ['$unread', 1] } } } } }]);
+        }
+
+        const { unread } = await Notification.findById(followerId, { unread: 1 });
+
+        //Update new unread count to header
+        const msg = { unreadCount: unread, update: { remove: { type: 'follow', subject: { _id: followeeId.toString() } } } };
+
+        const socketId = io.usersId_socketId[followerId.toString()];
+        if (socketId) {
+            io.to(socketId).emit('update-notification', JSON.stringify(msg));
+        }
+        return;
+    } catch (error) {
+        console.error('[ERRPR]: pullFollowNotification');
         console.error(error);
     }
 };
@@ -174,4 +220,4 @@ const clearUnread = async (userId, clearnum) => {
     await Notification.findByIdAndUpdate(userId, { $unset: unsetObj, $set: { unread: 0 } });
 };
 
-module.exports = { followNotification, newPostNotification, commentNotification, replyNotification, getUnreadCount, getNotifications, clearUnread };
+module.exports = { pushFollowNotification, pullFollowNotification, newPostNotification, commentNotification, replyNotification, getUnreadCount, getNotifications, clearUnread };

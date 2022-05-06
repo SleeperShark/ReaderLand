@@ -150,15 +150,15 @@ const follow = async (req, res) => {
         return;
     }
 
-    Notification.followNotification(userId, followerId, io);
+    Notification.pushFollowNotification(userId, followerId, io);
 
     res.status(200).json({ data: 'OK' });
 };
 
 const unfollow = async (req, res) => {
-    console.log(req.body);
     const { followerId } = req.body;
     const { userId } = req.user;
+    const io = req.app.get('socketio');
 
     if (!followerId) {
         res.status(400).json({ error: 'followerId is required' });
@@ -171,6 +171,8 @@ const unfollow = async (req, res) => {
         res.status(result.status).json({ error: result.error });
         return;
     }
+
+    Notification.pullFollowNotification(followerId, userId, io);
 
     res.status(200).json({ data: 'Ok' });
 };

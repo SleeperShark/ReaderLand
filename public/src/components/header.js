@@ -32,7 +32,7 @@ async function authenticate() {
     return true;
 }
 
-function appendNotifications(notifications) {
+function appendNotifications(notifications, prepend = false) {
     const container = document.getElementById('notification-container');
     const loadBtn = document.getElementById('notification-load');
 
@@ -49,20 +49,26 @@ function appendNotifications(notifications) {
         let iconClass;
         let contentHTML;
         let unreadHTML = '';
+        notificationDiv.dataset.subject = subject._id.toString();
         switch (type) {
             case 'comment':
+                notificationDiv.dataset.type = 'comment';
+
                 iconClass = 'fas fa-comment';
                 contentHTML = `<span class="notification-subject">${subject.name}</span>在你的文章中留言。`;
                 break;
             case 'reply':
+                notificationDiv.dataset.type = 'reply';
                 iconClass = 'fas fa-comments';
                 contentHTML = `作者<span class="notification-subject">${subject.name}</span>回復了你的留言。`;
                 break;
             case 'follow':
+                notificationDiv.dataset.type = 'follow';
                 iconClass = 'fas fa-thumbs-up';
                 contentHTML = `<span class="notification-subject">${subject.name}</span>追蹤了你。`;
                 break;
             case 'newPost':
+                notificationDiv.dataset.type = 'newPost';
                 iconClass = 'fas fa-file-alt';
                 contentHTML = `你追蹤的作者<span class="notification-subject">${subject.name}</span>發表了新文章，快去看看吧！`;
                 break;
@@ -84,41 +90,22 @@ function appendNotifications(notifications) {
     ${unreadHTML}
     `;
 
-        container.insertBefore(notificationDiv, loadBtn);
-        container.insertBefore(divider, loadBtn);
+        if (prepend) {
+            container.prepend(divider);
+            container.prepend(notificationDiv);
+        } else {
+            container.insertBefore(notificationDiv, loadBtn);
+            container.insertBefore(divider, loadBtn);
+        }
 
         if (articleId) {
             notificationDiv.addEventListener('click', () => {
                 window.location.href = `/article.html?id=${articleId}`;
             });
-        }
-    }
-}
-
-async function loadingNotification(evt) {
-    // load first ten notification
-    const {
-        data: { notifications },
-        error,
-        status,
-    } = await getNotificationsAPI(token, loadedNotification);
-
-    if (error) {
-        console.error(status);
-        console.error(error);
-        alert('Error: getNotificationsAPI');
-        return;
-    }
-
-    if (notifications.length) {
-        notifications.reverse();
-        // appending notification
-        appendNotifications(notifications);
-
-        loadedNotification += notifications.length;
-
-        if (notifications.length < 10) {
-            evt.target.remove();
+        } else {
+            notificationDiv.addEventListener('click', () => {
+                window.location.href = `/author.html?id=${subject._id}`;
+            });
         }
     }
 }
@@ -243,6 +230,31 @@ async function renderHeader(auth) {
             }
 
             appendNotifications(notifications);
+        });
+
+        socket.on('update-notification', (msg) => {
+            const {
+                unreadCount,
+                update: { prepend, remove },
+            } = JSON.parse(msg);
+
+            notifcattionUnreadCount.innerText = unreadCount;
+            if (unreadCount) {
+                notifcationUnreadHint.style.display = 'flex';
+            }
+
+            if (remove) {
+                const allNotifications = document.querySelectorAll('.notification');
+                for (let elem of allNotifications) {
+                    if (elem.dataset.type == remove.type && elem.dataset.subject == remove.subject._id && elem.dataset.articleId == remove.articleId) {
+                        elem.nextElementSibling.remove();
+                        elem.remove();
+                        break;
+                    }
+                }
+            } else if (prepend) {
+                appendNotifications([prepend], true);
+            }
         });
 
         //TODO: fetch first 10 notification when init header

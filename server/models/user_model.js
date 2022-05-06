@@ -65,6 +65,25 @@ const authentication = (roleId, required = true) => {
     };
 };
 
+const socketAuthentication = () => {
+    return async function (socket, next) {
+        try {
+            const { token } = socket.handshake.auth;
+            const { userId } = await promisify(jwt.verify)(token, TOKEN_SECRET);
+
+            const exist = await User.countDocuments({ _id: userId });
+            if (!exist) {
+                next(new Error('Unauthorized'));
+            }
+            socket.userId = userId;
+            next();
+        } catch (error) {
+            console.error('[ERROR] SocketAuthentication');
+            console.error(error);
+        }
+    };
+};
+
 const signUp = async (name, email, password) => {
     try {
         const userInfo = {
@@ -100,6 +119,7 @@ const nativeSignIn = async (email, password) => {
                 name: user.name,
                 email: user.email,
                 picture: user.picture,
+                userId: user._id.toString(),
             },
             TOKEN_SECRET
         );
@@ -619,4 +639,5 @@ module.exports = {
     favorite,
     unfavorite,
     getSubscription,
+    socketAuthentication,
 };

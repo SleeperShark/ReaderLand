@@ -100,8 +100,8 @@ const getNotifications = async (userId, offset) => {
     try {
         offset;
 
-        let [{ notifications, length, subject_info }] = await Notification.aggregate([
-            { $match: { _id: userId } },
+        let [{ notifications, length, subject_info, unread }] = await Notification.aggregate([
+            { $match: { _id: ObjectId(userId) } },
             {
                 $project: {
                     _id: 1,
@@ -109,6 +109,7 @@ const getNotifications = async (userId, offset) => {
                         $slice: ['$notifications', { $subtract: [{ $size: '$notifications' }, offset + 10] }, 10],
                     },
                     length: { $size: '$notifications' },
+                    unread: 1,
                 },
             },
             {
@@ -139,21 +140,37 @@ const getNotifications = async (userId, offset) => {
             elem.subject = subject_info[elem.subject.toString()];
         });
 
-        // Update notification unread state
-        const unsetObj = {};
-        const start = length - offset - 10;
-        for (let i = 0; i < 10; i++) {
-            const key = `notifications.${start + i}.isread`;
-            unsetObj[key] = '';
+        // Update notification if is not firseloaded
+        if (offset != 0) {
+            const unsetObj = {};
+            const start = length - offset - 10;
+            for (let i = 0; i < 10; i++) {
+                const key = `notifications.${start + i}.isread`;
+                unsetObj[key] = '';
+            }
+            await Notification.findByIdAndUpdate(userId, { $unset: unsetObj });
         }
 
-        await Notification.updateOne({ _id: userId }, { $set: { unread: 0 }, $unset: unsetObj });
-
-        return { data: { notifications, length } };
+        return { data: { notifications, length, unread } };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };
     }
 };
 
-module.exports = { followNotification, newPostNotification, commentNotification, replyNotification, getUnreadCount, getNotifications };
+const clearUnread = async (userId, clearnum) => {
+    // Get total length of Notifications
+    let result = await Notification.findById(userId, { length: { $size: '$notifications' } });
+    let { length } = JSON.parse(JSON.stringify(result));
+
+    const unsetObj = {};
+    const start = length - clearnum;
+    for (let i = 0; i < clearnum; i++) {
+        const key = `notifications.${start + i}.isread`;
+        unsetObj[key] = '';
+    }
+
+    await Notification.findByIdAndUpdate(userId, { $unset: unsetObj, $set: { unread: 0 } });
+};
+
+module.exports = { followNotification, newPostNotification, commentNotification, replyNotification, getUnreadCount, getNotifications, clearUnread };

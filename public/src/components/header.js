@@ -1,6 +1,5 @@
 const token = localStorage.getItem('ReaderLandToken');
 let user;
-let loadedNotification = 0;
 let socket;
 
 async function authenticate() {
@@ -23,7 +22,13 @@ async function authenticate() {
     }
 
     user = (await res.json()).data;
-    socket = io();
+    socket = io({
+        autoConnect: false,
+        auth: {
+            token,
+        },
+    });
+    socket.connect();
     return true;
 }
 
@@ -31,8 +36,8 @@ function appendNotifications(notifications) {
     const container = document.getElementById('notification-container');
     const loadBtn = document.getElementById('notification-load');
 
-    for (let notification of notifications) {
-        const { type, subject, createdAt, articleId } = notification;
+    for (let i = notifications.length - 1; i >= 0; i--) {
+        const { type, subject, createdAt, articleId } = notifications[i];
 
         const notificationDiv = document.createElement('div');
         notificationDiv.classList.add('notification');
@@ -63,7 +68,7 @@ function appendNotifications(notifications) {
                 break;
         }
 
-        if (notification.hasOwnProperty('isread')) {
+        if (notifications[i].hasOwnProperty('isread')) {
             unreadHTML = '<span class="unread"></span>';
         }
         notificationDiv.innerHTML = `
@@ -88,35 +93,6 @@ function appendNotifications(notifications) {
             });
         }
     }
-}
-
-async function renderNotification(evt) {
-    // clear unreadCount
-    document.getElementById('notification-unread').style.display = 'none';
-
-    // load first ten notification
-    const {
-        data: { notifications },
-        error,
-        status,
-    } = await getNotificationsAPI(token, loadedNotification);
-
-    if (error) {
-        console.error(status);
-        console.error(error);
-        return;
-    }
-
-    if (notifications.length) {
-        notifications.reverse();
-        // appending notification
-        appendNotifications(notifications);
-
-        loadedNotification += notifications.length;
-    }
-
-    // clear this event listener
-    evt.target.removeEventListener('click', renderNotification);
 }
 
 async function loadingNotification(evt) {
@@ -206,15 +182,40 @@ async function renderHeader(auth) {
 
     //TODO: auth function
     if (auth) {
-        const notificationIcon = document.getElementById('notification');
-        const notificationContainer = document.getElementById('notification-container');
         const avatar = document.getElementById('user-avatar');
         const userActions = document.getElementById('user-actions');
+
+        const notificationIcon = document.getElementById('notification');
+        const notificationContainer = document.getElementById('notification-container');
+        const notificationLoadingBtn = document.getElementById('notification-load');
+        const notifcationUnreadHint = document.getElementById('notification-unread');
+        const notifcattionUnreadCount = document.getElementById('unread-count');
 
         avatar.addEventListener('click', () => {
             // Hide Notification
             notificationContainer.classList.add('hide');
             userActions.classList.toggle('hide');
+        });
+
+        notificationIcon.addEventListener('click', (evt) => {
+            if (evt.target == notificationIcon) {
+                notificationContainer.classList.toggle('hide');
+                userActions.classList.add('hide');
+            }
+
+            //TODO: clear unread count
+            if (!notificationContainer.classList.contains('hide')) {
+                notifcationUnreadHint.style.display = 'none';
+                const clearNum = document.querySelectorAll('.notification').length;
+
+                socket.emit('clear-unread', JSON.stringify({ clearNum }));
+            }
+        });
+
+        notificationLoadingBtn.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            const loaded = document.querySelectorAll('.notification').length;
+            socket.emit('fetch-notification', JSON.stringify({ loadedNotification: loaded }));
         });
 
         document.getElementById('action-signout').addEventListener('click', () => {
@@ -223,10 +224,26 @@ async function renderHeader(auth) {
             window.location.href = '/index.html';
         });
 
-        socket.on(`${user.userId}-notify`, (msg) => {
-            // const {unreadCount, notifications}
-            console.log(msg);
+        // Socket handler
+        //TODO: process notification when get from socket
+        socket.on(`notifcations`, (msg) => {
+            const {
+                data: { notifications, length, unread },
+            } = JSON.parse(msg);
+
+            if (!unread) {
+                notifcationUnreadHint.style.display = 'flex';
+                unread = unread > 99 ? 99 : unread;
+                document.getElementById('unread-count').innerText = unread;
+            } else {
+                // not unread: hide unread count
+                notifcationUnreadHint.style.display = 'none';
+            }
+
+            appendNotifications(notifications);
         });
-        socket.emit('fetch-notification', JSON.stringify({ id: user.userId, loadedNotification }));
+
+        //TODO: fetch first 10 notification when init header
+        socket.emit('fetch-notification', JSON.stringify({ loadedNotification: 0 }));
     }
 }

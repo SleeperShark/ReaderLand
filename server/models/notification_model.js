@@ -4,14 +4,21 @@ function ISOTimestamp() {
     return new Date().toISOString();
 }
 
-const followNotification = async (followeeId, followerId) => {
+const followNotification = async (followeeId, followerId, io) => {
     try {
-        await Notification.updateOne(
-            { _id: followerId },
-            { $inc: { unread: 1 }, $push: { notifications: { type: 'follow', subject: ObjectId(followeeId), createdAt: ISOTimestamp(), isread: false } } }
+        const { unread: unreadCount } = await Notification.findByIdAndUpdate(
+            followerId,
+            {
+                $inc: { unread: 1 },
+                $push: { notifications: { type: 'follow', subject: ObjectId(followeeId), createdAt: ISOTimestamp(), isread: false } },
+            },
+            { new: true, projection: { unread: 1 } }
         );
 
         console.log('Successfully push notification to follower...');
+
+        //TODO: Sending io for update notification
+        io.emit(`${followerId}-notify`, JSON.stringify({ unreadCount, newNotifications: { type: 'follow', subject: followeeId.toString() } }));
     } catch (error) {
         console.error(error);
     }

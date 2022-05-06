@@ -1,6 +1,7 @@
 const token = localStorage.getItem('ReaderLandToken');
 let user;
 let loadedNotification = 0;
+let socket;
 
 async function authenticate() {
     if (!token) {
@@ -15,38 +16,15 @@ async function authenticate() {
         },
     });
 
-    if (res.status === 200) {
-        user = (await res.json()).data;
-        return true;
-    } else {
+    if (res.status != 200) {
         // token fail, remove token
         localStorage.removeItem('ReaderLandToken');
         return false;
     }
-}
 
-async function renderUnreadCount() {
-    let { data: unreadCount, error, status } = await getUnreadNotificationCountAPI(token);
-
-    if (error) {
-        console.error(status);
-        console.error(error);
-        return '';
-    }
-
-    if (!unreadCount) {
-        return '';
-    }
-
-    if (unreadCount > 99) {
-        unreadCount = 99;
-    }
-
-    return `
-<div id="notification-unread">
-    <sapn id="unread-count">${unreadCount}</span>
-</div>
-`;
+    user = (await res.json()).data;
+    socket = io();
+    return true;
 }
 
 function appendNotifications(notifications) {
@@ -114,7 +92,7 @@ function appendNotifications(notifications) {
 
 async function renderNotification(evt) {
     // clear unreadCount
-    document.getElementById('notification-unread')?.remove();
+    document.getElementById('notification-unread').style.display = 'none';
 
     // load first ten notification
     const {
@@ -178,9 +156,12 @@ async function renderHeader(auth) {
 <a id="create-article" href="/edit.html">
     <span>建立貼文</span>
 </a>
+
 <i id="notification" class="fas fa-bell">
 
-    ${await renderUnreadCount()}
+    <div id="notification-unread">
+    <sapn id="unread-count"></span>
+    </div>
 
     <div id="notification-container" class="hide">
         <div id="notification-load">載入更多</div>
@@ -242,29 +223,10 @@ async function renderHeader(auth) {
             window.location.href = '/index.html';
         });
 
-        //TODO: first fetch Notification when click icon
-        notificationIcon.addEventListener('click', renderNotification);
-        //TODO: show container
-        notificationIcon.addEventListener('click', (evt) => {
-            if (evt.target == notificationIcon) {
-                notificationContainer.classList.toggle('hide');
-                userActions.classList.add('hide');
-            }
+        socket.on(`${user.userId}-notify`, (msg) => {
+            // const {unreadCount, notifications}
+            console.log(msg);
         });
-
-        let showNotificationTimer;
-
-        // notificationContainer.addEventListener('mouseleave', () => {
-        //     showNotificationTimer = setTimeout(() => {
-        //         notificationContainer.classList.add('hide');
-        //     }, 1000);
-        // });
-
-        // notificationContainer.addEventListener('mouseover', () => {
-        //     clearTimeout(showNotificationTimer);
-        // });
-
-        //TODO: load more btn
-        document.getElementById('notification-load').addEventListener('click', loadingNotification);
+        socket.emit('fetch-notification', JSON.stringify({ id: user.userId, loadedNotification }));
     }
 }

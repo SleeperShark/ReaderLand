@@ -309,25 +309,14 @@ async function renderArticle(auth) {
             }
 
             try {
-                const result = await commentArticleAPI(token, articleId, commentArea.value);
+                const { error } = await commentArticleAPI(token, articleId, commentArea.value);
 
-                if (result.error) {
+                if (error) {
                     console.error(error);
                     alert('留言失敗，請稍後在試');
                 }
 
-                const article = result.data;
-                renderCommentBoard(article);
-                //* like count update
-                document.querySelector('#like .count').innerText = article.likes.length;
-                //* comment count update
-                document.querySelector('#comment .count').innerText = article.comments.length;
-                //* commented update
-                document.getElementById('comment').classList.add('commented');
-
-                commentArea.value = '';
-
-                document.getElementById('comment-container').scrollTop = 0;
+                // document.getElementById('comment-container').scrollTop = 0;
             } catch (error) {
                 console.error(error);
                 alert('系統異常: POST /api/articles/:articleId/comment');

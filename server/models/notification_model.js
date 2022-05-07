@@ -21,8 +21,8 @@ const pushFollowNotification = async (followeeId, followerId, io) => {
         console.log('Successfully push notification to follower...');
 
         const socketId = io.usersId_socketId[followerId.toString()];
-        console.log('Socket id: ' + socketId);
         if (socketId) {
+            console.log('Push new follow notification to ' + socketId);
             io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
         }
     } catch (error) {
@@ -91,18 +91,32 @@ const newPostNotification = async (authorId, articleId) => {
     console.log('Finish New Post Notification...');
 };
 
-const commentNotification = async (articleId, readerId) => {
+const commentNotification = async (articleId, readerId, io) => {
     try {
+        const newNotification = { type: 'comment', subject: ObjectId(readerId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false };
         const { author: authorId } = await Article.findById(articleId, { _id: 0, author: 1 });
 
-        await Notification.updateOne(
+        const { unread: unreadCount } = await Notification.findByIdAndUpdate(
             { _id: authorId },
             {
                 $inc: { unread: 1 },
-                $push: { notifications: { type: 'comment', subject: ObjectId(readerId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false } },
-            }
+                $push: newNotification,
+            },
+            { new: true, projection: { unread: 1 } }
         );
         console.log('Finish comment Notification to Author...');
+
+        // TODO: user socket to push new notification
+        // Get reader name and package up to subject object
+        const subject = await User.findById(ObjectId(readerId), { name: 1, _id: 1 });
+        newNotification.subject = subject;
+        console.log(newNotification.subject);
+
+        const socketId = io.usersId_socketId[authorId];
+        if (socketId) {
+            console.log('Push new comment notification to ' + socketId);
+            io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
+        }
     } catch (error) {
         console.error('ERROR: commentNotification');
         console.error(error);

@@ -1,4 +1,5 @@
 const Article = require('../models/article_model.js');
+const Notification = require(`${__dirname}/../models/notification_model`);
 const Cache = require('../../util/cache');
 
 const createArticle = async (req, res) => {
@@ -148,6 +149,10 @@ const commentArticle = async (req, res) => {
         res.status(status).json({ error });
         return;
     }
+
+    //TODO: Sending Notification and socketIO
+    const io = req.app.get('socketio');
+    Notification.commentNotification(articleId, userId, io);
 
     return res.status(200).json({ data });
 };

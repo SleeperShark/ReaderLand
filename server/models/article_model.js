@@ -10,7 +10,6 @@ function mergeCommentsReaderInfo(article) {
     // TODO: process userinfo in comment array
     const readersInfo = {};
     for (let user of article.comments_reader) {
-        user.picture = `${IMAGE_URL}/avatar/${user.picture}`;
         readersInfo[user._id.toString()] = { ...user };
     }
     delete article.comments_reader;
@@ -145,7 +144,7 @@ const getArticle = async (articleId, userId = '') => {
                             $project: {
                                 _id: 1,
                                 name: 1,
-                                picture: 1,
+                                picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] },
                             },
                         },
                     ],
@@ -588,7 +587,7 @@ const getCategories = async () => {
 };
 
 //TODO: Fetch latest feedback after article is commented or replied
-async function getUpdatedFeedback(articleId) {
+async function getUpdatedComment(articleId) {
     const [article] = await Article.aggregate([
         { $match: { _id: articleId } },
         {
@@ -618,7 +617,7 @@ async function getUpdatedFeedback(articleId) {
                         $project: {
                             _id: 1,
                             name: 1,
-                            picture: 1,
+                            picture: { $concat: [`${IMAGE_URL}/avatar/`, '$picture'] },
                         },
                     },
                 ],
@@ -629,7 +628,6 @@ async function getUpdatedFeedback(articleId) {
             $project: {
                 _id: 0,
                 author: { $arrayElemAt: ['$author', 0] },
-                likes: 1,
                 comments: 1,
                 comments_reader: 1,
             },
@@ -666,50 +664,9 @@ const commentArticle = async ({ userId, articleId, comment }) => {
 
         console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
 
-        let [articleObj] = await Article.aggregate([
-            { $match: { _id: articleId } },
-            { $project: { comments: 1, author: 1 } },
-            {
-                $lookup: {
-                    from: 'User',
-                    foreignField: '_id',
-                    localField: 'author',
-                    pipeline: [{ $project: { name: 1, _id: 1, picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] } } }],
-                    as: 'author',
-                },
-            },
-            {
-                $lookup: {
-                    from: 'User',
-                    foreignField: '_id',
-                    localField: 'comments.reader',
-                    pipeline: [{ $project: { name: 1, _id: 1, picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] } } }],
-                    as: 'readerInfo',
-                },
-            },
-        ]);
+        const updatedComment = await getUpdatedComment(articleId);
 
-        articleObj = JSON.parse(JSON.stringify(articleObj));
-        // Pocess comment's info
-        const readerId_Name_Object = articleObj.readerInfo.reduce((accu, curr) => {
-            const readerId = curr._id.toString();
-            if (!accu[readerId]) {
-                accu[readerId] = { name: curr.name, picture: curr.picture };
-            }
-
-            return accu;
-        }, {});
-
-        for (let c of articleObj.comments) {
-            const reader = c.reader.toString();
-            const { name, picture } = readerId_Name_Object[reader];
-            c.reader = { _id: reader, name, picture };
-        }
-
-        delete articleObj.readerInfo;
-        articleObj.author = articleObj.author[0];
-
-        return { data: articleObj };
+        return { data: updatedComment };
     } catch (error) {
         console.error(error);
         return { status: 500, error: 'Server error' };
@@ -743,9 +700,9 @@ const replyComment = async ({ userId, articleId, reply, commentId }) => {
 
         console.log('Successfully update reply content, ready to return updated comment...');
 
-        const article = await getUpdatedFeedback(articleId);
+        const updatedComment = await getUpdatedComment(articleId);
 
-        return { data: article };
+        return { data: updatedComment };
     } catch (error) {
         console.error(error);
         return { status: 500, error: 'Server error' };

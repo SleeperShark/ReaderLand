@@ -180,7 +180,7 @@ const replyComment = async (req, res) => {
         return;
     }
 
-    const { error, status, data } = await Article.replyComment({ userId, articleId, reply, commentId });
+    const { error, status, data: article } = await Article.replyComment({ userId, articleId, reply, commentId });
 
     if (error) {
         res.status(status).json({ error });
@@ -190,7 +190,10 @@ const replyComment = async (req, res) => {
     const io = req.app.get('socketio');
     Notification.replyNotification({ articleId, commentId }, io);
 
-    res.status(200).json({ data });
+    // sending new comments to socket in article room
+    io.to(articleId).emit('update-comment', JSON.stringify(article));
+
+    res.status(200).json({ data: article });
 };
 
 const readArticle = async (req, res) => {

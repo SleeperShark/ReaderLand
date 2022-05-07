@@ -26,16 +26,13 @@ async function submitReply(submitBtn) {
     const articleId = new URL(window.location).searchParams.get('id');
 
     try {
-        const { data: article, error, status } = await replyCommentAPI({ commentId, articleId, userToken: token, reply });
+        const { error, status } = await replyCommentAPI({ commentId, articleId, userToken: token, reply });
 
         if (error) {
             console.error(status);
             console.error(error);
             alert('API 異常: replyCommentAPI');
-            return;
         }
-
-        renderCommentBoard(article);
         return;
     } catch (error) {
         console.error(error);

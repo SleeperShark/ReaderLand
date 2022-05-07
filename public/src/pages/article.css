@@ -206,14 +206,33 @@ footer {
     margin-top: -7px;
 }
 
+#new-comment-hint {
+    position: absolute;
+    bottom: -10px;
+    left: calc(50% - 60px);
+
+    width: 120px;
+    font-size: 0.8rem;
+    padding: 3px;
+    text-align: center;
+    background-color: aqua;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#new-comment-hint.hide {
+    display: none;
+}
+
 /* comment-container */
 
 #comment-container {
     overflow-y: scroll;
-    /* padding: 0px; */
     margin-left: 20px;
     width: 480px;
     padding-bottom: 20px;
+
+    position: relative;
 }
 
 .reader-comment {

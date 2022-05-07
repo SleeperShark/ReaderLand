@@ -153,7 +153,7 @@ const commentArticle = async (req, res) => {
         return;
     }
 
-    const { error, status, data: comments } = await Article.commentArticle({ userId, articleId, comment });
+    const { error, status, data: article } = await Article.commentArticle({ userId, articleId, comment });
 
     if (error) {
         res.status(status).json({ error });
@@ -165,9 +165,10 @@ const commentArticle = async (req, res) => {
     Notification.commentNotification(articleId, userId, io);
 
     // sending new comments to socket in article room
-    io.to(articleId).emit('update-comment', JSON.stringify(comments));
+    article.commentEvent = true;
+    io.to(articleId).emit('update-comment', JSON.stringify(article));
 
-    return res.status(200).json({ data: comments });
+    return res.status(200).json({ data: article });
 };
 
 const replyComment = async (req, res) => {

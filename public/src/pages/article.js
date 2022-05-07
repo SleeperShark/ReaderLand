@@ -369,14 +369,25 @@ async function init() {
         socket.on('update-comment', (msg) => {
             const articleObj = JSON.parse(msg);
             renderCommentBoard(articleObj);
+
+            if (articleObj.commentEvent) {
+                console.log('comment Event');
+                document.getElementById('new-comment-hint').classList.remove('hide');
+            }
         });
     }
 }
 
 init();
 
+//TODO: scroll to top when click new comment hint
+document.getElementById('new-comment-hint').addEventListener('click', (evt) => {
+    document.getElementById('comment-container').scrollTo({ top: 0, behavior: 'smooth' });
+    evt.target.classList.add('hide');
+});
+
 const commentBoard = document.getElementById('comment-board');
-function toggleBoard(e) {
+function toggleBoard() {
     commentBoard.classList.toggle('hide');
 }
 document.getElementById('comment').addEventListener('click', toggleBoard);

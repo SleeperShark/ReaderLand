@@ -52,6 +52,7 @@ function enterToSubmit(event) {
 function renderCommentBoard(article) {
     const commentContainer = document.getElementById('comment-container');
     commentContainer.innerHTML = '';
+
     const {
         author: { name: authorName, picture: authorPicture, _id: authorId },
     } = article;
@@ -316,6 +317,7 @@ async function renderArticle(auth) {
                     alert('留言失敗，請稍後在試');
                 }
 
+                commentArea.value = '';
                 // document.getElementById('comment-container').scrollTop = 0;
             } catch (error) {
                 console.error(error);
@@ -365,6 +367,11 @@ async function init() {
 
         socket.on('update-read', (readCount) => {
             readCountSpan.innerText = readCount;
+        });
+
+        socket.on('update-comment', (msg) => {
+            const articleObj = JSON.parse(msg);
+            renderCommentBoard(articleObj);
         });
     }
 }

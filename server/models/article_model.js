@@ -665,9 +665,51 @@ const commentArticle = async ({ userId, articleId, comment }) => {
         );
 
         console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
-        const article = await getUpdatedFeedback(articleId);
 
-        return { data: article };
+        let [articleObj] = await Article.aggregate([
+            { $match: { _id: articleId } },
+            { $project: { comments: 1, author: 1 } },
+            {
+                $lookup: {
+                    from: 'User',
+                    foreignField: '_id',
+                    localField: 'author',
+                    pipeline: [{ $project: { name: 1, _id: 1, picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] } } }],
+                    as: 'author',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'User',
+                    foreignField: '_id',
+                    localField: 'comments.reader',
+                    pipeline: [{ $project: { name: 1, _id: 1, picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] } } }],
+                    as: 'readerInfo',
+                },
+            },
+        ]);
+
+        articleObj = JSON.parse(JSON.stringify(articleObj));
+        // Pocess comment's info
+        const readerId_Name_Object = articleObj.readerInfo.reduce((accu, curr) => {
+            const readerId = curr._id.toString();
+            if (!accu[readerId]) {
+                accu[readerId] = { name: curr.name, picture: curr.picture };
+            }
+
+            return accu;
+        }, {});
+
+        for (let c of articleObj.comments) {
+            const reader = c.reader.toString();
+            const { name, picture } = readerId_Name_Object[reader];
+            c.reader = { _id: reader, name, picture };
+        }
+
+        delete articleObj.readerInfo;
+        articleObj.author = articleObj.author[0];
+
+        return { data: articleObj };
     } catch (error) {
         console.error(error);
         return { status: 500, error: 'Server error' };

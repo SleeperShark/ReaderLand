@@ -563,13 +563,13 @@ const unlikeArticle = async (userId, articleId) => {
             articleId,
             { $pull: { likes: userId } },
             {
-                $project: { _id: 0, likes: 1 },
+                $project: { likes: 1 },
                 new: true,
             }
         );
         console.log("Remove userId from article's likes array...");
 
-        return { data: likes };
+        return { data: likes.length };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

@@ -173,6 +173,10 @@ const replyComment = async (req, res) => {
         res.status(status).json({ error });
     }
 
+    // Push notification
+    const io = req.app.get('socketio');
+    Notification.replyNotification({ articleId, commentId }, io);
+
     res.status(200).json({ data });
 };
 

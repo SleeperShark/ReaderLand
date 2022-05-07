@@ -97,24 +97,24 @@ const commentNotification = async (articleId, readerId, io) => {
         const { author: authorId } = await Article.findById(articleId, { _id: 0, author: 1 });
 
         const { unread: unreadCount } = await Notification.findByIdAndUpdate(
-            { _id: authorId },
+            { _id: ObjectId(authorId) },
             {
                 $inc: { unread: 1 },
-                $push: newNotification,
+                $push: { notifications: newNotification },
             },
             { new: true, projection: { unread: 1 } }
         );
-        console.log('Finish comment Notification to Author...');
+        console.log('Finish pushing comment Notification to Author...');
 
-        // TODO: user socket to push new notification
-        // Get reader name and package up to subject object
-        const subject = await User.findById(ObjectId(readerId), { name: 1, _id: 1 });
-        newNotification.subject = subject;
-        console.log(newNotification.subject);
+        // TODO: use socket to push new notification
 
         const socketId = io.usersId_socketId[authorId];
         if (socketId) {
             console.log('Push new comment notification to ' + socketId);
+
+            const subject = await User.findById(ObjectId(readerId), { name: 1, _id: 1 });
+            newNotification.subject = subject;
+
             io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
         }
     } catch (error) {
@@ -123,22 +123,34 @@ const commentNotification = async (articleId, readerId, io) => {
     }
 };
 
-const replyNotification = async (articleId, commentId) => {
+const replyNotification = async ({ articleId, commentId }, io) => {
     try {
-        const [{ reader, author }] = await Article.aggregate([
-            { $match: { _id: articleId } },
+        const [{ reader: readerId, author: authorId }] = await Article.aggregate([
+            { $match: { _id: ObjectId(articleId) } },
             { $project: { _id: 0, author: 1, comment: { $arrayElemAt: [{ $filter: { input: '$comments', as: 'comment', cond: { $eq: ['$$comment._id', commentId] } } }, 0] } } },
             { $project: { author: 1, reader: '$comment.reader' } },
         ]);
 
+        const newNotification = { type: 'reply', subject: ObjectId(articleId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false };
+
         await Notification.updateOne(
-            { _id: reader },
+            { _id: readerId },
             {
                 $inc: { unread: 1 },
-                $push: { notifications: { type: 'reply', subject: ObjectId(author), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false } },
+                $push: newNotification,
             }
         );
-        console.log('Finish Reply Notification...');
+        console.log('Finish pushing Reply Notification...');
+
+        const socketId = io.usersId_socketId[readerId.toString()];
+        if (socketId) {
+            console.log('Push new reply notification to ' + socketId);
+
+            const subject = await User.findById(ObjectId(authorId), { name: 1, _id: 1 });
+            newNotification.subject = subject;
+
+            io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
+        }
     } catch (error) {
         console.error('ERROR: replyNotification');
         console.error(error);

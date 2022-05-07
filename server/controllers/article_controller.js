@@ -1,4 +1,5 @@
 const Article = require('../models/article_model.js');
+const Notification = require(`${__dirname}/../models/notification_model`);
 const Cache = require('../../util/cache');
 
 const createArticle = async (req, res) => {
@@ -22,15 +23,17 @@ const createArticle = async (req, res) => {
             return;
         }
 
-        const result = await Article.createArticle(articleInfo);
+        const { article, error, status } = await Article.createArticle(articleInfo);
 
-        if (result.error) {
-            const statusCode = result.status ? result.status : 500;
-            res.status(statusCode).json({ error: result.error });
+        if (error) {
+            res.status(status).json({ error });
             return;
         }
 
-        const { article } = result;
+        //TODO: Sending Notification and socketIO
+        const io = req.app.get('socketio');
+        Notification.newPostNotification(article, io);
+
         res.status(200).json({ data: article._id.toString() });
         return;
     } catch (error) {
@@ -149,6 +152,10 @@ const commentArticle = async (req, res) => {
         return;
     }
 
+    //TODO: Sending Notification and socketIO
+    const io = req.app.get('socketio');
+    Notification.commentNotification(articleId, userId, io);
+
     return res.status(200).json({ data });
 };
 
@@ -167,6 +174,10 @@ const replyComment = async (req, res) => {
     if (error) {
         res.status(status).json({ error });
     }
+
+    // Push notification
+    const io = req.app.get('socketio');
+    Notification.replyNotification({ articleId, commentId }, io);
 
     res.status(200).json({ data });
 };

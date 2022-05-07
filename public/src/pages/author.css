@@ -101,12 +101,12 @@ main {
     display: none;
 }
 
-.fa-check-square::after {
+#follow-btn .fa-check-square::after {
     content: '已追蹤';
     margin-left: 20px;
 }
 
-.fa-thumbs-up::after {
+#follow-btn .fa-thumbs-up::after {
     content: '追蹤';
     margin-left: 20px;
 }

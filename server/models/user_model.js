@@ -1,7 +1,6 @@
 require('dotenv').config();
 const { User, ObjectId, Category, Article } = require('./schemas');
 const ArticleModel = require(`${__dirname}/article_model`);
-const Notification = require('./notification_model');
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET, IMAGE_URL } = process.env;
 const bcrypt = require('bcrypt');
@@ -66,6 +65,28 @@ const authentication = (roleId, required = true) => {
     };
 };
 
+const socketAuthentication = () => {
+    return async function (socket, next) {
+        try {
+            const { token } = socket.handshake.auth;
+            const { userId } = await promisify(jwt.verify)(token, TOKEN_SECRET);
+
+            const exist = await User.countDocuments({ _id: userId });
+
+            if (!exist) {
+                next(new Error('Unauthorized'));
+            }
+
+            socket.userId = userId;
+            next();
+        } catch (error) {
+            console.error('[ERROR] SocketAuthentication');
+            console.error(error);
+            next(error);
+        }
+    };
+};
+
 const signUp = async (name, email, password) => {
     try {
         const userInfo = {
@@ -101,6 +122,7 @@ const nativeSignIn = async (email, password) => {
                 name: user.name,
                 email: user.email,
                 picture: user.picture,
+                userId: user._id.toString(),
             },
             TOKEN_SECRET
         );
@@ -406,8 +428,6 @@ const follow = async (userId, followerId) => {
         ]);
         console.log("Successfully update follower's followee list...");
 
-        Notification.followNotification(userId, followerId);
-
         return { follow: 1 };
     } catch (error) {
         console.error(error);
@@ -622,4 +642,5 @@ module.exports = {
     favorite,
     unfavorite,
     getSubscription,
+    socketAuthentication,
 };

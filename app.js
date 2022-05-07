@@ -1,4 +1,6 @@
 require('dotenv').config();
+const { socketAuthentication } = require(`${__dirname}/server/models/user_model`);
+const Notification = require(`${__dirname}/server/models/notification_model`);
 const Cache = require('./util/cache');
 
 const { PORT: port, NODE_ENV } = process.env;
@@ -7,6 +9,9 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 
+// Setting server for socketio
+const server = require('http').createServer(app);
+
 app.set('trust proxy', true);
 app.set('json spaces', 2);
 
@@ -14,6 +19,42 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+
+// Setting Socket middleware
+var io = require('socket.io')(server);
+io.usersId_socketId = {};
+
+io.use(socketAuthentication()).on('connection', (socket) => {
+    console.log(`Socket ${socket.id} is connected..`);
+    io.usersId_socketId[socket.userId] = socket.id;
+
+    socket.on('disconnect', () => {
+        console.log(`${socket.id} is offline...`);
+        delete io.usersId_socketId[socket.userId];
+    });
+
+    //TODO: return 10 more notification from offset
+    socket.on('fetch-notification', async (msg) => {
+        const { loadedNotification } = JSON.parse(msg);
+        console.log('fetch-notification: ' + loadedNotification);
+        console.log(socket.userId);
+
+        const notifications = await Notification.getNotifications(socket.userId, loadedNotification);
+
+        io.to(socket.id).emit('notifcations', JSON.stringify(notifications));
+    });
+
+    //TODO: clear unread count
+    socket.on('clear-unread', async (msg) => {
+        console.log(`clearing unread record for user ${socket.userId}...`);
+        const { clearNum } = JSON.parse(msg);
+
+        await Notification.clearUnread(socket.userId, clearNum);
+    });
+});
+app.set('socketio', io);
+
+// TODO: server routing
 
 app.get('/test', (req, res) => {
     console.log('test');
@@ -41,7 +82,7 @@ app.use((err, req, res, next) => {
 });
 
 if (NODE_ENV != 'production') {
-    app.listen(port, async () => {
+    server.listen(port, async () => {
         Cache.connect().catch(() => {
             console.log('Redis connect fail...');
         });

@@ -1,6 +1,6 @@
 const token = localStorage.getItem('ReaderLandToken');
 let user;
-let loadedNotification = 0;
+let socket;
 
 async function authenticate() {
     if (!token) {
@@ -15,46 +15,29 @@ async function authenticate() {
         },
     });
 
-    if (res.status === 200) {
-        user = (await res.json()).data;
-        return true;
-    } else {
+    if (res.status != 200) {
         // token fail, remove token
         localStorage.removeItem('ReaderLandToken');
         return false;
     }
+
+    user = (await res.json()).data;
+    socket = io({
+        autoConnect: false,
+        auth: {
+            token,
+        },
+    });
+    socket.connect();
+    return true;
 }
 
-async function renderUnreadCount() {
-    let { data: unreadCount, error, status } = await getUnreadNotificationCountAPI(token);
-
-    if (error) {
-        console.error(status);
-        console.error(error);
-        return '';
-    }
-
-    if (!unreadCount) {
-        return '';
-    }
-
-    if (unreadCount > 99) {
-        unreadCount = 99;
-    }
-
-    return `
-<div id="notification-unread">
-    <sapn id="unread-count">${unreadCount}</span>
-</div>
-`;
-}
-
-function appendNotifications(notifications) {
+function appendNotifications(notifications, prepend = false) {
     const container = document.getElementById('notification-container');
     const loadBtn = document.getElementById('notification-load');
 
-    for (let notification of notifications) {
-        const { type, subject, createdAt, articleId } = notification;
+    for (let i = notifications.length - 1; i >= 0; i--) {
+        const { type, subject, createdAt, articleId } = notifications[i];
 
         const notificationDiv = document.createElement('div');
         notificationDiv.classList.add('notification');
@@ -66,26 +49,32 @@ function appendNotifications(notifications) {
         let iconClass;
         let contentHTML;
         let unreadHTML = '';
+        notificationDiv.dataset.subject = subject._id.toString();
         switch (type) {
             case 'comment':
+                notificationDiv.dataset.type = 'comment';
+
                 iconClass = 'fas fa-comment';
                 contentHTML = `<span class="notification-subject">${subject.name}</span>在你的文章中留言。`;
                 break;
             case 'reply':
+                notificationDiv.dataset.type = 'reply';
                 iconClass = 'fas fa-comments';
                 contentHTML = `作者<span class="notification-subject">${subject.name}</span>回復了你的留言。`;
                 break;
             case 'follow':
+                notificationDiv.dataset.type = 'follow';
                 iconClass = 'fas fa-thumbs-up';
                 contentHTML = `<span class="notification-subject">${subject.name}</span>追蹤了你。`;
                 break;
             case 'newPost':
+                notificationDiv.dataset.type = 'newPost';
                 iconClass = 'fas fa-file-alt';
                 contentHTML = `你追蹤的作者<span class="notification-subject">${subject.name}</span>發表了新文章，快去看看吧！`;
                 break;
         }
 
-        if (notification.hasOwnProperty('isread')) {
+        if (notifications[i].hasOwnProperty('isread')) {
             unreadHTML = '<span class="unread"></span>';
         }
         notificationDiv.innerHTML = `
@@ -101,70 +90,22 @@ function appendNotifications(notifications) {
     ${unreadHTML}
     `;
 
-        container.insertBefore(notificationDiv, loadBtn);
-        container.insertBefore(divider, loadBtn);
+        if (prepend) {
+            container.prepend(divider);
+            container.prepend(notificationDiv);
+        } else {
+            container.insertBefore(notificationDiv, loadBtn);
+            container.insertBefore(divider, loadBtn);
+        }
 
         if (articleId) {
             notificationDiv.addEventListener('click', () => {
                 window.location.href = `/article.html?id=${articleId}`;
             });
-        }
-    }
-}
-
-async function renderNotification(evt) {
-    // clear unreadCount
-    document.getElementById('notification-unread')?.remove();
-
-    // load first ten notification
-    const {
-        data: { notifications },
-        error,
-        status,
-    } = await getNotificationsAPI(token, loadedNotification);
-
-    if (error) {
-        console.error(status);
-        console.error(error);
-        return;
-    }
-
-    if (notifications.length) {
-        notifications.reverse();
-        // appending notification
-        appendNotifications(notifications);
-
-        loadedNotification += notifications.length;
-    }
-
-    // clear this event listener
-    evt.target.removeEventListener('click', renderNotification);
-}
-
-async function loadingNotification(evt) {
-    // load first ten notification
-    const {
-        data: { notifications },
-        error,
-        status,
-    } = await getNotificationsAPI(token, loadedNotification);
-
-    if (error) {
-        console.error(status);
-        console.error(error);
-        alert('Error: getNotificationsAPI');
-        return;
-    }
-
-    if (notifications.length) {
-        notifications.reverse();
-        // appending notification
-        appendNotifications(notifications);
-
-        loadedNotification += notifications.length;
-
-        if (notifications.length < 10) {
-            evt.target.remove();
+        } else {
+            notificationDiv.addEventListener('click', () => {
+                window.location.href = `/author.html?id=${subject._id}`;
+            });
         }
     }
 }
@@ -178,9 +119,12 @@ async function renderHeader(auth) {
 <a id="create-article" href="/edit.html">
     <span>建立貼文</span>
 </a>
+
 <i id="notification" class="fas fa-bell">
 
-    ${await renderUnreadCount()}
+    <div id="notification-unread">
+    <sapn id="unread-count"></span>
+    </div>
 
     <div id="notification-container" class="hide">
         <div id="notification-load">載入更多</div>
@@ -225,15 +169,40 @@ async function renderHeader(auth) {
 
     //TODO: auth function
     if (auth) {
-        const notificationIcon = document.getElementById('notification');
-        const notificationContainer = document.getElementById('notification-container');
         const avatar = document.getElementById('user-avatar');
         const userActions = document.getElementById('user-actions');
+
+        const notificationIcon = document.getElementById('notification');
+        const notificationContainer = document.getElementById('notification-container');
+        const notificationLoadingBtn = document.getElementById('notification-load');
+        const notifcationUnreadHint = document.getElementById('notification-unread');
+        const notifcattionUnreadCount = document.getElementById('unread-count');
 
         avatar.addEventListener('click', () => {
             // Hide Notification
             notificationContainer.classList.add('hide');
             userActions.classList.toggle('hide');
+        });
+
+        notificationIcon.addEventListener('click', (evt) => {
+            if (evt.target == notificationIcon) {
+                notificationContainer.classList.toggle('hide');
+                userActions.classList.add('hide');
+            }
+
+            //TODO: clear unread count
+            if (!notificationContainer.classList.contains('hide')) {
+                notifcationUnreadHint.style.display = 'none';
+                const clearNum = document.querySelectorAll('.notification').length;
+
+                socket.emit('clear-unread', JSON.stringify({ clearNum }));
+            }
+        });
+
+        notificationLoadingBtn.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            const loaded = document.querySelectorAll('.notification').length;
+            socket.emit('fetch-notification', JSON.stringify({ loadedNotification: loaded }));
         });
 
         document.getElementById('action-signout').addEventListener('click', () => {
@@ -242,29 +211,53 @@ async function renderHeader(auth) {
             window.location.href = '/index.html';
         });
 
-        //TODO: first fetch Notification when click icon
-        notificationIcon.addEventListener('click', renderNotification);
-        //TODO: show container
-        notificationIcon.addEventListener('click', (evt) => {
-            if (evt.target == notificationIcon) {
-                notificationContainer.classList.toggle('hide');
-                userActions.classList.add('hide');
+        // Socket handler
+        //TODO: process notification when get from socket
+        socket.on(`notifcations`, (msg) => {
+            let {
+                data: { notifications, length, unread },
+            } = JSON.parse(msg);
+
+            console.log(unread);
+
+            if (unread) {
+                notifcationUnreadHint.style.display = 'flex';
+                unread = unread > 99 ? 99 : unread;
+                document.getElementById('unread-count').innerText = unread;
+            } else {
+                // not unread: hide unread count
+                notifcationUnreadHint.style.display = 'none';
+            }
+
+            appendNotifications(notifications);
+        });
+
+        socket.on('update-notification', (msg) => {
+            const {
+                unreadCount,
+                update: { prepend, remove },
+            } = JSON.parse(msg);
+
+            notifcattionUnreadCount.innerText = unreadCount;
+            if (unreadCount) {
+                notifcationUnreadHint.style.display = 'flex';
+            }
+
+            if (remove) {
+                const allNotifications = document.querySelectorAll('.notification');
+                for (let elem of allNotifications) {
+                    if (elem.dataset.type == remove.type && elem.dataset.subject == remove.subject._id && elem.dataset.articleId == remove.articleId) {
+                        elem.nextElementSibling.remove();
+                        elem.remove();
+                        break;
+                    }
+                }
+            } else if (prepend) {
+                appendNotifications([prepend], true);
             }
         });
 
-        let showNotificationTimer;
-
-        // notificationContainer.addEventListener('mouseleave', () => {
-        //     showNotificationTimer = setTimeout(() => {
-        //         notificationContainer.classList.add('hide');
-        //     }, 1000);
-        // });
-
-        // notificationContainer.addEventListener('mouseover', () => {
-        //     clearTimeout(showNotificationTimer);
-        // });
-
-        //TODO: load more btn
-        document.getElementById('notification-load').addEventListener('click', loadingNotification);
+        //TODO: fetch first 10 notification when init header
+        socket.emit('fetch-notification', JSON.stringify({ loadedNotification: 0 }));
     }
 }

@@ -88,17 +88,17 @@ const createArticle = async (articleInfo) => {
             pushToNewsfeed(article);
         }
 
-        Notification.newPostNotification(article.author, article._id);
-
         return { article };
     } catch (error) {
         console.log(error);
-        let status;
+        let status = 500;
+        let msg = 'Server Error';
         if (error.message.includes('duplicate')) {
             status = 400;
+            msg = "You can't have two articles with same title";
         }
 
-        return { error: error.message, status };
+        return { error: msg, status };
     }
 };
 
@@ -665,9 +665,6 @@ const commentArticle = async ({ userId, articleId, comment }) => {
         );
 
         console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
-
-        Notification.commentNotification(articleId, userId);
-
         const article = await getUpdatedFeedback(articleId);
 
         return { data: article };
@@ -702,8 +699,7 @@ const replyComment = async ({ userId, articleId, reply, commentId }) => {
             }
         );
 
-        console.log('Successfully update reply content, ready to return uodated comment...');
-        Notification.replyNotification(articleId, commentId);
+        console.log('Successfully update reply content, ready to return updated comment...');
 
         const article = await getUpdatedFeedback(articleId);
 

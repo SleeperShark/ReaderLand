@@ -2,6 +2,7 @@ require('dotenv').config();
 const validator = require('validator');
 const User = require('../models/user_model');
 const { generateUploadURL } = require('../../util/util');
+const Notification = require('../models/notification_model');
 
 const getUserInfo = async (req, res) => {
     let { name, email, picture, userId } = req.user;
@@ -136,25 +137,28 @@ const updateUserProfile = async (req, res) => {
 const follow = async (req, res) => {
     const { followerId } = req.body;
     const { userId } = req.user;
+    const io = req.app.get('socketio');
 
     if (!followerId) {
         res.status(400).json({ error: 'FollowerId is required.' });
         return;
     }
-    const result = await User.follow(userId, followerId);
+    const { error } = await User.follow(userId, followerId);
 
-    if (result.error) {
+    if (error) {
         res.status(result.status || 500).json({ error: result.error });
         return;
     }
+
+    Notification.pushFollowNotification(userId, followerId, io);
 
     res.status(200).json({ data: 'OK' });
 };
 
 const unfollow = async (req, res) => {
-    console.log(req.body);
     const { followerId } = req.body;
     const { userId } = req.user;
+    const io = req.app.get('socketio');
 
     if (!followerId) {
         res.status(400).json({ error: 'followerId is required' });
@@ -167,6 +171,8 @@ const unfollow = async (req, res) => {
         res.status(result.status).json({ error: result.error });
         return;
     }
+
+    Notification.pullFollowNotification(followerId, userId, io);
 
     res.status(200).json({ data: 'Ok' });
 };

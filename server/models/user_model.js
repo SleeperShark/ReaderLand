@@ -69,6 +69,10 @@ const socketAuthentication = () => {
     return async function (socket, next) {
         try {
             const { token } = socket.handshake.auth;
+
+            console.log('AUTH socket');
+            // no required for unregistered user viewing article
+
             const { userId } = await promisify(jwt.verify)(token, TOKEN_SECRET);
 
             const exist = await User.countDocuments({ _id: userId });

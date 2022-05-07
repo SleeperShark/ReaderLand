@@ -22,22 +22,20 @@ app.use(cors());
 
 // Setting Socket middleware
 var io = require('socket.io')(server);
+
+// for updating notification
 io.usersId_socketId = {};
+// for updating article feedback
+io.articleId_socketId = {};
 
 io.use(socketAuthentication()).on('connection', (socket) => {
     console.log(`Socket ${socket.id} is connected..`);
     io.usersId_socketId[socket.userId] = socket.id;
 
-    socket.on('disconnect', () => {
-        console.log(`${socket.id} is offline...`);
-        delete io.usersId_socketId[socket.userId];
-    });
-
     //TODO: return 10 more notification from offset
     socket.on('fetch-notification', async (msg) => {
         const { loadedNotification } = JSON.parse(msg);
         console.log('fetch-notification: ' + loadedNotification);
-        console.log(socket.userId);
 
         const notifications = await Notification.getNotifications(socket.userId, loadedNotification);
 
@@ -50,6 +48,17 @@ io.use(socketAuthentication()).on('connection', (socket) => {
         const { clearNum } = JSON.parse(msg);
 
         await Notification.clearUnread(socket.userId, clearNum);
+    });
+
+    socket.on('article-register', (msg) => {
+        const { articleId } = JSON.parse(msg);
+        console.log(`Socket ${socket.id} join ${articleId} room...`);
+        socket.join(articleId);
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`${socket.id} is offline...`);
+        delete io.usersId_socketId[socket.userId];
     });
 });
 app.set('socketio', io);

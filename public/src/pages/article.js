@@ -259,7 +259,6 @@ async function renderArticle(auth) {
                 const result = await unlikeArticleAPI(token, articleId);
                 if (result.data) {
                     likeDiv.classList.remove('favored');
-                    document.querySelector('#like .count').innerText = result.data.length;
                 } else {
                     console.error(result);
                     alert('Unlike: 系統異常');
@@ -269,7 +268,6 @@ async function renderArticle(auth) {
                 const result = await likeArticleAPI(token, articleId);
                 if (result.data) {
                     likeDiv.classList.add('favored');
-                    document.querySelector('#like .count').innerText = result.data.length;
                 } else {
                     console.error(result);
                     alert('like: 系統異常');
@@ -365,6 +363,16 @@ async function init() {
     await renderArticle(auth);
 
     // EnterToSubmitReplyEvent();
+
+    const likeCountSpan = document.querySelector('i#like-icon .count');
+    //TODO: establish socket event for updating author feedback
+    if (auth) {
+        socket.emit('article-register', JSON.stringify({ articleId }));
+
+        socket.on('update-like', (likeCount) => {
+            likeCountSpan.innerText = likeCount;
+        });
+    }
 }
 
 init();

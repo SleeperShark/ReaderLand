@@ -534,9 +534,9 @@ const likeArticle = async (userId, articleId) => {
 
         console.log("Push userId to article's likes array...");
 
-        const { likes } = await Article.findById(articleId, { _id: 0, likes: 1 });
+        const [{ likeCount }] = await Article.aggregate([{ $match: { _id: ObjectId(articleId) } }, { $project: { likeCount: { $size: '$likes' } } }]);
 
-        return { data: likes };
+        return { data: likeCount };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

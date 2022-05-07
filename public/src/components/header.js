@@ -26,6 +26,7 @@ async function authenticate() {
         autoConnect: false,
         auth: {
             token,
+            required: true,
         },
     });
     socket.connect();

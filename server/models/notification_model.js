@@ -97,7 +97,7 @@ const commentNotification = async (articleId, readerId, io) => {
         const { author: authorId } = await Article.findById(articleId, { _id: 0, author: 1 });
 
         const { unread: unreadCount } = await Notification.findByIdAndUpdate(
-            { _id: ObjectId(authorId) },
+            ObjectId(authorId),
             {
                 $inc: { unread: 1 },
                 $push: { notifications: newNotification },
@@ -127,20 +127,30 @@ const replyNotification = async ({ articleId, commentId }, io) => {
     try {
         const [{ reader: readerId, author: authorId }] = await Article.aggregate([
             { $match: { _id: ObjectId(articleId) } },
-            { $project: { _id: 0, author: 1, comment: { $arrayElemAt: [{ $filter: { input: '$comments', as: 'comment', cond: { $eq: ['$$comment._id', commentId] } } }, 0] } } },
+            {
+                $project: {
+                    _id: 0,
+                    author: 1,
+                    comment: { $arrayElemAt: [{ $filter: { input: '$comments', as: 'comment', cond: { $eq: ['$$comment._id', ObjectId(commentId)] } } }, 0] },
+                },
+            },
             { $project: { author: 1, reader: '$comment.reader' } },
         ]);
 
-        const newNotification = { type: 'reply', subject: ObjectId(articleId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false };
+        const newNotification = { type: 'reply', subject: ObjectId(authorId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false };
 
-        await Notification.updateOne(
-            { _id: readerId },
+        console.log(readerId);
+
+        const { unread: unreadCount } = await Notification.findByIdAndUpdate(
+            ObjectId(readerId),
             {
                 $inc: { unread: 1 },
-                $push: newNotification,
-            }
+                $push: { notifications: newNotification },
+            },
+            { new: true, projection: { unread: 1 } }
         );
         console.log('Finish pushing Reply Notification...');
+        console.log(unreadCount);
 
         const socketId = io.usersId_socketId[readerId.toString()];
         if (socketId) {

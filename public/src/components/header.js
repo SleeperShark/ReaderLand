@@ -196,6 +196,7 @@ async function renderHeader(auth) {
                 const clearNum = document.querySelectorAll('.notification').length;
 
                 socket.emit('clear-unread', JSON.stringify({ clearNum }));
+                document.title = `ReaderLand`;
             }
         });
 
@@ -218,7 +219,11 @@ async function renderHeader(auth) {
                 data: { notifications, length, unread },
             } = JSON.parse(msg);
 
-            console.log(unread);
+            if (unread) {
+                document.title = `(${unread}) ReaderLand`;
+            } else {
+                document.title = `ReaderLand`;
+            }
 
             if (unread) {
                 notifcationUnreadHint.style.display = 'flex';
@@ -241,6 +246,7 @@ async function renderHeader(auth) {
             notifcattionUnreadCount.innerText = unreadCount;
             if (unreadCount) {
                 notifcationUnreadHint.style.display = 'flex';
+                document.title = `(${unreadCount}) ReaderLand`;
             }
 
             if (remove) {

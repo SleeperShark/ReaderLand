@@ -139,8 +139,6 @@ const replyNotification = async ({ articleId, commentId }, io) => {
 
         const newNotification = { type: 'reply', subject: ObjectId(authorId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false };
 
-        console.log(readerId);
-
         const { unread: unreadCount } = await Notification.findByIdAndUpdate(
             ObjectId(readerId),
             {
@@ -150,7 +148,6 @@ const replyNotification = async ({ articleId, commentId }, io) => {
             { new: true, projection: { unread: 1 } }
         );
         console.log('Finish pushing Reply Notification...');
-        console.log(unreadCount);
 
         const socketId = io.usersId_socketId[readerId.toString()];
         if (socketId) {

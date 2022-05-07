@@ -722,7 +722,7 @@ const readArticle = async (articleId) => {
             {
                 $inc: { readCount: 1 },
             },
-            { new: true, projection: { readCount: 1, _id: 0 } }
+            { new: true, projection: { readCount: 1 } }
         );
 
         return { data: readCount };

@@ -365,12 +365,17 @@ async function init() {
     // EnterToSubmitReplyEvent();
 
     const likeCountSpan = document.querySelector('i#like-icon .count');
+    const readCountSpan = document.querySelector('i#read-icon .count');
     //TODO: establish socket event for updating author feedback
     if (auth) {
         socket.emit('article-register', JSON.stringify({ articleId }));
 
         socket.on('update-like', (likeCount) => {
             likeCountSpan.innerText = likeCount;
+        });
+
+        socket.on('update-read', (readCount) => {
+            readCountSpan.innerText = readCount;
         });
     }
 }
@@ -396,7 +401,7 @@ $(window).scroll(async function () {
     if ($(window).scrollTop() + $(window).height() + 110 >= $(document).height()) {
         $(window).off('scroll');
 
-        const { data: readCount, error, status } = await readArticleAPI(articleId);
+        const { error, status } = await readArticleAPI(articleId);
 
         if (error) {
             console.error(status);
@@ -404,7 +409,5 @@ $(window).scroll(async function () {
             alert('Error: readArticleAPI');
             return;
         }
-
-        document.querySelector('#read .count').innerText = readCount;
     }
 });

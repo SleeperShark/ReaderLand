@@ -200,6 +200,10 @@ const readArticle = async (req, res) => {
         return;
     }
 
+    //TODO: Updating article read count with socketIO
+    const io = req.app.get('socketio');
+    io.to(articleId).emit('update-read', readCount);
+
     res.status(200).json({ data: readCount });
 };
 

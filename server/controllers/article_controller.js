@@ -23,15 +23,17 @@ const createArticle = async (req, res) => {
             return;
         }
 
-        const result = await Article.createArticle(articleInfo);
+        const { article, error, status } = await Article.createArticle(articleInfo);
 
-        if (result.error) {
-            const statusCode = result.status ? result.status : 500;
-            res.status(statusCode).json({ error: result.error });
+        if (error) {
+            res.status(status).json({ error });
             return;
         }
 
-        const { article } = result;
+        //TODO: Sending Notification and socketIO
+        const io = req.app.get('socketio');
+        Notification.newPostNotification(article, io);
+
         res.status(200).json({ data: article._id.toString() });
         return;
     } catch (error) {

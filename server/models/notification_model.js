@@ -71,24 +71,36 @@ const pullFollowNotification = async (followerId, followeeId, io) => {
     }
 };
 
-const newPostNotification = async (authorId, articleId) => {
-    const { followee: followees } = await User.findById(authorId, { _id: 0, followee: 1 });
-    const timestamp = ISOTimestamp();
+const newPostNotification = async (article, io) => {
+    const { followee: followees, name } = await User.findById(article.author, { followee: 1, name: 1 });
+
+    const newNotification = { type: 'newPost', subject: article.author, articleId: article._id, createdAt: ISOTimestamp(), isread: false };
 
     for (let followee of followees) {
         try {
-            await Notification.updateOne(
-                { _id: followee },
+            const { unread: unreadCount } = await Notification.findByIdAndUpdate(
+                followee,
                 {
                     $inc: { unread: 1 },
-                    $push: { notifications: { type: 'newPost', subject: ObjectId(authorId), articleId: ObjectId(articleId), createdAt: timestamp, isread: false } },
-                }
+                    $push: { notifications: newNotification },
+                },
+                { new: true, projection: { unread: 1 } }
             );
+
+            //TODO: send to online followee
+            let socketId = io.usersId_socketId[followee.toString()];
+
+            if (socketId) {
+                const authorId = newNotification.subject.toString();
+                newNotification.subject = { _id: authorId, name };
+                io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
+            }
         } catch (error) {
+            console.error(`[ERROR] newPostNotification to user ${followee.toString()}`);
             console.error(error);
         }
     }
-    console.log('Finish New Post Notification...');
+    console.log('Finish push new post Notification...');
 };
 
 const commentNotification = async (articleId, readerId, io) => {

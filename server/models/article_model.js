@@ -88,17 +88,17 @@ const createArticle = async (articleInfo) => {
             pushToNewsfeed(article);
         }
 
-        Notification.newPostNotification(article.author, article._id);
-
         return { article };
     } catch (error) {
         console.log(error);
-        let status;
+        let status = 500;
+        let msg = 'Server Error';
         if (error.message.includes('duplicate')) {
             status = 400;
+            msg = "You can't have two articles with same title";
         }
 
-        return { error: error.message, status };
+        return { error: msg, status };
     }
 };
 

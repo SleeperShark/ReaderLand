@@ -271,6 +271,27 @@ span.unread {
     opacity: 1;
 }
 
+/* Color styling of notification icon */
+.notification i.fa-comment {
+    color: yellow;
+}
+
+.notification i.fa-comments {
+    color: rgb(63, 252, 63);
+}
+
+.notification i.fa-thumbs-up {
+    color: rgb(8, 104, 247);
+}
+
+.notification i.fa-file-alt {
+    color: white;
+}
+
+.notification i.fa-heart {
+    color: red;
+}
+
 /* -------------------------------- */
 
 #avatar {

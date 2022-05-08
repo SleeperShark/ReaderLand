@@ -61,9 +61,11 @@ function renderCommentBoard(article) {
             authorReply,
             createdAt,
             reader: { _id: readerId, picture: readerPic, name: readerName },
+            _id: commentId,
         } = comment;
         const commentBox = document.createElement('div');
         commentBox.classList.add('comment-box');
+        commentBox.id = commentId;
 
         let replyEdit = '';
         if (article.author.name == user?.name) {
@@ -77,7 +79,7 @@ function renderCommentBoard(article) {
         commentBox.innerHTML += `
                     <div class="reader-comment">
                         <div class="comment-body">
-                            <a href="#" class="avatar-container">
+                            <a href="/author.html?id=${readerId}" class="avatar-container">
                                 <img class="reader-avatar" src="${readerPic}" alt="reader-avatar" />
                                 <div class="reader-name">${readerName}</div>
                             </a>
@@ -106,7 +108,7 @@ function renderCommentBoard(article) {
                             <div class="reply-bubble">
                                 <div class="reply-context">${authorReply.context}</div>
                             </div>
-                            <a href="#" class="avatar-container">
+                            <a href="/author.html?id=${authorId}" class="avatar-container">
                                 <img class="author-avatar" src="${authorPicture}" alt="reader-avatar" />
                                 <div class="reply-name">${authorName}</div>
                             </a>

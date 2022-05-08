@@ -245,11 +245,19 @@ async function insertArticle(articles) {
             //TODO: Collect Notification
             article.comments.forEach((comment) => {
                 const { reader, createdAt, _id } = comment;
-                const commentNotification = { type: 'comment', createdAt, articleId: article._id, commentId: _id, subject: reader };
+                const commentNotification = { type: 'comment', createdAt, articleId: article._id, commentId: _id, subject: reader, isread: 'false' };
                 notifications[authorId].push(commentNotification);
 
                 if (comment.authorReply) {
-                    const replyNotification = { type: 'reply', createdAt: comment.authorReply.createdAt, articleId: article._id, subject: ObjectId(authorId), commentId: _id };
+                    const replyNotification = {
+                        type: 'reply',
+                        createdAt: comment.authorReply.createdAt,
+                        articleId: article._id,
+                        subject: ObjectId(authorId),
+                        commentId: _id,
+                        isread: 'false',
+                    };
+
                     notifications[reader.toString()] = notifications[reader.toString()] || [];
                     notifications[reader.toString()].push(replyNotification);
                 }
@@ -271,7 +279,7 @@ async function insertArticle(articles) {
             return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         });
 
-        await Notification.updateOne({ _id: ObjectId(uid) }, { $push: { notifications: { $each: [...notificationArr] } } });
+        await Notification.updateOne({ _id: ObjectId(uid) }, { $set: { notifications: notificationArr, unread: notificationArr.length } });
     }
 }
 

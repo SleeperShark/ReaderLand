@@ -205,8 +205,6 @@ const getUnreadCount = async (userId) => {
 
 const getNotifications = async (userId, offset) => {
     try {
-        offset;
-
         let [{ notifications, length, subject_info, unread }] = await Notification.aggregate([
             { $match: { _id: ObjectId(userId) } },
             {

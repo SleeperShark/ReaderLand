@@ -38,7 +38,7 @@ function appendNotifications(notifications, prepend = false) {
     const loadBtn = document.getElementById('notification-load');
 
     for (let i = notifications.length - 1; i >= 0; i--) {
-        const { type, subject, createdAt, articleId } = notifications[i];
+        const { type, subject, createdAt, articleId, commentId } = notifications[i];
 
         const notificationDiv = document.createElement('div');
         notificationDiv.classList.add('notification');
@@ -51,10 +51,13 @@ function appendNotifications(notifications, prepend = false) {
         let contentHTML;
         let unreadHTML = '';
         notificationDiv.dataset.subject = subject._id.toString();
+        if (commentId) {
+            console.log(commentId);
+            notificationDiv.dataset.commentId = commentId;
+        }
         switch (type) {
             case 'comment':
                 notificationDiv.dataset.type = 'comment';
-
                 iconClass = 'fas fa-comment';
                 contentHTML = `<span class="notification-subject">${subject.name}</span>在你的文章中留言。`;
                 break;
@@ -101,7 +104,11 @@ function appendNotifications(notifications, prepend = false) {
 
         if (articleId) {
             notificationDiv.addEventListener('click', () => {
-                window.location.href = `/article.html?id=${articleId}`;
+                if (commentId) {
+                    window.location.href = `/article.html?id=${articleId}&commentId=${commentId}`;
+                } else {
+                    window.location.href = `/article.html?id=${articleId}`;
+                }
             });
         } else {
             notificationDiv.addEventListener('click', () => {

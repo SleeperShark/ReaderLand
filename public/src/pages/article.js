@@ -1,4 +1,5 @@
 const articleId = new URL(window.location).searchParams.get('id');
+const commentId = new URL(window.location).searchParams.get('commentId');
 
 function toggleReplyEdit(replyBtn) {
     const replyEdit = replyBtn.nextSibling.nextSibling;
@@ -377,6 +378,14 @@ async function init() {
                 document.getElementById('new-comment-hint').classList.remove('hide');
             }
         });
+    }
+
+    // pop out comment board if commentId in query string
+    if (commentId) {
+        // show comment board
+        document.getElementById('comment-board').classList.remove('hide');
+        document.getElementById(commentId).scrollIntoView({ behavior: 'smooth' });
+        document.getElementById(commentId).classList.add('shine');
     }
 }
 

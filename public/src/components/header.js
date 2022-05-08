@@ -52,7 +52,6 @@ function appendNotifications(notifications, prepend = false) {
         let unreadHTML = '';
         notificationDiv.dataset.subject = subject._id.toString();
         if (commentId) {
-            console.log(commentId);
             notificationDiv.dataset.commentId = commentId;
         }
         switch (type) {

@@ -235,6 +235,16 @@ footer {
     position: relative;
 }
 
+.comment-box.shine {
+    animation: shine 1.5s 1;
+}
+
+@keyframes shine {
+    50% {
+        background-color: rgba(253, 253, 166, 0.61);
+    }
+}
+
 .reader-comment {
     margin-bottom: 8px;
 }

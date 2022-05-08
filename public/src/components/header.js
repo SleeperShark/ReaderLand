@@ -172,7 +172,7 @@ async function renderHeader(auth) {
     document.querySelector('header').innerHTML = `
 <div id="header-left">
     <i id="book-icon" class="fas fa-book-open"></i>
-    <span>ReaderLand</span>
+    <span id="logo">ReaderLand</span>
 </div>
 <div id="header-right">
     ${rightElementHTML}

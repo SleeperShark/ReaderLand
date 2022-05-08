@@ -339,6 +339,7 @@ function renderPublishedArticles(articles) {
 
 //TODO: init profile render
 async function init() {
+    document.body.style.display = 'none';
     const auth = await authenticate();
 
     if (!auth) {
@@ -375,6 +376,7 @@ async function init() {
 
     //TODO: render draft list
     await renderDrafts();
+    document.body.style.display = 'block';
 }
 
 init();

@@ -3,6 +3,7 @@ const { promisify } = require('util'); // util from native nodejs library
 const crypto = require('crypto');
 const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, TOKEN_SECRET } = process.env;
 const randomBytes = promisify(crypto.randomBytes);
+const Cache = require(`${__dirname}/cache`);
 
 const wrapAsync = (fn) => {
     return function (req, res, next) {
@@ -85,6 +86,8 @@ const articleWeightCounter = (article, userPreference) => {
 
     return weight;
 };
+
+const rateLimiter = async (req, res, next) => {};
 
 module.exports = {
     wrapAsync,

@@ -153,7 +153,11 @@ const commentArticle = async (req, res) => {
         return;
     }
 
-    const { error, status, data: article } = await Article.commentArticle({ userId, articleId, comment });
+    const {
+        error,
+        status,
+        data: { article, commentId },
+    } = await Article.commentArticle({ userId, articleId, comment });
 
     if (error) {
         res.status(status).json({ error });
@@ -162,7 +166,7 @@ const commentArticle = async (req, res) => {
 
     //TODO: Sending Notification and socketIO
     const io = req.app.get('socketio');
-    Notification.commentNotification(articleId, userId, io);
+    Notification.commentNotification({ articleId, userId, commentId }, io);
 
     // sending new comments to socket in article room
     article.commentEvent = true;

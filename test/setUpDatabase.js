@@ -180,6 +180,7 @@ async function insertArticle(articles) {
     let fakeTimeStamp = new Date().getTime() - daysInMilli;
     const timeInterval = parseInt(daysInMilli / 500);
 
+    const notifications = {};
     // make 500 articles
     for (let round = 1; round < 6; round++) {
         console.log(`Insert Round ${round}...`);
@@ -190,9 +191,7 @@ async function insertArticle(articles) {
             const tempNotification = {};
 
             let { author, title, category, preview, context } = articles[articleIdx];
-            author = authors.find((elem) => elem.name == author)._id.toString();
-
-            tempNotification[author] = [];
+            let authorId = authors.find((elem) => elem.name == author)._id.toString();
 
             const createdAt = new Date(fakeTimeStamp).toISOString();
 
@@ -215,8 +214,6 @@ async function insertArticle(articles) {
                     reader,
                 };
 
-                tempNotification[author].push({ type: 'comment', subject: ObjectId(reader), isread: false, createdAt: new Date(commentTime).toISOString() });
-
                 // Reply
                 if (Math.floor(Math.random() * 10) % 3 == 0) {
                     const replyTime = new Date(commentTime + Math.floor(1000 * 60 * 60 * Math.random())).toISOString();
@@ -225,11 +222,6 @@ async function insertArticle(articles) {
                         context: '感謝支持',
                         createdAt: replyTime,
                     };
-
-                    if (authorsId.includes(reader)) {
-                        tempNotification[reader] = tempNotification[reader] || [];
-                        tempNotification[reader].push({ type: 'reply', subject: ObjectId(author), createdAt: replyTime, isread: false });
-                    }
                 }
 
                 comments.push(comment);
@@ -238,7 +230,7 @@ async function insertArticle(articles) {
             //TODO: insert articles
             let article = await Article.create({
                 title,
-                author,
+                author: ObjectId(authorId),
                 category,
                 context,
                 createdAt,
@@ -249,29 +241,37 @@ async function insertArticle(articles) {
                 head: '0',
             });
 
-            for (let id in tempNotification) {
-                tempNotification[id].forEach((elem) => (elem['articleId'] = article._id));
+            notifications[authorId] = notifications[authorId] || [];
+            //TODO: Collect Notification
+            article.comments.forEach((comment) => {
+                const { reader, createdAt, _id } = comment;
+                const commentNotification = { type: 'comment', createdAt, articleId: article._id, commentId: _id, subject: reader };
+                notifications[authorId].push(commentNotification);
 
-                notification[id].push(...tempNotification[id]);
-            }
+                if (comment.authorReply) {
+                    const replyNotification = { type: 'reply', createdAt: comment.authorReply.createdAt, articleId: article._id, subject: ObjectId(authorId), commentId: _id };
+                    notifications[reader.toString()] = notifications[reader.toString()] || [];
+                    notifications[reader.toString()].push(replyNotification);
+                }
+            });
 
             //TODO: timestamp for next article
             fakeTimeStamp += timeInterval;
         }
     }
 
-    console.log('Finish inserting articles...');
+    console.log("Finish inserting articles,ready to insert user's notification......");
 
     //TODO: insert Notification
-    for (let id in notification) {
-        const notifications = notification[id];
-        notifications.sort((a, b) => {
-            new Date(a.createdAt) - new Date(b.createdAt);
+    for (let uid in notifications) {
+        console.log(`Inserting User ${uid} notification...`);
+
+        const notificationArr = notifications[uid];
+        notificationArr.sort((a, b) => {
+            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         });
 
-        // await Notification.create({ _id: id, notifications, unread: notifications.length });
-        await Notification.updateOne({ _id: id }, { $set: { notifications, unread: notifications.length } });
-        console.log(`Successfully insert ${id}'s notification...`);
+        await Notification.updateOne({ _id: ObjectId(uid) }, { $push: { notifications: { $each: [...notificationArr] } } });
     }
 }
 

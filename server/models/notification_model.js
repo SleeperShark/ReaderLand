@@ -103,9 +103,17 @@ const newPostNotification = async (article, io) => {
     console.log('Finish push new post Notification...');
 };
 
-const commentNotification = async (articleId, readerId, io) => {
+const commentNotification = async ({ articleId, userId: readerId, commentId }, io) => {
     try {
-        const newNotification = { type: 'comment', subject: ObjectId(readerId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false };
+        console.log(readerId);
+        const newNotification = {
+            type: 'comment',
+            subject: ObjectId(readerId),
+            articleId: ObjectId(articleId),
+            commentId: ObjectId(commentId),
+            createdAt: ISOTimestamp(),
+            isread: false,
+        };
         const { author: authorId } = await Article.findById(articleId, { _id: 0, author: 1 });
 
         const { unread: unreadCount } = await Notification.findByIdAndUpdate(
@@ -149,7 +157,14 @@ const replyNotification = async ({ articleId, commentId }, io) => {
             { $project: { author: 1, reader: '$comment.reader' } },
         ]);
 
-        const newNotification = { type: 'reply', subject: ObjectId(authorId), articleId: ObjectId(articleId), createdAt: ISOTimestamp(), isread: false };
+        const newNotification = {
+            type: 'reply',
+            subject: ObjectId(authorId),
+            articleId: ObjectId(articleId),
+            commentId: ObjectId(commentId),
+            createdAt: ISOTimestamp(),
+            isread: false,
+        };
 
         const { unread: unreadCount } = await Notification.findByIdAndUpdate(
             ObjectId(readerId),

@@ -626,7 +626,6 @@ async function getUpdatedComment(articleId) {
         },
         {
             $project: {
-                _id: 0,
                 author: { $arrayElemAt: ['$author', 0] },
                 comments: 1,
                 comments_reader: 1,
@@ -647,17 +646,21 @@ const commentArticle = async ({ userId, articleId, comment }) => {
         }
 
         articleId = ObjectId(articleId);
+        const commentElem = { context: comment, reader: userId, createdAt: new Date().toISOString() };
 
         // update comment
-        await Article.updateOne(
-            { _id: articleId },
+        const { comments: insertedComments } = await Article.findByIdAndUpdate(
+            articleId,
             {
                 $push: {
-                    comments: {
-                        context: comment,
-                        reader: userId,
-                        createdAt: new Date().toISOString(),
-                    },
+                    comments: commentElem,
+                },
+            },
+            {
+                new: true,
+                projection: {
+                    comments: { $slice: -1 },
+                    _id: 1,
                 },
             }
         );
@@ -665,8 +668,9 @@ const commentArticle = async ({ userId, articleId, comment }) => {
         console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
 
         const updatedComment = await getUpdatedComment(articleId);
+        // const newCommentId = insertedComments[insertedComments.length - 1]._id.toString();
 
-        return { data: updatedComment };
+        return { data: { article: updatedComment, commentId: insertedComments[0]._id.toString() } };
     } catch (error) {
         console.error(error);
         return { status: 500, error: 'Server error' };

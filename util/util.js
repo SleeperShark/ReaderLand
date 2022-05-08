@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { promisify } = require('util'); // util from native nodejs library
 const crypto = require('crypto');
-const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, TOKEN_SECRET } = process.env;
+const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, RATE_LIMIT_TIME, RATE_LIMIT_TTL } = process.env;
 const randomBytes = promisify(crypto.randomBytes);
 const Cache = require(`${__dirname}/cache`);
 
@@ -87,11 +87,39 @@ const articleWeightCounter = (article, userPreference) => {
     return weight;
 };
 
-const rateLimiter = async (req, res, next) => {};
+const rateLimiter = async (req, res, next) => {
+    if (!Cache.ready) {
+        console.log('[ERROR]: redis fail, skip rate limiter route...');
+        next();
+    }
+
+    try {
+        const { ip } = req;
+        const request = await Cache.incr(ip);
+
+        //Setting ttl for ip
+        if (request == 1) {
+            await Cache.expire(ip, RATE_LIMIT_TTL);
+        }
+
+        if (request > 100) {
+            console.warn(`[Warning] Rate Limit Block for ${ip}`);
+            return res.status(429).json({ error: 'Too much request.' });
+        }
+
+        console.log(`${ip} pass Rate limiter...`);
+        next();
+    } catch (error) {
+        console.log('[ERROR]: rate limiter');
+        console.error(error);
+        next();
+    }
+};
 
 module.exports = {
     wrapAsync,
     timeDecayer,
     generateUploadURL,
     articleWeightCounter,
+    rateLimiter,
 };

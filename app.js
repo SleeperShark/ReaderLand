@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { socketAuthentication } = require(`${__dirname}/server/models/user_model`);
 const Notification = require(`${__dirname}/server/models/notification_model`);
-const Cache = require('./util/cache');
+const Cache = require(`${__dirname}/util/cache`);
 
 const { PORT: port, NODE_ENV } = process.env;
 
@@ -16,6 +16,10 @@ app.set('trust proxy', true);
 app.set('json spaces', 2);
 
 app.use(express.static('public'));
+
+// Rate Limiter
+app.use(require(`${__dirname}/util/util`).rateLimiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -93,7 +97,9 @@ app.use((err, req, res, next) => {
 if (NODE_ENV != 'production') {
     server.listen(port, async () => {
         Cache.connect().catch(() => {
-            console.log('Redis connect fail...');
+            if (!Cache.ready) {
+                console.error('Redis connect fail...');
+            }
         });
         console.log(`Listening on port: ${port}`);
     });

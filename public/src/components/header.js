@@ -38,7 +38,7 @@ function appendNotifications(notifications, prepend = false) {
     const loadBtn = document.getElementById('notification-load');
 
     for (let i = notifications.length - 1; i >= 0; i--) {
-        const { type, subject, createdAt, articleId, commentId } = notifications[i];
+        const { type, subject, createdAt, articleId, commentId, likeCount } = notifications[i];
 
         const notificationDiv = document.createElement('div');
         notificationDiv.classList.add('notification');
@@ -74,6 +74,15 @@ function appendNotifications(notifications, prepend = false) {
                 notificationDiv.dataset.type = 'newPost';
                 iconClass = 'fas fa-file-alt';
                 contentHTML = `你追蹤的作者<span class="notification-subject">${subject.name}</span>發表了新文章，快去看看吧！`;
+                break;
+            case 'like':
+                notificationDiv.dataset.type = 'newPost';
+                iconClass = 'fas fa-heart';
+                if (likeCount == 1) {
+                    contentHTML = `<span class="notification-subject">${subject.name}</span>喜歡你的文章！`;
+                } else {
+                    contentHTML = `<span class="notification-subject">${subject.name}</span>和其他${likeCount - 1}人都喜歡你的文章！`;
+                }
                 break;
         }
 

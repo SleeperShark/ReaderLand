@@ -258,7 +258,7 @@ async function renderArticle(auth) {
             if (likeDiv.classList.contains('favored')) {
                 // unlike article
                 const result = await unlikeArticleAPI(token, articleId);
-                if (result.data) {
+                if (typeof result.data == 'number') {
                     likeDiv.classList.remove('favored');
                 } else {
                     console.error(result);

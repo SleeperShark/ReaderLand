@@ -95,12 +95,44 @@ const newPostNotification = async (article, io) => {
                 newNotification.subject = { _id: authorId, name };
                 io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
             }
+            console.log('Finish push new post Notification...');
         } catch (error) {
             console.error(`[ERROR] newPostNotification to user ${followee.toString()}`);
             console.error(error);
         }
     }
-    console.log('Finish push new post Notification...');
+};
+
+const likeArticleNotification = async ({ articleId, userId: readerIdObj, likeCount, author: authorIdObj }, io) => {
+    try {
+        //TODO: pull previous like notification on the article
+        const updateObject = { $pull: { notifications: { $and: [{ type: 'like' }, { articleId: ObjectId(articleId) }] } } };
+        await Notification.updateOne({ _id: authorIdObj }, updateObject);
+
+        const likeNotification = { type: 'like', articleId: ObjectId(articleId), createdAt: ISOTimestamp(), likeCount, subject: readerIdObj, isread: false };
+
+        const { unread: unreadCount } = await Notification.findByIdAndUpdate(
+            authorIdObj,
+            { $push: { notifications: likeNotification }, $inc: { unread: 1 } },
+            { new: true, projection: { unread: 1 } }
+        );
+
+        console.log('Finish push like Notification...');
+
+        //TODO: push notification if author online
+        const socketId = io.usersId_socketId[authorIdObj.toString()];
+        if (socketId) {
+            console.log('Push new comment notification to ' + socketId);
+
+            const subject = await User.findById(readerIdObj, { name: 1, _id: 1 });
+            likeNotification.subject = subject;
+
+            io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: likeNotification } }));
+        }
+    } catch (error) {
+        console.error('[ERROR]: likeArticleNotification');
+        console.error(error);
+    }
 };
 
 const commentNotification = async ({ articleId, userId: readerId, commentId }, io) => {
@@ -127,7 +159,6 @@ const commentNotification = async ({ articleId, userId: readerId, commentId }, i
         console.log('Finish pushing comment Notification to Author...');
 
         // TODO: use socket to push new notification
-
         const socketId = io.usersId_socketId[authorId];
         if (socketId) {
             console.log('Push new comment notification to ' + socketId);
@@ -278,4 +309,14 @@ const clearUnread = async (userId, clearnum) => {
     await Notification.findByIdAndUpdate(userId, { $unset: unsetObj, $set: { unread: 0 } });
 };
 
-module.exports = { pushFollowNotification, pullFollowNotification, newPostNotification, commentNotification, replyNotification, getUnreadCount, getNotifications, clearUnread };
+module.exports = {
+    pushFollowNotification,
+    pullFollowNotification,
+    newPostNotification,
+    likeArticleNotification,
+    commentNotification,
+    replyNotification,
+    getUnreadCount,
+    getNotifications,
+    clearUnread,
+};

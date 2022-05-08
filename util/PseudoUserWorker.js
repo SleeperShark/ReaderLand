@@ -120,6 +120,24 @@ async function authorReply(articles, userId, userEmail, others) {
     console.log('Event: author reply...');
 }
 
+async function likeArticle(userArticles, others) {
+    console.log('Ready to like one article...');
+    //TODO: find a random article
+    const article = userArticles[Math.floor(Math.random() * userArticles.length)];
+
+    //TODO: choose random reader
+    const reader = others[Math.floor(Math.random() * others.length)];
+    const readerToken = await getToken(reader.email);
+
+    await axios({
+        method: 'POST',
+        url: `${API_URL}/articles/${article._id.toString()}/like`,
+        headers: { Authorization: `Bearer ${readerToken}` },
+    });
+
+    console.log('Event: reader like article...');
+}
+
 async function postGenerator(articles, authorsInfo) {
     const { title, category, context, preview, head, author } = articles[Math.floor(Math.random() * articles.length)];
 
@@ -179,7 +197,7 @@ async function run() {
         articleMaterial = processArticles(articleMaterial, authors);
 
         console.log('Preparation complete, ready to generate action...');
-        switch (Math.floor(Math.random() * 4)) {
+        switch (Math.floor(Math.random() * 5)) {
             case 0:
                 await getFollowed(userId, others);
                 break;
@@ -191,6 +209,9 @@ async function run() {
                 break;
             case 3:
                 await authorReply(othersArticles, userId, userEmail, others);
+                break;
+            case 4:
+                await likeArticle(userArticles, others);
                 break;
         }
 

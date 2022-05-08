@@ -8,16 +8,15 @@ main {
 }
 
 #articles {
-    width: 60vw;
+    width: 50vw;
     padding-bottom: 25px;
 
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
 
 .article {
-    width: 90%;
+    width: 100%;
     margin-top: 15px;
     background-color: rgb(41, 40, 40);
     border-radius: 10px;
@@ -190,11 +189,13 @@ main {
     /* color: red; */
 }
 
+/* Subscribe List */
+
 #subscribe-list {
     /* border: 1px white solid; */
     position: fixed;
     top: 100px;
-    left: 15px;
+    left: 3vw;
     color: white;
     background-color: rgb(41, 40, 40);
     border-radius: 5px;
@@ -254,3 +255,5 @@ i.fa-comment-dots.favored {
 .hide {
     display: none;
 }
+
+/* Hot Articles */

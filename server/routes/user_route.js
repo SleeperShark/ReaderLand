@@ -15,6 +15,7 @@ const {
     updateUserProfile,
     getAuthorProfile,
     getUploadAvatarUrl,
+    validateEmil,
 } = require('../controllers/user_controller');
 
 const { USER_ROLE, authentication } = require('../models/user_model');
@@ -22,6 +23,7 @@ const { USER_ROLE, authentication } = require('../models/user_model');
 router.route('/user/info').get(authentication(USER_ROLE.ALL), wrapAsync(getUserInfo));
 
 router.route('/user/signup').post(wrapAsync(signUp));
+router.route('/user/validateEmil').get(wrapAsync(validateEmil));
 router.route('/user/signin').post(wrapAsync(signIn));
 
 router.route('/user/uploadAvatarURL').get(authentication(USER_ROLE.ALL), wrapAsync(getUploadAvatarUrl));

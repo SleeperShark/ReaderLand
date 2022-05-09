@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { promisify } = require('util'); // util from native nodejs library
 const crypto = require('crypto');
-const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, RATE_LIMIT_TIME, RATE_LIMIT_TTL } = process.env;
+const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, RATE_LIMIT_TIME, RATE_LIMIT_TTL, MAILER_USER, MAILER_PASS } = process.env;
 const randomBytes = promisify(crypto.randomBytes);
 const Cache = require(`${__dirname}/cache`);
 
@@ -102,7 +102,7 @@ const rateLimiter = async (req, res, next) => {
             await Cache.expire(ip, RATE_LIMIT_TTL);
         }
 
-        if (request > 100) {
+        if (request > RATE_LIMIT_TIME) {
             console.warn(`[Warning] Rate Limit Block for ${ip}`);
             return res.status(429).json({ error: 'Too much request.' });
         }
@@ -116,10 +116,35 @@ const rateLimiter = async (req, res, next) => {
     }
 };
 
+//TODO: Node mailer Transporter
+const mailer = require('nodemailer').createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+        user: MAILER_USER,
+        pass: MAILER_PASS,
+    },
+    tls: { rejectUnauthorized: false },
+});
+
+const senddingMail = async (mailOption) => {
+    try {
+        console.log('Sending Email for Validation...');
+        await mailer.sendMail({ ...mailOption, from: MAILER_USER });
+        return { data: 'Success' };
+    } catch (error) {
+        console.error('[ERROR] nodemailer failed to send mail...');
+        console.error(error);
+        return { error: 'Sending failed' };
+    }
+};
+
 module.exports = {
     wrapAsync,
     timeDecayer,
     generateUploadURL,
     articleWeightCounter,
     rateLimiter,
+    senddingMail,
 };

@@ -1,7 +1,7 @@
 require('dotenv').config();
 const validator = require('validator');
 const User = require('../models/user_model');
-const { generateUploadURL } = require('../../util/util');
+const { generateUploadURL, senddingMail, HOST_URL } = require(`${__dirname}/../../util/util`);
 const Notification = require('../models/notification_model');
 
 const getUserInfo = async (req, res) => {
@@ -27,16 +27,31 @@ const signUp = async (req, res) => {
 
     name = validator.escape(name);
 
-    const result = await User.signUp(name, email, password);
-    if (result.error) {
-        res.status(403).json({ error: result.error.message });
+    const { error, data: user } = await User.signUp(name, email, password);
+    if (error) {
+        res.status(403).json({ error });
         return;
     }
 
-    const user = result.user;
     if (!user) {
         res.status(500).json({ error: 'Database Query Error' });
         return;
+    }
+
+    const mailHTML = `
+<a href="${HOST_URL}/api/user/validateEmil" target="_blank">點擊連結驗證信箱</a>
+    `;
+    //TODO: sending Validation email
+    const { error: mailingError } = await senddingMail({
+        to: email,
+        subject: 'Test signup mailing',
+        text: 'ReaderLand: 驗證信箱',
+        html: mailHTML,
+        tls: { rejectUnauthorized: false },
+    });
+
+    if (mailingError) {
+        console.log('Error in sending email');
     }
 
     res.status(200).json({
@@ -51,6 +66,10 @@ const signUp = async (req, res) => {
             },
         },
     });
+};
+
+const validateEmil = async (req, res) => {
+    res.status(200).send('<h1>Test Email Redirect</h1>');
 };
 
 const nativeSignIn = async (email, password) => {
@@ -303,6 +322,7 @@ module.exports = {
     getAuthorProfile,
     updateUserProfile,
     signUp,
+    validateEmil,
     signIn,
     follow,
     unfollow,

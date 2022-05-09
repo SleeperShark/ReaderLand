@@ -104,10 +104,11 @@ const signUp = async (name, email, password) => {
         console.log(`A new user ${name} has registered!`);
         const { user } = await nativeSignIn(email, password);
 
-        return { user };
+        return { data: user };
     } catch (error) {
+        console.error('[ERROR] user_model: signUp');
         console.error(error);
-        return { error };
+        return { error: 'Server Error' };
     }
 };
 

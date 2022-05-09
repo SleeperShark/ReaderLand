@@ -170,8 +170,8 @@ async function run() {
         });
 
         console.log('Collecting User Info...');
-        const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
-            { $match: { name: '陶曉嫚' } },
+        const [{ _id: userId, email: userEmail }] = await User.aggregate([
+            { $match: { name: '魚骨書籤' } },
             {
                 $lookup: {
                     from: 'User',

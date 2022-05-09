@@ -72,4 +72,4 @@ async function generateHotArticles() {
     }
 }
 
-generateHotArticles();
+module.exports = { generateHotArticles };

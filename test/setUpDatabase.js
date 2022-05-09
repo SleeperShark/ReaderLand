@@ -3,6 +3,7 @@ const { generateNewsFeed } = require(`${__dirname}/../server/models/article_mode
 const Cache = require(`${__dirname}/../util/cache`);
 const fs = require('fs');
 const bcrypt = require('bcrypt');
+const { generateHotArticles } = require(`${__dirname}/../util/hotArticleGenerator`);
 
 const categories = [
     '政治與評論',
@@ -316,8 +317,16 @@ async function generateCacheNewsFeed() {
 }
 
 async function initDatabase() {
-    console.log(new Date().toISOString());
+    //TODO: wait for connection
     console.log('Reset Database...');
+    console.log('Waint for connection...');
+    await new Promise((r) => {
+        setTimeout(() => {
+            r();
+        }, 1000);
+    });
+
+    console.log(new Date().toISOString());
     try {
         await User.deleteMany();
         await Article.deleteMany();
@@ -343,6 +352,9 @@ async function initDatabase() {
 
         console.log('Generate Newsfeed in Cache...');
         await generateCacheNewsFeed();
+
+        console.log('generate hot article in cache...');
+        await generateHotArticles();
 
         console.log('Finish Inserting Database...');
     } catch (error) {

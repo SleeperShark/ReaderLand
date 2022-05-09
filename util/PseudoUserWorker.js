@@ -171,7 +171,7 @@ async function run() {
 
         console.log('Collecting User Info...');
         const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
-            { $match: { name: '魚骨書籤' } },
+            { $match: { name: '陶曉嫚' } },
             {
                 $lookup: {
                     from: 'User',
@@ -197,27 +197,24 @@ async function run() {
         articleMaterial = processArticles(articleMaterial, authors);
 
         console.log('Preparation complete, ready to generate action...');
-        switch (Math.floor(Math.random() * 5)) {
+        switch (Math.floor(Math.random() * 4)) {
             case 0:
                 await getFollowed(userId, others);
                 break;
             case 1:
-                await followersNewPost(userId, articleMaterial, authors);
-                break;
-            case 2:
                 await readerComment(userArticles, others);
                 break;
-            case 3:
+            case 2:
                 await authorReply(othersArticles, userId, userEmail, others);
                 break;
-            case 4:
+            case 3:
                 await likeArticle(userArticles, others);
                 break;
         }
 
         console.log('Ready to create new Post...');
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
             await postGenerator(articleMaterial, authors);
         }
 

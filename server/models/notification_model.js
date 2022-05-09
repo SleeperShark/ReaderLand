@@ -272,6 +272,8 @@ const getNotifications = async (userId, offset) => {
             return prev;
         }, {});
 
+        notifications = JSON.parse(JSON.stringify(notifications));
+
         notifications.forEach((elem) => {
             elem.subject = subject_info[elem.subject.toString()];
         });

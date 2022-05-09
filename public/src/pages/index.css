@@ -257,3 +257,54 @@ i.fa-comment-dots.favored {
 }
 
 /* Hot Articles */
+#hot-articles {
+    position: fixed;
+    top: 100px;
+    right: 3vw;
+    color: white;
+    /* background-color: rgb(97, 99, 100); */
+    width: 18vw;
+}
+
+#hot-article-header {
+    font-size: 2rem;
+    letter-spacing: 8px;
+    font-weight: bolder;
+    margin-bottom: 10px;
+}
+
+#hot-article-header i {
+    font-size: 2.3rem;
+    color: red;
+}
+
+.hot-article {
+    display: flex;
+    margin-bottom: 22px;
+    cursor: pointer;
+}
+
+.hot-article:hover {
+    transform: scale(1.05);
+}
+
+.hot-index-container {
+    font-size: 2rem;
+    font-weight: bolder;
+    padding-left: 5px;
+    padding-right: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.hot-article-title {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    font-weight: bolder;
+}
+
+.hot-article-footer {
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.7);
+}

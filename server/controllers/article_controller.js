@@ -225,4 +225,34 @@ const readArticle = async (req, res) => {
     res.status(200).json({ data: readCount });
 };
 
-module.exports = { createArticle, getArticle, getNewsFeed, likeArticle, unlikeArticle, getCategories, getLatestArticles, commentArticle, replyComment, readArticle };
+const getHotArticles = async (req, res) => {
+    if (!Cache.ready) {
+        console.error('[ERROR] Cache failed, reject getHotArticles request...');
+        res.status(500).json({ error: 'Server Error' });
+        return;
+    }
+
+    try {
+        let hotArticles = await Cache.lrange('hot_articles', 0, -1);
+        hotArticles = hotArticles.map((elem) => JSON.parse(elem));
+        res.status(200).json({ data: hotArticles });
+    } catch (error) {
+        console.error('[ERROR] article_controler: getHotArticles');
+        console.error(error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+};
+
+module.exports = {
+    createArticle,
+    getArticle,
+    getNewsFeed,
+    likeArticle,
+    unlikeArticle,
+    getCategories,
+    getLatestArticles,
+    commentArticle,
+    replyComment,
+    readArticle,
+    getHotArticles,
+};

@@ -337,6 +337,10 @@ footer {
     grid-template-columns: 4fr 1fr;
 }
 
+.reply-name {
+    text-align: center;
+}
+
 .reply-bubble {
     width: 350px;
     margin-left: 20px;

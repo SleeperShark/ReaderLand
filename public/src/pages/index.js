@@ -228,7 +228,10 @@ async function renderArticles(auth) {
 function appendCategories(subscription) {
     const conatiner = document.getElementById('category-container');
 
-    Object.keys(subscription).forEach((category) => {
+    const category = Object.keys(subscription);
+    category.sort((a, b) => subscription[b] - subscription[a]);
+
+    category.forEach((category) => {
         const subscribeCategory = document.createElement('div');
         subscribeCategory.classList.add('subscribe-category');
         subscribeCategory.innerHTML = `
@@ -244,11 +247,13 @@ async function renderCategories(auth) {
     if (auth) {
         document.getElementById('subscribe-header').innerText = '#訂閱主題';
 
-        const result = await getUserSubscription(token);
-        if (result.data) {
-            appendCategories(result.data);
+        const { data: categories, error, status } = await getUserSubscription(token);
+        if (categories) {
+            console.log(categories);
+            appendCategories(categories);
         } else {
-            console.log(result);
+            console.error(status);
+            console.error(error);
             alert('系統異常: getUserSubscription');
         }
     } else {

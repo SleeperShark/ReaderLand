@@ -214,7 +214,7 @@ async function run() {
 
         console.log('Ready to create new Post...');
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 2; i++) {
             await postGenerator(articleMaterial, authors);
         }
 

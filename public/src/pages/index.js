@@ -268,11 +268,32 @@ async function renderCategories(auth) {
     }
 }
 
+async function renderHotArticles() {
+    const { data: hotArticles, error, status } = await getHotArticlesAPI();
+
+    if (error) {
+        console.error(status);
+        console.error(error);
+    }
+
+    document.querySelectorAll('.hot-article').forEach((articleDiv, idx) => {
+        const { title, _id, author, createdAt } = hotArticles[idx];
+        articleDiv.querySelector('.hot-article-title').innerText = title;
+        articleDiv.querySelector('.hot-article-author').innerText = author.name;
+        articleDiv.querySelector('.hot-article-date').innerText = timeTransformer(createdAt);
+
+        articleDiv.addEventListener('click', () => {
+            window.open(`/article.html?id=${_id}`, '_blank');
+        });
+    });
+}
+
 async function init() {
     auth = await authenticate();
     await renderHeader(auth);
     await renderCategories(auth);
     await renderArticles(auth);
+    await renderHotArticles();
 }
 
 init();

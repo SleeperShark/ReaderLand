@@ -238,6 +238,10 @@ const getUnreadNotificationCountAPI = (userToken) => {
     });
 };
 
+const getHotArticlesAPI = () => {
+    return fetchHandler('/api/articles/hot');
+};
+
 const getNotificationsAPI = (userToken, offset) => {
     return fetchHandler(`/api/notifications/${offset}`, {
         method: 'GET',

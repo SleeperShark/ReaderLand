@@ -327,6 +327,7 @@ async function initDatabase() {
     });
 
     console.log(new Date().toISOString());
+
     try {
         await User.deleteMany();
         await Article.deleteMany();

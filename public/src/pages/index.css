@@ -278,7 +278,12 @@ i.fa-comment-dots.favored {
     color: red;
 }
 
+#hot-articles-container {
+    width: 100%;
+}
+
 .hot-article {
+    width: 100%;
     display: flex;
     margin-bottom: 22px;
     cursor: pointer;
@@ -304,6 +309,7 @@ i.fa-comment-dots.favored {
 }
 
 .hot-article-footer {
+    width: 15vw;
     display: flex;
     justify-content: space-between;
     color: rgba(255, 255, 255, 0.7);

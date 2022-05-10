@@ -61,6 +61,7 @@ function renderFavorite(favoriteArticles) {
     favoriteArticles.reverse();
     favoriteArticles.forEach((article) => {
         const { articleId, title, author, readCount, likeCount, commentCount, articleCreatedAt } = article;
+        console.log(author);
         const articleDiv = document.createElement('div');
 
         const categoryHTML = article.category.reduce((accu, category) => (accu += `<div class="category">${category}</div>`), '');
@@ -78,9 +79,9 @@ function renderFavorite(favoriteArticles) {
 
             <div class="article-footer">
                 <div class="left">
-                    <img src="${author.picture}" alt="" />
+                    <img class='favorite-artilce-author' src="${author.picture}" alt="" />
                     <div class="name-date">
-                        <a href="#" class="author-name">${author.name}</a>
+                        <a href="/author.html?id=${author._id}" class="author-name">${author.name}</a>
                         <div class="post-date">${timeTransformer(articleCreatedAt)}</div>
                     </div>
                 </div>
@@ -101,21 +102,25 @@ function renderFavorite(favoriteArticles) {
             </div>
         </div>`;
         favoritePage.appendChild(articleDiv);
-    });
 
-    // unfavortie enevt
-    document.querySelectorAll('.favorite-article > .fa-bookmark').forEach((btn) => {
-        btn.addEventListener('click', async (e) => {
-            const { error, data, status } = await unFavoriteArticleAPI(token, btn.dataset.id);
+        // Redirect to author.html when click author avatar
+        articleDiv.querySelector('.favorite-artilce-author').addEventListener('click', (e) => {
+            window.location.href = `/author.html?id=${author._id}`;
+        });
+
+        //TODO: unfavortie enevt
+        articleDiv.querySelector('i.fa-bookmark').addEventListener('click', async (e) => {
+            const articleId = e.target.dataset.id;
+            const { error, data, status } = await unFavoriteArticleAPI(token, articleId);
             if (error) {
                 console.error(status);
                 console.error(error);
-                alert('系統異常: unFavoriteArticleAPI');
+                alert('移除珍藏失敗，請稍後再試｡ﾟヽ(ﾟ´Д`)ﾉﾟ｡');
                 return;
             }
 
             alert('成功移除珍藏');
-            btn.parentElement.remove();
+            e.target.parentElement.remove();
         });
     });
 }
@@ -366,7 +371,6 @@ async function init() {
     renderProfile({ picture: profile.picture, name: profile.name, bio: profile.bio });
 
     renderPublishedArticles(profile.publishedArticles);
-    console.log(profile);
 
     if (error) {
         console.error(status);

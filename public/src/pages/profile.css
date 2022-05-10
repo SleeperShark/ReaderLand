@@ -126,10 +126,11 @@ main {
     display: flex;
 }
 
-.article-footer > .left > img {
+.favorite-artilce-author {
     width: 4rem;
     height: 4rem;
     border-radius: 50%;
+    cursor: pointer;
 }
 
 .article-footer > .left > .name-date {

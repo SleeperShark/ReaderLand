@@ -38,21 +38,25 @@ const signUp = async (req, res) => {
         return;
     }
 
-    const mailHTML = `
-<a href="${HOST_URL}/api/user/validateEmil" target="_blank">點擊連結驗證信箱</a>
-    `;
-    //TODO: sending Validation email
-    const { error: mailingError } = await senddingMail({
-        to: email,
-        subject: 'Test signup mailing',
-        text: 'ReaderLand: 驗證信箱',
-        html: mailHTML,
-        tls: { rejectUnauthorized: false },
-    });
+    //TODO: Sending Validation mail
+    //     const mailHTML = `
+    // <a href="${HOST_URL}/api/user/validateEmil" target="_blank">點擊連結驗證信箱</a>
+    //     `;
+    //     //TODO: sending Validation email
+    //     const { error: mailingError } = await senddingMail({
+    //         to: email,
+    //         subject: 'Test signup mailing',
+    //         text: 'ReaderLand: 驗證信箱',
+    //         html: mailHTML,
+    //         tls: { rejectUnauthorized: false },
+    //     });
 
-    if (mailingError) {
-        console.log('Error in sending email');
-    }
+    //     if (mailingError) {
+    //         console.log('Error in sending email');
+    //     }
+
+    //TODO: init Notification document
+    Notification.initUserNotification(user._id);
 
     res.status(200).json({
         data: {

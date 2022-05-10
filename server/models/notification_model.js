@@ -4,6 +4,17 @@ function ISOTimestamp() {
     return new Date().toISOString();
 }
 
+const initUserNotification = async (userIdObj) => {
+    try {
+        await Notification.create({ notifications: [], unread: 0, _id: userIdObj });
+        console.log("Init new user's notification document...");
+    } catch (error) {
+        console.error('[ERROR]: initUserNotification in notification_model.js');
+        console.error(error);
+    }
+    return;
+};
+
 const pushFollowNotification = async (followeeId, followerId, io) => {
     try {
         const newNotification = { type: 'follow', subject: ObjectId(followeeId), createdAt: ISOTimestamp(), isread: false };
@@ -312,6 +323,7 @@ const clearUnread = async (userId, clearnum) => {
 };
 
 module.exports = {
+    initUserNotification,
     pushFollowNotification,
     pullFollowNotification,
     newPostNotification,

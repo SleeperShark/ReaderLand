@@ -341,7 +341,7 @@ const updateUserProfile = async (userId, updateInfo) => {
             { $set: updateInfo },
             {
                 projection: {
-                    _id: 0,
+                    _id: 1,
                     name: 1,
                     email: 1,
                     picture: 1,
@@ -364,6 +364,7 @@ const updateUserProfile = async (userId, updateInfo) => {
                         name: user.name,
                         email: user.email,
                         picture: user.picture,
+                        userId: user._id.toString(),
                     },
                     TOKEN_SECRET
                 );

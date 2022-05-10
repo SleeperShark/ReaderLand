@@ -21,9 +21,6 @@ async function renderDrafts() {
         const draftDiv = document.createElement('div');
         draftDiv.classList.add('draft');
 
-        console.log(createdAt);
-        console.log(lastUpdatedAt);
-
         draftDiv.innerHTML = `
 <i class="fas fa-edit draft-edit"></i>
 <i class="fas fa-trash-alt draft-discard"></i>
@@ -61,7 +58,7 @@ function renderFavorite(favoriteArticles) {
     favoriteArticles.reverse();
     favoriteArticles.forEach((article) => {
         const { articleId, title, author, readCount, likeCount, commentCount, articleCreatedAt } = article;
-        console.log(author);
+
         const articleDiv = document.createElement('div');
 
         const categoryHTML = article.category.reduce((accu, category) => (accu += `<div class="category">${category}</div>`), '');
@@ -197,17 +194,35 @@ async function renderSubscribe(subscribe) {
             targetCategory.classList.add('subscribe');
             targetCategory.remove();
             categoryContainer.insertBefore(targetCategory, categoryContainer.querySelector('.category-divider'));
+
+            const weightInput = targetCategory.querySelector('.category-weight');
+            weightInput.innerText = 1;
+            weightInput.value = 1;
         });
     });
 
-    //TODO: unsubscribe category if weight is 0
     document.querySelectorAll('.category-weight').forEach((weightInput) => {
         weightInput.addEventListener('blur', () => {
+            // if value out of range -> alert and set back to 1
+            if (weightInput.value > 10 || weightInput.value < 0) {
+                alert('主題權重只能是 0-10 之間的整數歐!先幫你重設為1 😎');
+                weightInput.value = 1;
+                weightInput.innerText = 1;
+                return;
+            }
+            //TODO: unsubscribe category if weight is 0
             if (weightInput.value == 0) {
                 const targetCategory = weightInput.parentElement;
                 targetCategory.classList.remove('subscribe');
                 targetCategory.remove();
                 categoryContainer.insertBefore(targetCategory, categoryContainer.querySelector('.category-divider').nextElementSibling);
+                return;
+            }
+        });
+
+        weightInput.addEventListener('keypress', (e) => {
+            if (e.key == 'Enter') {
+                weightInput.blur();
             }
         });
     });
@@ -540,8 +555,6 @@ changeAvatarBtn.addEventListener('click', () => {
 });
 
 fileInput.addEventListener('change', async () => {
-    console.log(token);
-
     if (!fileInput.value) {
         return;
     }

@@ -39,7 +39,6 @@ function appendNotifications(notifications, prepend = false) {
 
     for (let i = notifications.length - 1; i >= 0; i--) {
         const { type, subject, createdAt, articleId, commentId, likeCount } = notifications[i];
-        console.log(notifications[i]);
 
         const notificationDiv = document.createElement('div');
         notificationDiv.classList.add('notification');

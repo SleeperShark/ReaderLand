@@ -171,7 +171,8 @@ async function run() {
 
         console.log('Collecting User Info...');
         const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
-            { $match: { name: '魚骨書籤' } },
+            { $sort: { _id: 1 } },
+            { $limit: 1 },
             {
                 $lookup: {
                     from: 'User',

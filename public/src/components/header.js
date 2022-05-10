@@ -237,18 +237,19 @@ async function renderHeader(auth) {
             } = JSON.parse(msg);
 
             if (unread) {
-                document.title = `(${unread}) ReaderLand`;
-            } else {
-                document.title = `ReaderLand`;
-            }
-
-            if (unread) {
                 notifcationUnreadHint.style.display = 'flex';
-                unread = unread > 99 ? 99 : unread;
-                document.getElementById('unread-count').innerText = unread;
+
+                if (unread > 99) {
+                    document.title = `(${99}+) ReaderLand`;
+                    document.getElementById('unread-count').innerText = 99;
+                } else {
+                    document.getElementById('unread-count').innerText = unread;
+                    document.title = `(${unread}) ReaderLand`;
+                }
             } else {
                 // not unread: hide unread count
                 notifcationUnreadHint.style.display = 'none';
+                document.title = `ReaderLand`;
             }
 
             appendNotifications(notifications);
@@ -260,10 +261,19 @@ async function renderHeader(auth) {
                 update: { prepend, remove },
             } = JSON.parse(msg);
 
-            notifcattionUnreadCount.innerText = unreadCount;
             if (unreadCount) {
                 notifcationUnreadHint.style.display = 'flex';
-                document.title = `(${unreadCount}) ReaderLand`;
+
+                if (unreadCount > 99) {
+                    notifcattionUnreadCount.innerText = 99;
+                    document.title = `(${99}+) ReaderLand`;
+                } else {
+                    notifcattionUnreadCount.innerText = unreadCount;
+                    document.title = `(${unreadCount}) ReaderLand`;
+                }
+            } else {
+                document.title = `ReaderLand`;
+                notifcationUnreadHint.style.display = 'none';
             }
 
             if (remove) {

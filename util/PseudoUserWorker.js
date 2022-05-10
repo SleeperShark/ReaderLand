@@ -170,7 +170,7 @@ async function run() {
         });
 
         console.log('Collecting User Info...');
-        const [{ _id: userId, email: userEmail }] = await User.aggregate([
+        const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
             { $match: { name: '魚骨書籤' } },
             {
                 $lookup: {
@@ -214,7 +214,7 @@ async function run() {
 
         console.log('Ready to create new Post...');
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 2; i++) {
             await postGenerator(articleMaterial, authors);
         }
 

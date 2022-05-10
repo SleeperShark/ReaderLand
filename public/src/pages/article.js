@@ -357,6 +357,7 @@ async function init() {
 
     const likeCountSpan = document.querySelector('i#like-icon .count');
     const readCountSpan = document.querySelector('i#read-icon .count');
+    const commentCountSpan = document.querySelector('i#comment-icon .count');
     //TODO: establish socket event for updating author feedback
     if (auth) {
         socket.emit('article-register', JSON.stringify({ articleId }));
@@ -372,6 +373,9 @@ async function init() {
         socket.on('update-comment', (msg) => {
             const articleObj = JSON.parse(msg);
             renderCommentBoard(articleObj);
+            console.log(articleObj);
+            console.log(commentCountSpan.innerText);
+            commentCountSpan.innerText = articleObj.comments.length;
 
             if (articleObj.commentEvent) {
                 console.log('comment Event');

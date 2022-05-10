@@ -183,7 +183,7 @@ header {
     left: -210px;
     top: 55px;
     width: 245px;
-    height: 400px;
+    max-height: 400px;
     background-color: rgb(75, 74, 74);
     border: 2px solid rgba(182, 182, 182, 0.83);
     border-radius: 5px;
@@ -195,6 +195,32 @@ header {
 
 #notification-container.hide {
     display: none;
+}
+
+#notification-empty {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 15px;
+    padding-bottom: 20px;
+}
+
+#notification-empty.hide {
+    display: none;
+}
+
+#notification-empty > img {
+    width: 150px;
+    align-self: center;
+    opacity: 0.6;
+}
+
+#notification-empty > div {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: normal;
+    margin-top: 10px;
 }
 
 #notification-container > .divider {
@@ -252,6 +278,10 @@ header {
     margin-left: 8px;
     padding: 8px;
     border-radius: 10%;
+}
+
+#notification-load.hide {
+    display: none;
 }
 
 #notification-load:hover {

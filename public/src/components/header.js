@@ -143,6 +143,10 @@ async function renderHeader(auth) {
     </div>
 
     <div id="notification-container" class="hide">
+        <div id="notification-empty">
+            <img src="https://reader-land.s3.ap-northeast-1.amazonaws.com/icon/emptyNotification.png"/>
+            <div>~目前沒有通知歐~</div>
+        </div>
         <div id="notification-load">載入更多</div>
     </div>
 </i>
@@ -251,7 +255,15 @@ async function renderHeader(auth) {
                 document.title = `ReaderLand`;
             }
 
-            appendNotifications(notifications);
+            if (notifications.length == length) {
+                document.getElementById('notification-load').classList.add('hide');
+            }
+            // empty notification
+            if (!length) {
+            } else {
+                document.getElementById('notification-empty').classList.add('hide');
+                appendNotifications(notifications);
+            }
         });
 
         socket.on('update-notification', (msg) => {

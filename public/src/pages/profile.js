@@ -554,10 +554,23 @@ changeAvatarBtn.addEventListener('click', () => {
     fileInput.click();
 });
 
+//TODO: upload avatar
+let uploading = false;
 fileInput.addEventListener('change', async () => {
     if (!fileInput.value) {
         return;
     }
+
+    if (uploading) {
+        alert('照片上傳中，請稍後...');
+        return;
+    }
+
+    uploading = true;
+    // Show upload hint
+    const uploadHint = document.getElementById('upload-avatar-hint');
+    uploadHint.innerText = '上傳中...';
+    uploadHint.style.display = 'inline-block';
 
     var {
         data: { uploadURL, avatarName, avatarURL },
@@ -594,8 +607,15 @@ fileInput.addEventListener('change', async () => {
         return;
     }
 
+    uploadHint.innerText = '上傳成功';
+    setTimeout(() => {
+        uploadHint.style.display = 'none';
+    }, 800);
+
     //TODO: replace with new avatar, reset token and header profile image
     document.getElementById('profile-avatar').src = user.picture;
     window.localStorage.setItem('ReaderLandToken', user.accessToken);
     document.getElementById('avatar').src = user.picture;
+
+    uploading = false;
 });

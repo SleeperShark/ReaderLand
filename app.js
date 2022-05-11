@@ -18,7 +18,7 @@ app.set('json spaces', 2);
 app.use(express.static('public'));
 
 // Rate Limiter
-app.use(require(`${__dirname}/util/util`).rateLimiter);
+// app.use(require(`${__dirname}/util/util`).rateLimiter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -204,6 +204,7 @@ header {
     justify-content: center;
     padding-top: 15px;
     padding-bottom: 20px;
+    opacity: 0.8;
 }
 
 #notification-empty.hide {

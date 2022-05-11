@@ -272,6 +272,9 @@ async function renderHeader(auth) {
                 update: { prepend, remove },
             } = JSON.parse(msg);
 
+            // Remove Empty Notification div
+            document.getElementById('notification-empty').classList.add('hide');
+
             if (unreadCount) {
                 notifcationUnreadHint.style.display = 'flex';
 

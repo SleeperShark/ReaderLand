@@ -160,7 +160,7 @@ async function renderHeader(auth) {
         </a>
         <div class="divider"></div>
         <div class='action' id="action-signout">
-            <span>Sign Out</span>
+            <span>登出</span>
         </div>
     </div>
 

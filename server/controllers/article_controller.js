@@ -57,9 +57,8 @@ const getArticle = async (req, res) => {
 const getNewsFeed = async (req, res) => {
     try {
         const { userId } = req.user;
-        const { lastArticleId } = req.query;
 
-        const { data, error, status } = await Article.getNewsFeed(userId, lastArticleId);
+        const { data, error, status } = await Article.getNewsFeed(userId);
         if (error) {
             res.status(status).json({ error });
         }
@@ -127,7 +126,7 @@ const getCategories = async (req, res) => {
 };
 
 const getLatestArticles = async (req, res) => {
-    const accessToken = req.get('Authorization');
+    const { userId } = req.user;
     const result = await Article.getLatestArticles(accessToken);
 
     if (result.error) {

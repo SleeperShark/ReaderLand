@@ -207,18 +207,23 @@ function changeFollowerState({ authorId, remove, add }) {
 async function renderArticles(auth) {
     if (auth) {
         // TODO: Get customized newsfeed
-        const result = await getNewsfeedAPI(token);
+        const { data, error } = await getNewsfeedAPI(token);
 
-        if (result.data) {
-            result.data.forEach((article) => {
+        if (data) {
+            data.userFeeds.forEach((article) => {
                 appendArticle(article, auth);
             });
+
+            if (data.EndOfFeed) {
+                alert('動態牆到底');
+                return data.EndOfFeed;
+            }
         }
     } else {
         //TODO: Get latest article
-        const result = await getLatestArticles();
-        if (result.data) {
-            result.data.forEach((article) => {
+        const { data, error } = await getLatestArticles();
+        if (data) {
+            data.forEach((article) => {
                 appendArticle(article);
             });
         }
@@ -312,7 +317,9 @@ $(window).scroll(async function () {
         }
 
         loading = true;
-        await renderArticles(auth);
-        loading = false;
+        const endOfFeed = await renderArticles(auth);
+        if (!endOfFeed) {
+            loading = false;
+        }
     }
 });

@@ -286,61 +286,6 @@ const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }) =>
     // fs.writeFileSync('weightRecord.json', JSON.stringify(weightRecord));
 };
 
-// TODO: process articles (image url, favorited, liked, commentd)
-async function processArticles(articles, userId) {
-    let favorites;
-    let uidString;
-    let followers;
-
-    if (userId) {
-        uidString = userId.toString();
-        // Get favorited articles list
-        let result = await User.findById(userId, { _id: 0, favorite: { articleId: 1 }, follower: 1 });
-        favorites = result.favorite.map((elem) => elem.articleId.toString());
-        followers = result.follower.map((elem) => elem.toString());
-    }
-
-    articles.forEach((article) => {
-        // image url
-        article.author.picture = `${IMAGE_URL}/avatar/${article.author.picture}`;
-
-        if (userId) {
-            // liked
-            for (let likeUser of article.likes) {
-                if (likeUser.toString() == uidString) {
-                    article.liked = true;
-                    break;
-                }
-            }
-
-            // commented
-            for (let comment of article.comments) {
-                if (comment.reader.toString() == uidString) {
-                    article.commented = true;
-                    break;
-                }
-            }
-
-            //favorited
-            if (favorites.includes(article._id.toString())) {
-                article.favorited = true;
-            }
-
-            //followed
-            if (followers.includes(article.author._id.toString())) {
-                article.author.followed = true;
-            }
-            // console.log(article);
-        }
-
-        article.likeCount = article.likes.length;
-        delete article.likes;
-
-        article.commentCount = article.comments.length;
-        delete article.comments;
-    });
-}
-
 const getFeedsFormId = async (idArr, userId) => {
     idArr = idArr.map((elem) => ObjectId(elem));
     let feedArticles = await Article.aggregate([
@@ -423,7 +368,7 @@ const getNewsFeed = async (userId) => {
     try {
         //TODO: check preference exist
         const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
-        if (!preference.subscribe && !preference.subscribe) {
+        if (!preference.follower.length && preference.subscribe) {
             return { data: 'No preference' };
         }
 
@@ -471,35 +416,7 @@ const getNewsFeed = async (userId) => {
 
 const getLatestArticles = async (token) => {
     try {
-        let articles = await Article.aggregate([
-            { $sort: { _id: -1 } },
-            { $limit: 100 },
-            {
-                $lookup: {
-                    from: 'User',
-                    localField: 'author',
-                    foreignField: '_id',
-                    pipeline: [{ $project: { _id: 1, name: 1, picture: 1 } }],
-                    as: 'author',
-                },
-            },
-            {
-                $project: {
-                    _id: 1,
-                    title: 1,
-                    author: { $arrayElemAt: ['$author', 0] },
-                    preview: 1,
-                    createdAt: 1,
-                    readCount: 1,
-                    likes: 1,
-                    comments: 1,
-                    category: 1,
-                },
-            },
-        ]);
-
         // * organize article data
-        await processArticles(articles);
 
         return { latestArticles: articles };
     } catch (error) {

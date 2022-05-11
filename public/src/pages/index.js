@@ -124,7 +124,7 @@ function appendArticle(article, auth) {
 </div>
     `;
 
-    document.getElementById('articles').appendChild(articleElem);
+    document.getElementById('articles-display').appendChild(articleElem);
 
     // TODO: add event listener to author name and avatar to redirect to auhtor page
     articleElem.querySelector('.details .author').addEventListener('click', redirectToAuthorPage);
@@ -254,7 +254,6 @@ async function renderCategories(auth) {
 
         const { data: categories, error, status } = await getUserSubscription(token);
         if (categories) {
-            console.log(categories);
             appendCategories(categories);
         } else {
             console.error(status);
@@ -302,6 +301,12 @@ async function init() {
     auth = await authenticate();
     await renderHeader(auth);
     await renderCategories(auth);
+
+    if (!auth) {
+        document.getElementById('newsfeed-switch').remove();
+        document.getElementById('lastest-switch').classList.add('selected');
+    }
+
     await renderArticles(auth);
     await renderHotArticles();
 }
@@ -322,4 +327,17 @@ $(window).scroll(async function () {
             loading = false;
         }
     }
+});
+
+//TODO: switch event listener
+
+const switches = document.querySelectorAll('.switch');
+switches.forEach((switchBtn) => {
+    switchBtn.addEventListener('click', () => {
+        switches.forEach((elem) => {
+            elem.classList.remove('selected');
+        });
+
+        switchBtn.classList.add('selected');
+    });
 });

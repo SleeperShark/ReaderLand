@@ -7,10 +7,62 @@ main {
     justify-content: center;
 }
 
-#articles {
+#switch-container {
+    position: fixed;
+    width: 50vw;
+    color: white;
+    background-color: black;
+    display: flex;
+    font-size: 1.2rem;
+    border-bottom: 2px solid white;
+    outline: 20px black solid;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    z-index: 99;
+}
+
+.switch {
+    padding: 5px 8px;
+    text-align: center;
+    margin-right: 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.switch .fa-redo-alt {
+    font-size: 1rem;
+    margin-left: 3px;
+    display: none;
+}
+
+.switch .fa-redo-alt:hover {
+    transform: scale(1.05);
+}
+
+.switch .fa-redo-alt:active {
+    transform: scale(0.95);
+}
+
+.switch:hover {
+    background-color: rgb(36, 105, 216);
+}
+
+.switch.selected {
+    background-color: rgb(36, 105, 216);
+    font-weight: bolder;
+    opacity: 1;
+}
+
+.switch.selected > .fa-redo-alt {
+    display: inline-block;
+}
+
+#articles-display {
     width: 50vw;
     padding-bottom: 25px;
-
+    padding-top: 50px;
     display: flex;
     flex-direction: column;
 }

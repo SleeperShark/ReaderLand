@@ -130,7 +130,7 @@ const getLatestArticles = async (req, res) => {
     if (req.user) {
         userId = req.user.userId;
     }
-    const lastArticleId = res.query?.lastArticleId;
+    const lastArticleId = req.query.lastArticleId;
 
     const { data, error, status } = await Article.getLatestArticles(userId, lastArticleId);
 

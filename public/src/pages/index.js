@@ -362,14 +362,29 @@ $(window).scroll(async function () {
 });
 
 //TODO: switch event listener
-
+const scrollRecord = {};
 const switches = document.querySelectorAll('.switch');
 switches.forEach((switchBtn) => {
-    switchBtn.addEventListener('click', () => {
-        switches.forEach((elem) => {
-            elem.classList.remove('selected');
-        });
-
+    switchBtn.addEventListener('click', async () => {
+        const currSwitch = document.querySelector('.switch.selected');
+        if (currSwitch == switchBtn) {
+            return;
+        }
+        currSwitch.classList.remove('selected');
         switchBtn.classList.add('selected');
+
+        const { type: currType } = currSwitch.dataset;
+        const { type: targetType } = switchBtn.dataset;
+
+        scrollRecord[currType] = window.scrollY;
+
+        document.getElementById(`${currType}-article-container`).classList.add('hide');
+        const targetContainer = document.getElementById(`${targetType}-article-container`);
+
+        if (!targetContainer.children.length) {
+            await renderArticles(auth);
+        }
+        targetContainer.classList.remove('hide');
+        window.scroll({ top: scrollRecord[targetType] || 0 });
     });
 });

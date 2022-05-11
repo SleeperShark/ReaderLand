@@ -231,7 +231,10 @@ async function renderArticles(auth) {
         if (container.lastElementChild) {
             query = `?lastArticleId=${container.lastElementChild.dataset.id}`;
         }
-        const { data, error } = await getLatestArticles(query);
+        const {
+            data: { latest, EndOfFeed },
+            error,
+        } = await getLatestArticles(query);
 
         if (error) {
             alert('載入動態牆失敗，請稍後在試...');
@@ -239,8 +242,8 @@ async function renderArticles(auth) {
             return;
         }
 
-        articles = data;
-        console.log(data);
+        articles = latest;
+        end = EndOfFeed;
     }
 
     for (let article of articles) {

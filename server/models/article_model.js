@@ -463,8 +463,6 @@ const getLatestArticles = async (userId, lastArticleId) => {
 
         let articlesIdArr = await Article.aggregate(aggregateArr);
 
-        console.log(articlesIdArr);
-
         articlesIdArr = articlesIdArr.map((elem) => elem._id);
 
         let latest = await getFeedsFromId(articlesIdArr, userId);
@@ -473,7 +471,9 @@ const getLatestArticles = async (userId, lastArticleId) => {
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
 
-        return { data: latest };
+        let EndOfFeed = latest.length < 25;
+
+        return { data: { latest, EndOfFeed } };
     } catch (error) {
         console.error('[ERROR]: getLatestArticles');
         console.error(error);

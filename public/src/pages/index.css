@@ -35,14 +35,15 @@ main {
     font-size: 1rem;
     margin-left: 3px;
     display: none;
+    transform: rotate(90deg);
 }
 
 .switch .fa-redo-alt:hover {
-    transform: scale(1.05);
+    transform: scale(1.05) rotate(90deg);
 }
 
 .switch .fa-redo-alt:active {
-    transform: scale(0.95);
+    transform: scale(0.95) rotate(90deg);
 }
 
 .switch:hover {

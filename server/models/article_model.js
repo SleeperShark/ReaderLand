@@ -4,6 +4,7 @@ const { Article, ObjectId, User, Category } = require('./schemas');
 const Notification = require('./notification_model');
 const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
+const res = require('express/lib/response');
 
 //get userid: { _id, picture, name } object
 function mergeCommentsReaderInfo(article) {
@@ -290,6 +291,7 @@ const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }) =>
 
 const getFeedsFormId = async (idArr, userId) => {
     idArr = idArr.map((elem) => ObjectId(elem));
+
     let feedArticles = await Article.aggregate([
         {
             $match: { _id: { $in: idArr } },
@@ -416,14 +418,100 @@ const getNewsFeed = async (userId) => {
     }
 };
 
-const getLatestArticles = async (token) => {
-    try {
-        // * organize article data
+const getLatestArticles = async (userId, lastArticleId) => {
+    if (lastArticleId && !ObjectId.isValid(lastArticleId)) {
+        console.log('Invalid lastArticleId');
+        return { error: 400, error: 'Invalid lastArticleId' };
+    }
 
-        return { latestArticles: articles };
+    try {
+        const aggregateArr = [];
+
+        if (lastArticleId) {
+            aggregateArr.push({ $match: { _id: { $lt: ObjectId(lastArticleId) } } });
+        }
+
+        aggregateArr.push(
+            { $sort: { _id: -1 } },
+            { $limit: 25 },
+            {
+                $lookup: {
+                    from: 'User',
+                    localField: 'author',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] },
+                                followee: 1,
+                            },
+                        },
+                    ],
+                    as: 'author',
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    author: { $arrayElemAt: ['$author', 0] },
+                    readCount: 1,
+                    title: 1,
+                    preview: 1,
+                    createdAt: 1,
+                    likes: 1,
+                    category: 1,
+                    comments: 1,
+                },
+            }
+        );
+
+        let latest = await Article.aggregate(aggregateArr);
+        latest = JSON.parse(JSON.stringify(latest));
+
+        //TODO: check liked, commented, followed
+        latest.forEach((article) => {
+            if (userId) {
+                // followed
+                for (let uid of article.author.followee) {
+                    if (uid.toString() == userId.toString()) {
+                        article.author.followed = true;
+                        break;
+                    }
+                }
+
+                // liked
+                for (let uid of article.likes) {
+                    if (uid.toString() == userId.toString()) {
+                        article.liked = true;
+                        break;
+                    }
+                }
+
+                //commented
+                for (let { reader } of article.comments) {
+                    if (reader.toString() == userId.toString()) {
+                        article.commented = true;
+                        break;
+                    }
+                }
+            }
+
+            article.likeCount = article.likes.length;
+            delete article.likes;
+
+            article.commentCount = article.comments.length;
+            delete article.comments;
+
+            delete article.author.followee;
+        });
+
+        return { data: latest };
     } catch (error) {
+        console.error('[ERROR]: getLatestArticles');
         console.error(error);
-        return { status: 500, error: 'Server error' };
+        return { error: 'Server error', status: 500 };
     }
 };
 

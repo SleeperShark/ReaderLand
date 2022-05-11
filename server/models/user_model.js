@@ -508,22 +508,6 @@ const subscribe = async (userId, subscribe) => {
     }
 };
 
-const unsubscribe = async (userId, category) => {
-    try {
-        let subscription = await User.findById(userId, { subscribe: 1, _id: 0 });
-        subscription = subscription.subscribe;
-        delete subscription[category];
-
-        await User.findByIdAndUpdate(userId, { subscribe: subscription });
-        console.log(`Successfully unsubscribe the category ${category}...`);
-
-        return { unsubscribe: 1 };
-    } catch (error) {
-        console.error(error);
-        return { error: 'Server error', status: 500 };
-    }
-};
-
 // TODO: add articleId to user's favorite array
 const favorite = async (userId, articleId) => {
     //TODO: validate articleId

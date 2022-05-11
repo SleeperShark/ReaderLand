@@ -227,25 +227,6 @@ const subscribe = async (req, res) => {
     res.status(200).json({ data: subscribe.subscribe });
 };
 
-const unsubscribe = async (req, res) => {
-    const { category } = req.body;
-    const { userId } = req.user;
-
-    if (!category) {
-        res.status(400).json({ error: 'Category is required.' });
-        return;
-    }
-
-    const result = await User.unsubscribe(userId, category);
-
-    if (result.error) {
-        res.status(result.status).json({ error: result.error });
-        return;
-    }
-
-    res.status(200).json({ data: 'Ok' });
-};
-
 const favorite = async (req, res) => {
     const { userId } = req.user;
     const { articleId } = req.body;
@@ -331,7 +312,6 @@ module.exports = {
     follow,
     unfollow,
     subscribe,
-    unsubscribe,
     favorite,
     unfavorite,
     getUserInfo,

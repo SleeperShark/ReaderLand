@@ -212,86 +212,76 @@ const getArticle = async (articleId, userId = '') => {
     }
 };
 
-const generateNewsFeedInCache = async (userId, lastArticleId) => {
-    try {
-        // acquire user's follower and subscribe categories
-        const userPreference = await User.findById(userId, { subscribe: 1, follower: 1, _id: 0 });
-        let { follower, subscribe } = userPreference;
+const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }) => {
+    const { follower, subscribe } = preference;
 
-        let aggregateArr = [];
-        if (lastArticleId) {
-            aggregateArr.push({ $match: { _id: { $lt: ObjectId(lastArticleId) } } });
-        }
-        aggregateArr.push(
-            {
-                $sort: { _id: -1 },
-            },
-            {
-                $match: { $or: [{ author: { $in: follower } }, { category: { $in: Object.keys(subscribe) } }] },
-            },
-            {
-                $limit: 200,
-            },
-            {
-                $project: {
-                    _id: 1,
-                    author: 1,
-                    createdAt: 1,
-                    readCount: 1,
-                    likeCount: { $size: '$likes' },
-                    commentCount: { $size: '$comments' },
-                    category: 1,
-                },
-            }
-        );
-
-        let newsfeedMaterial = await Article.aggregate(aggregateArr);
-        const searchingTimestamp = new Date().toISOString();
-
-        // check if newsfeed empty
-        if (!newsfeedMaterial.length) {
-            console.log('No more feed to search.');
-            return { data: false };
-        }
-
-        console.log('head ID: ' + newsfeedMaterial[0]._id.toString());
-
-        newsfeedMaterial = JSON.parse(JSON.stringify(newsfeedMaterial));
-        console.log(`Newsfeed Material length: ${newsfeedMaterial.length}`);
-
-        // Caclulate weight for each article in newsfeedMaterial
-        newsfeedMaterial.forEach((article, idx, arr) => {
-            arr[idx]['weight'] = articleWeightCounter(article, userPreference);
-        });
-
-        console.log('Saving Newsfeed into cache...');
-
-        // First generated
-        if (!(await Cache.exists(`${userId}_timestamp`))) {
-            console.log('Adding timestamp for feed');
-            await Cache.set(`${userId}_timestamp`, searchingTimestamp);
-        }
-
-        console.log('Adding tail for feeds...');
-        await Cache.set(`${userId}_newsfeed_tail`, newsfeedMaterial[newsfeedMaterial.length - 1]._id.toString());
-
-        const cacheFeed = [];
-        for (let i = 0; i < newsfeedMaterial.length; i += 50) {
-            const temp = newsfeedMaterial.slice(i, 50 + i);
-            temp.sort((a, b) => b.weight - a.weight);
-
-            // record.push(...temp);
-            cacheFeed.push(...temp.map((elem) => elem._id.toString()));
-        }
-
-        await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
-        console.log("Update User's newsfeed successfully");
-
-        return { data: true };
-    } catch (error) {
-        console.log(error);
-        return { error: error.message };
+    let aggregateArr = [];
+    if (lastArticleId) {
+        aggregateArr.push({ $match: { _id: { $lt: ObjectId(lastArticleId) } } });
     }
+    aggregateArr.push(
+        {
+            $sort: { _id: -1 },
+        },
+        {
+            $match: { $or: [{ author: { $in: follower } }, { category: { $in: Object.keys(subscribe) } }] },
+        },
+        {
+            $limit: 200,
+        },
+        {
+            $project: {
+                _id: 1,
+                author: 1,
+                createdAt: 1,
+                readCount: 1,
+                likeCount: { $size: '$likes' },
+                commentCount: { $size: '$comments' },
+                category: 1,
+            },
+        }
+    );
+
+    let newsfeedMaterial = await Article.aggregate(aggregateArr);
+    const searchingTimestamp = new Date().toISOString();
+
+    // check if newsfeed empty
+    if (!newsfeedMaterial.length) {
+        console.log('No more feed to search.');
+        return { data: false };
+    }
+
+    newsfeedMaterial = JSON.parse(JSON.stringify(newsfeedMaterial));
+    console.log(`Newsfeed Material length: ${newsfeedMaterial.length}`);
+
+    // Caclulate weight for each article in newsfeedMaterial
+    newsfeedMaterial.forEach((article, idx, arr) => {
+        arr[idx]['weight'] = articleWeightCounter(article, preference);
+    });
+
+    console.log('Saving Newsfeed into cache...');
+
+    // First generated
+    if (!(await Cache.exists(`${userId}_timestamp`))) {
+        console.log('Adding timestamp for feed');
+        await Cache.set(`${userId}_timestamp`, searchingTimestamp);
+    }
+
+    console.log('Adding tail for feeds...');
+    await Cache.set(`${userId}_newsfeed_tail`, newsfeedMaterial[newsfeedMaterial.length - 1]._id.toString());
+
+    const cacheFeed = [];
+    for (let i = 0; i < newsfeedMaterial.length; i += 50) {
+        const temp = newsfeedMaterial.slice(i, 50 + i);
+        temp.sort((a, b) => b.weight - a.weight);
+
+        cacheFeed.push(...temp.map((elem) => elem._id.toString()));
+    }
+
+    await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
+    console.log("Update User's newsfeed successfully");
+
+    return { data: true };
 
     // fs.writeFileSync('weightRecord.json', JSON.stringify(weightRecord));
 };
@@ -426,20 +416,25 @@ const getFeedsFormId = async (idArr, userId) => {
 };
 
 // TODO: get articles preview from customized newsfeed
-const getNewsFeed = async (userId, lastArticleId) => {
+const getNewsFeed = async (userId) => {
     if (!Cache.ready) {
         //TODO: cache faile situation
     }
     try {
+        //TODO: check preference exist
+        const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
+        if (!preference.subscribe && !preference.subscribe) {
+            return { data: 'No preference' };
+        }
+
         let EndOfFeed = false;
-        const cecheKey = userId + '_newsfeed';
-        let result;
+
         // Check if user's newsfeed exist
-        if (!(await Cache.exists(cecheKey))) {
-            result = await generateNewsFeedInCache(userId, lastArticleId);
-            if (!result) {
+        if (!(await Cache.exists(`${userId}_timestamp`))) {
+            let { data } = await generateNewsFeedInCache({ userId, preference });
+            if (!data) {
                 // No preference article
-                return { data: false };
+                return { data: { EndOfFeed: true } };
             }
         }
 
@@ -451,13 +446,12 @@ const getNewsFeed = async (userId, lastArticleId) => {
         local left = redis.call('lrange', KEYS[1], 0, -1);
         return {feeds, #left};
         `;
-        let [feedsId, left] = await Cache.eval(luaScript, 1, cecheKey);
-
-        console.log(feedsId.length);
-        console.log(left);
+        let [feedsId, left] = await Cache.eval(luaScript, 1, `${userId}_newsfeed`);
 
         if (left == 0) {
-            let { data } = await generateNewsFeedInCache(userId, await Cache.get(`${userId}_newsfeed_tail`));
+            let lastArticleId = await Cache.get(`${userId}_newsfeed_tail`);
+            let { data } = await generateNewsFeedInCache({ userId, lastArticleId, preference });
+
             if (!data) {
                 EndOfFeed = true;
                 await Cache.del(`${userId}_newsfeed_tail`);

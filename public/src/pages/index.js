@@ -27,7 +27,7 @@ async function favoriteArticle(e) {
     }
 }
 
-function appendArticle(article, auth) {
+function appendArticle({ article, auth, container }) {
     function redirectToAuthorPage() {
         window.open(`/author.html?id=${article.author._id}`, '_blank').focus();
     }
@@ -124,7 +124,7 @@ function appendArticle(article, auth) {
 </div>
     `;
 
-    document.getElementById('articles-display').appendChild(articleElem);
+    container.appendChild(articleElem);
 
     // TODO: add event listener to author name and avatar to redirect to auhtor page
     articleElem.querySelector('.details .author').addEventListener('click', redirectToAuthorPage);
@@ -205,10 +205,13 @@ function changeFollowerState({ authorId, remove, add }) {
 }
 
 async function renderArticles(auth) {
+    // hide all article disaply
     const renderType = document.querySelector('.switch.selected').dataset.type;
 
-    console.log(renderType);
+    const container = document.getElementById(`${renderType}-article-container`);
 
+    let articles;
+    let end;
     if (renderType == 'newsfeed') {
         const {
             data: { userFeeds, EndOfFeed },
@@ -220,31 +223,31 @@ async function renderArticles(auth) {
             console.error(error);
             return;
         }
+
+        articles = userFeeds;
+        end = EndOfFeed;
+    } else if (renderType == 'latest') {
+        let query = '';
+        if (container.lastElementChild) {
+            query = `?lastArticleId=${container.lastElementChild.dataset.id}`;
+        }
+        const { data, error } = await getLatestArticles(query);
+
+        if (error) {
+            alert('載入動態牆失敗，請稍後在試...');
+            console.error(error);
+            return;
+        }
+
+        articles = data;
+        console.log(data);
     }
 
-    // if (auth) {
-    //     // TODO: Get customized newsfeed
-    //     const { data, error } = await getNewsfeedAPI(token);
+    for (let article of articles) {
+        appendArticle({ article, auth, container });
+    }
 
-    //     if (data) {
-    //         data.userFeeds.forEach((article) => {
-    //             appendArticle(article, auth);
-    //         });
-
-    //         if (data.EndOfFeed) {
-    //             alert('動態牆到底');
-    //             return data.EndOfFeed;
-    //         }
-    //     }
-    // } else {
-    //     //TODO: Get latest article
-    //     const { data, error } = await getLatestArticles();
-    //     if (data) {
-    //         data.forEach((article) => {
-    //             appendArticle(article);
-    //         });
-    //     }
-    // }
+    return end;
 }
 
 function appendCategories(subscription) {
@@ -321,7 +324,10 @@ async function init() {
 
     if (!auth) {
         document.getElementById('newsfeed-switch').remove();
-        document.getElementById('lastest-switch').classList.add('selected');
+        document.getElementById('latest-switch').classList.add('selected');
+        document.getElementById('latest-article-container').classList.remove('hide');
+    } else {
+        document.getElementById('newsfeed-article-container').classList.remove('hide');
     }
 
     await renderArticles(auth);
@@ -330,18 +336,24 @@ async function init() {
 
 init();
 
-var loading = false;
+const loadigng = {
+    latestLoading: false,
+    newsfeedLoading: false,
+};
 //TODO: Load more feed when scroll to btm
 $(window).scroll(async function () {
     if ($(window).scrollTop() + $(window).height() + 110 >= $(document).height()) {
-        if (loading || !auth) {
+        const type = document.querySelector('.switch.selected').dataset.type;
+        if (loadigng[`${type}Loading`]) {
             return;
         }
 
-        loading = true;
+        loadigng[`${type}Loading`] = true;
         const endOfFeed = await renderArticles(auth);
         if (!endOfFeed) {
-            loading = false;
+            loadigng[`${type}Loading`] = false;
+        } else {
+            alert('End of Loading');
         }
     }
 });

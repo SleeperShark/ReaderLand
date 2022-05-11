@@ -40,8 +40,9 @@ const getNewsfeedAPI = async (userToken) => {
     });
 };
 
-const getLatestArticles = async () => {
-    return fetchHandler('/api/articles/latest');
+const getLatestArticles = async (query) => {
+    console.log(query);
+    return fetchHandler(`/api/articles/latest${query}`);
 };
 
 const getUserSubscription = async (userToken) => {

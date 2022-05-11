@@ -158,23 +158,30 @@ async function renderSubscribe(subscribe) {
         allCategory = data;
     }
 
-    // Render peronal Subscription
-    const personalCategory = [];
-    Object.keys(subscribe).forEach((cat) => {
-        personalCategory.push([cat, subscribe[cat]]);
-    });
+    //TODO: Case: no single subscription
+    if (!subscribe) {
+        createDivider();
+        allCategory.forEach((cat) => {
+            appendCategoryDiv(cat);
+        });
+    } else {
+        // Render peronal Subscription
+        const personalCategory = [];
+        Object.keys(subscribe).forEach((cat) => {
+            personalCategory.push([cat, subscribe[cat]]);
+        });
 
-    personalCategory.sort((a, b) => b[1] - a[1]);
-    personalCategory.forEach(([cat, weight]) => appendCategoryDiv(cat, weight));
+        personalCategory.sort((a, b) => b[1] - a[1]);
+        personalCategory.forEach(([cat, weight]) => appendCategoryDiv(cat, weight));
+        // Add divider between subscribe and unsubscribe
+        createDivider();
 
-    // Add divider between subscribe and unsubscribe
-    createDivider();
-
-    // Render other categories
-    allCategory.forEach((cat) => {
-        if (subscribe.hasOwnProperty(cat)) return;
-        appendCategoryDiv(cat);
-    });
+        // Render other categories
+        allCategory.forEach((cat) => {
+            if (subscribe.hasOwnProperty(cat)) return;
+            appendCategoryDiv(cat);
+        });
+    }
 
     // Add divider between unsubscribe and update button
     createDivider();

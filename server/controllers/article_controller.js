@@ -56,26 +56,15 @@ const getArticle = async (req, res) => {
 
 const getNewsFeed = async (req, res) => {
     try {
-        const userId = req.user.userId;
-        let cacheKey = `${userId}_newsfeed`;
+        const { userId } = req.user;
+        const { lastArticleId } = req.query;
 
-        // TODO: Check if newsfeed cache exist
-        if (!Cache.ready || (await Cache.exists(cacheKey)) === 0) {
-            // no feeds in cache
-            const result = await Article.generateNewsFeed(userId);
-
-            if (result.error) {
-                res.status(500).json({ error: 'Server Error' });
-                return;
-            } else if (result.feeds) {
-                res.status(200).json({ data: result.feeds });
-                return;
-            }
+        const { data, error, status } = await Article.getNewsFeed(userId, lastArticleId);
+        if (error) {
+            res.status(status).json({ error });
         }
 
-        const newsfeed = await Article.getNewsFeed(userId);
-
-        res.status(200).json({ data: newsfeed });
+        res.status(200).json({ data });
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Server Error' });

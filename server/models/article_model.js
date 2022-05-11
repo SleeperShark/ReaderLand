@@ -212,127 +212,82 @@ const getArticle = async (articleId, userId = '') => {
     }
 };
 
-const generateNewsFeed = async (userId, lastArticleId) => {
+const generateNewsFeedInCache = async (userId, lastArticleId) => {
     try {
         // acquire user's follower and subscribe categories
         const userPreference = await User.findById(userId, { subscribe: 1, follower: 1, _id: 0 });
-
         let { follower, subscribe } = userPreference;
 
-        const newsfeedMaterial = [];
-        let skip;
+        let aggregateArr = [];
         if (lastArticleId) {
-            skip = await Article.find({ _id: { $gte: ObjectId(lastArticleId) } }).count();
-        } else {
-            skip = 0;
+            aggregateArr.push({ $match: { _id: { $lt: ObjectId(lastArticleId) } } });
         }
-        const limitInterval = 100;
-
-        // collect over 200 prefered article
-        let zeroSearchCount = 0;
-        while (newsfeedMaterial.length < 200) {
-            console.log(`Skip for the newsfeed retrieval: ${skip}`);
-            const feeds = await Article.aggregate([
-                {
-                    $sort: { _id: -1 },
+        aggregateArr.push(
+            {
+                $sort: { _id: -1 },
+            },
+            {
+                $match: { $or: [{ author: { $in: follower } }, { category: { $in: Object.keys(subscribe) } }] },
+            },
+            {
+                $limit: 200,
+            },
+            {
+                $project: {
+                    _id: 1,
+                    author: 1,
+                    createdAt: 1,
+                    readCount: 1,
+                    likeCount: { $size: '$likes' },
+                    commentCount: { $size: '$comments' },
+                    category: 1,
                 },
-                {
-                    $skip: skip,
-                },
-                {
-                    $limit: limitInterval,
-                },
-                {
-                    $match: { $or: [{ author: { $in: follower } }, { category: { $in: Object.keys(subscribe) } }] },
-                },
-                {
-                    $lookup: {
-                        from: 'User',
-                        localField: 'author',
-                        foreignField: '_id',
-                        pipeline: [
-                            {
-                                $project: {
-                                    _id: 1,
-                                    name: 1,
-                                    picture: 1,
-                                    followed: {
-                                        $cond: {
-                                            if: { $in: [userId, '$followee'] },
-                                            then: true,
-                                            else: false,
-                                        },
-                                    },
-                                    bio: 1,
-                                },
-                            },
-                        ],
-                        as: 'author',
-                    },
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        title: 1,
-                        author: { $arrayElemAt: ['$author', 0] },
-                        createdAt: 1,
-                        preview: 1,
-                        readCount: 1,
-                        likeCount: { $size: '$likes' },
-                        commentCount: { $size: '$comments' },
-                        category: 1,
-                    },
-                },
-            ]);
-
-            //* exam whether feeds is empty
-            zeroSearchCount += feeds.length === 0 ? 1 : 0;
-            if (zeroSearchCount === 3) {
-                skip = 0;
-                zeroSearchCount = 0;
-                console.log('Touch article limit, retry from the top...');
-                continue;
             }
+        );
 
-            newsfeedMaterial.push(...feeds);
-            skip += limitInterval;
+        let newsfeedMaterial = await Article.aggregate(aggregateArr);
+        const searchingTimestamp = new Date().toISOString();
+
+        // check if newsfeed empty
+        if (!newsfeedMaterial.length) {
+            console.log('No more feed to search.');
+            return { data: false };
         }
+
+        console.log('head ID: ' + newsfeedMaterial[0]._id.toString());
+
+        newsfeedMaterial = JSON.parse(JSON.stringify(newsfeedMaterial));
+        console.log(`Newsfeed Material length: ${newsfeedMaterial.length}`);
 
         // Caclulate weight for each article in newsfeedMaterial
         newsfeedMaterial.forEach((article, idx, arr) => {
             arr[idx]['weight'] = articleWeightCounter(article, userPreference);
         });
 
-        if (Cache.ready) {
-            console.log('Saving Newsfeed into cache...');
-            const cacheFeed = [];
-            // const record = [];
-            for (let i = 0; i < newsfeedMaterial.length; i += 50) {
-                const temp = newsfeedMaterial.slice(i, 50 + i);
-                temp.sort((a, b) => b.weight - a.weight);
+        console.log('Saving Newsfeed into cache...');
 
-                // record.push(...temp);
-                cacheFeed.push(...temp.map((elem) => elem._id));
-            }
-
-            await Cache.del(`${userId}_newsfeed`);
-            await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
-            // fs.writeFileSync('NewsFeed.json', JSON.stringify(record));
-            await Cache.set(`${userId}_timestamp`, new Date().toISOString());
-
-            console.log("Update User's newsfeed successfully");
-
-            return { cache: 1 };
-        } else {
-            console.log('Cache failed, return top 100 articles according to weight');
-            newsfeedMaterial.sort((a, b) => b.weight - a.weight);
-            feeds = newsfeedMaterial.slice(0, 100).map((article) => {
-                article.author.picture = `${process.env.IMAGE_URL}/avatar/${article.author.picture}`;
-                return article;
-            });
-            // console.log(feeds[0]);
-            return { feeds };
+        // First generated
+        if (!(await Cache.exists(`${userId}_timestamp`))) {
+            console.log('Adding timestamp for feed');
+            await Cache.set(`${userId}_timestamp`, searchingTimestamp);
         }
+
+        console.log('Adding tail for feeds...');
+        await Cache.set(`${userId}_newsfeed_tail`, newsfeedMaterial[newsfeedMaterial.length - 1]._id.toString());
+
+        const cacheFeed = [];
+        for (let i = 0; i < newsfeedMaterial.length; i += 50) {
+            const temp = newsfeedMaterial.slice(i, 50 + i);
+            temp.sort((a, b) => b.weight - a.weight);
+
+            // record.push(...temp);
+            cacheFeed.push(...temp.map((elem) => elem._id.toString()));
+        }
+
+        await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
+        console.log("Update User's newsfeed successfully");
+
+        return { data: true };
     } catch (error) {
         console.log(error);
         return { error: error.message };
@@ -396,10 +351,99 @@ async function processArticles(articles, userId) {
     });
 }
 
+const getFeedsFormId = async (idArr, userId) => {
+    idArr = idArr.map((elem) => ObjectId(elem));
+    let feedArticles = await Article.aggregate([
+        {
+            $match: { _id: { $in: idArr } },
+        },
+        {
+            $lookup: {
+                from: 'User',
+                localField: 'author',
+                foreignField: '_id',
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] },
+                            followed: {
+                                $cond: {
+                                    if: { $in: [userId, '$followee'] },
+                                    then: true,
+                                    else: false,
+                                },
+                            },
+                            bio: 1,
+                        },
+                    },
+                ],
+                as: 'author',
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                title: 1,
+                author: { $arrayElemAt: ['$author', 0] },
+                preview: 1,
+                createdAt: 1,
+                readCount: 1,
+                likes: 1,
+                comments: 1,
+                category: 1,
+            },
+        },
+    ]);
+
+    feedArticles = JSON.parse(JSON.stringify(feedArticles));
+
+    feedArticles.forEach((article) => {
+        if (userId) {
+            // check liked
+            for (let uid of article.likes) {
+                if (uid.toString() == userId.toString()) {
+                    article.liked = true;
+                    break;
+                }
+            }
+            // check commentd
+            for (let comment of article.comments) {
+                if (comment.reader.toString() == userId.toString()) {
+                    article.commented = true;
+                    break;
+                }
+            }
+        }
+
+        article.likeCount = article.likes.length;
+        delete article.likes;
+        article.commentCount = article.comments.length;
+        delete article.comments;
+    });
+    return feedArticles;
+};
+
 // TODO: get articles preview from customized newsfeed
-const getNewsFeed = async (userId) => {
+const getNewsFeed = async (userId, lastArticleId) => {
+    if (!Cache.ready) {
+        //TODO: cache faile situation
+    }
     try {
-        //* get 50 feeds back from cache
+        let EndOfFeed = false;
+        const cecheKey = userId + '_newsfeed';
+        let result;
+        // Check if user's newsfeed exist
+        if (!(await Cache.exists(cecheKey))) {
+            result = await generateNewsFeedInCache(userId, lastArticleId);
+            if (!result) {
+                // No preference article
+                return { data: false };
+            }
+        }
+
+        //* get 25 feeds back from cache
         const luaScript = `
         local feeds = redis.call('lrange', KEYS[1], 0, 24);
         redis.call('ltrim', KEYS[1], 25, -1);
@@ -407,54 +451,24 @@ const getNewsFeed = async (userId) => {
         local left = redis.call('lrange', KEYS[1], 0, -1);
         return {feeds, #left};
         `;
-        let [feedsId, left] = await Cache.eval(luaScript, 1, userId + '_newsfeed');
+        let [feedsId, left] = await Cache.eval(luaScript, 1, cecheKey);
 
-        // if the rest less than 25 articles => retrieve more articles to news feed
-        if (left < 25) {
-            const lastArticleId = feedsId[feedsId.length - 1];
-            generateNewsFeed(userId, lastArticleId);
+        console.log(feedsId.length);
+        console.log(left);
+
+        if (left == 0) {
+            let { data } = await generateNewsFeedInCache(userId, await Cache.get(`${userId}_newsfeed_tail`));
+            if (!data) {
+                EndOfFeed = true;
+                await Cache.del(`${userId}_newsfeed_tail`);
+                await Cache.del(`${userId}_timestamp`);
+            }
         }
 
-        // TODO: get articles preview from articleId
-        feedsId = feedsId.map((elem) => ObjectId(elem));
-        let feeds = await Article.aggregate([
-            {
-                $match: { _id: { $in: feedsId } },
-            },
-            {
-                $lookup: {
-                    from: 'User',
-                    localField: 'author',
-                    foreignField: '_id',
-                    pipeline: [{ $project: { _id: 1, name: 1, picture: 1, bio: 1 } }],
-                    as: 'author',
-                },
-            },
-            {
-                $project: {
-                    _id: 1,
-                    title: 1,
-                    author: { $arrayElemAt: ['$author', 0] },
-                    preview: 1,
-                    createdAt: 1,
-                    readCount: 1,
-                    likes: 1,
-                    comments: 1,
-                    category: 1,
-                },
-            },
-        ]);
+        // // TODO: get articles preview from articleId
+        let userFeeds = await getFeedsFormId(feedsId, userId);
 
-        await processArticles(feeds, userId);
-
-        // organize article in newsfeed order
-        const temp = {};
-        feeds.forEach((article) => {
-            temp[article._id.toString()] = article;
-        });
-        feeds = feedsId.map((elem) => temp[elem.toString()]);
-
-        return feeds;
+        return { data: { userFeeds, EndOfFeed } };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };
@@ -738,7 +752,6 @@ const readArticle = async (articleId) => {
 module.exports = {
     createArticle,
     getArticle,
-    generateNewsFeed,
     getNewsFeed,
     likeArticle,
     unlikeArticle,

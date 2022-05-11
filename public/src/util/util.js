@@ -33,7 +33,7 @@ const unFollowAuthorAPI = (userToken, authorId) => {
     });
 };
 
-const getNewsfeed = async (userToken) => {
+const getNewsfeedAPI = async (userToken) => {
     return fetchHandler('/api/articles/newsfeed', {
         method: 'GET',
         headers: { Authorization: `Bearer ${userToken}` },

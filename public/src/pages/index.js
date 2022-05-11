@@ -207,7 +207,7 @@ function changeFollowerState({ authorId, remove, add }) {
 async function renderArticles(auth) {
     if (auth) {
         // TODO: Get customized newsfeed
-        const result = await getNewsfeed(token);
+        const result = await getNewsfeedAPI(token);
 
         if (result.data) {
             result.data.forEach((article) => {

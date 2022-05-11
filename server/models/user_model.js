@@ -628,7 +628,6 @@ module.exports = {
     follow,
     unfollow,
     subscribe,
-    unsubscribe,
     favorite,
     unfavorite,
     getSubscription,

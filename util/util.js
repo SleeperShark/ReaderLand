@@ -61,12 +61,13 @@ const generateUploadURL = async (folder = '') => {
 const articleWeightCounter = (article, userPreference) => {
     let { category, readCount, likeCount, commentCount, createdAt, author } = article;
     let { subscribe, follower } = userPreference;
+    follower = follower.map((elem) => elem.toString());
 
     let weight = 0;
     weight += category.reduce((prev, curr) => prev + (parseInt(subscribe[curr]) || 0), 1);
 
-    if (author) {
-        weight *= follower.includes(author._id) ? 3 : 1;
+    if (follower.includes(author.toString())) {
+        weight *= 3;
     }
 
     if (readCount) {

@@ -205,29 +205,46 @@ function changeFollowerState({ authorId, remove, add }) {
 }
 
 async function renderArticles(auth) {
-    if (auth) {
-        // TODO: Get customized newsfeed
-        const { data, error } = await getNewsfeedAPI(token);
+    const renderType = document.querySelector('.switch.selected').dataset.type;
 
-        if (data) {
-            data.userFeeds.forEach((article) => {
-                appendArticle(article, auth);
-            });
+    console.log(renderType);
 
-            if (data.EndOfFeed) {
-                alert('動態牆到底');
-                return data.EndOfFeed;
-            }
-        }
-    } else {
-        //TODO: Get latest article
-        const { data, error } = await getLatestArticles();
-        if (data) {
-            data.forEach((article) => {
-                appendArticle(article);
-            });
+    if (renderType == 'newsfeed') {
+        const {
+            data: { userFeeds, EndOfFeed },
+            error,
+        } = await getNewsfeedAPI(token);
+
+        if (error) {
+            alert('載入動態牆失敗，請稍後在試...');
+            console.error(error);
+            return;
         }
     }
+
+    // if (auth) {
+    //     // TODO: Get customized newsfeed
+    //     const { data, error } = await getNewsfeedAPI(token);
+
+    //     if (data) {
+    //         data.userFeeds.forEach((article) => {
+    //             appendArticle(article, auth);
+    //         });
+
+    //         if (data.EndOfFeed) {
+    //             alert('動態牆到底');
+    //             return data.EndOfFeed;
+    //         }
+    //     }
+    // } else {
+    //     //TODO: Get latest article
+    //     const { data, error } = await getLatestArticles();
+    //     if (data) {
+    //         data.forEach((article) => {
+    //             appendArticle(article);
+    //         });
+    //     }
+    // }
 }
 
 function appendCategories(subscription) {

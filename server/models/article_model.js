@@ -289,8 +289,19 @@ const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }) =>
     // fs.writeFileSync('weightRecord.json', JSON.stringify(weightRecord));
 };
 
-const getFeedsFormId = async (idArr, userId) => {
+const getFeedsFromId = async (idArr, userId) => {
     idArr = idArr.map((elem) => ObjectId(elem));
+
+    let favoriteArticleObj = {};
+    if (userId) {
+        const { favorite } = await User.findById(userId, { favorite: 1 });
+
+        if (favorite.length) {
+            favorite.forEach((elem) => {
+                favoriteArticleObj[elem.articleId.toString()] = 1;
+            });
+        }
+    }
 
     let feedArticles = await Article.aggregate([
         {
@@ -354,6 +365,11 @@ const getFeedsFormId = async (idArr, userId) => {
                     break;
                 }
             }
+
+            // check favorited
+            if (favoriteArticleObj[article._id.toString()]) {
+                article.favorited = true;
+            }
         }
 
         article.likeCount = article.likes.length;
@@ -409,7 +425,7 @@ const getNewsFeed = async (userId) => {
         }
 
         // // TODO: get articles preview from articleId
-        let userFeeds = await getFeedsFormId(feedsId, userId);
+        let userFeeds = await getFeedsFromId(feedsId, userId);
 
         return { data: { userFeeds, EndOfFeed } };
     } catch (error) {

@@ -52,9 +52,10 @@ async function generateHotArticles() {
 
         //TODO: process articles id to String
         hotArticles = JSON.parse(JSON.stringify(hotArticles));
+
         hotArticles = hotArticles.map((elem) => {
             elem._id = elem._id.toString();
-            elem.author._id = toString();
+            elem.author._id = elem.author._id.toString();
             return JSON.stringify(elem);
         });
 

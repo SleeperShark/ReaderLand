@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../../.env' });
 const { IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
 const Notification = require('./notification_model');
@@ -8,6 +8,7 @@ const Cache = require('../../util/cache');
 //get userid: { _id, picture, name } object
 function mergeCommentsReaderInfo(article) {
     // TODO: process userinfo in comment array
+
     const readersInfo = {};
     for (let user of article.comments_reader) {
         readersInfo[user._id.toString()] = { ...user };
@@ -17,6 +18,7 @@ function mergeCommentsReaderInfo(article) {
     article.comments.forEach((comment) => {
         comment.reader = readersInfo[comment.reader.toString()];
     });
+
     return;
 }
 
@@ -660,6 +662,57 @@ const readArticle = async (articleId) => {
     }
 };
 
+const generateHotArticles = async () => {
+    try {
+        const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION } = process.env;
+
+        //TODO: Getting hot articles
+        let dateLimit = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7).toISOString();
+        console.log('Querying hot Articles...');
+
+        let hotArticles = await Article.aggregate([
+            { $match: { createdAt: { $gte: new Date(dateLimit) } } },
+            {
+                $addFields: {
+                    weight: {
+                        $multiply: [
+                            { $pow: [{ $toDouble: READ_WEIGHT }, { $divide: ['$readCount', { $toInt: READ_DIVISION }] }] },
+                            { $pow: [{ $toDouble: LIKE_WEIGHT }, { $divide: [{ $size: '$likes' }, { $toInt: LIKE_DIVISION }] }] },
+                            { $pow: [{ $toDouble: COMMENT_WEIGHT }, { $divide: [{ $size: '$comments' }, { $toInt: COMMENT_DIVISION }] }] },
+                        ],
+                    },
+                },
+            },
+            {
+                $sort: { weight: -1 },
+            },
+            {
+                $limit: 5,
+            },
+            {
+                $lookup: { from: 'User', localField: 'author', foreignField: '_id', pipeline: [{ $project: { name: 1, _id: 1 } }], as: 'author' },
+            },
+            {
+                $project: { _id: 1, title: 1, author: { $arrayElemAt: ['$author', 0] }, createdAt: 1 },
+            },
+        ]);
+
+        //TODO: process articles id to String
+        hotArticles = JSON.parse(JSON.stringify(hotArticles));
+
+        hotArticles.forEach((elem) => {
+            elem._id = elem._id.toString();
+            elem.author._id = elem.author._id.toString();
+        });
+
+        return { data: hotArticles };
+    } catch (error) {
+        console.error('[ERROR] generateHotArticles');
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 module.exports = {
     createArticle,
     getArticle,
@@ -671,4 +724,5 @@ module.exports = {
     commentArticle,
     replyComment,
     readArticle,
+    generateHotArticles,
 };

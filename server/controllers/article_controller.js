@@ -215,19 +215,34 @@ const readArticle = async (req, res) => {
 
 const getHotArticles = async (req, res) => {
     if (!Cache.ready) {
-        console.error('[ERROR] Cache failed, reject getHotArticles request...');
-        res.status(500).json({ error: 'Server Error' });
-        return;
-    }
+        const { data, error } = await Article.generateHotArticles();
+        if (error) {
+            res.status(500).error(error);
+            return;
+        }
 
-    try {
-        let hotArticles = await Cache.lrange('hot_articles', 0, -1);
-        hotArticles = hotArticles.map((elem) => JSON.parse(elem));
+        res.status(200).json({ data });
+    } else {
+        let hotArticles;
+
+        if (!(await Cache.exists('hot_articles'))) {
+            console.log('Generating hot');
+            const { data, error } = await Article.generateHotArticles();
+            if (error) {
+                res.status(500).error(error);
+                return;
+            }
+            hotArticles = data;
+
+            for (let article of hotArticles) {
+                await Cache.rpush('hot_articles', JSON.stringify(article));
+            }
+        } else {
+            hotArticles = await Cache.lrange('hot_articles', 0, -1);
+            hotArticles = hotArticles.map((elem) => JSON.parse(elem));
+        }
+
         res.status(200).json({ data: hotArticles });
-    } catch (error) {
-        console.error('[ERROR] article_controler: getHotArticles');
-        console.error(error);
-        res.status(500).json({ error: 'Server Error' });
     }
 };
 

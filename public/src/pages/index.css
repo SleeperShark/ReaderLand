@@ -63,6 +63,7 @@ main {
 
 #category-switch {
     position: relative;
+    width: 170px;
 }
 
 #category-display i {
@@ -84,11 +85,11 @@ main {
     border: 1px solid white;
     border-radius: 5px;
     text-align: center;
-    width: 130px;
+    width: 170px;
     height: 140px;
     overflow-y: scroll;
     top: 37px;
-    left: -8px;
+    right: 0;
 }
 
 #category-select.hide {

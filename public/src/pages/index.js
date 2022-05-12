@@ -325,12 +325,20 @@ async function renderSwitchCategorySelection() {
     allCategory = categories;
 
     const selection = document.getElementById('category-select');
+    const categorySpan = document.querySelector('#category-display span');
     categories.forEach((cat) => {
         const catOption = document.createElement('div');
         catOption.innerText = cat;
         catOption.value = cat;
         catOption.classList.add('category-option');
         selection.append(catOption);
+
+        catOption.addEventListener('click', () => {
+            if (categorySpan.innerText == catOption.innerText) {
+                return;
+            }
+            categorySpan.innerText = catOption.innerText;
+        });
     });
 }
 

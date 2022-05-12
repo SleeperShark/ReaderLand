@@ -150,6 +150,33 @@ const getLatestArticles = async (req, res) => {
     return;
 };
 
+const getCategoryArticles = async (req, res) => {
+    if (!req.query.category) {
+        console.log('[ERROR] No category');
+        res.status(400).json({ error: 'Please Specify the category of the articles.' });
+        return;
+    }
+    const category = req.query.category;
+
+    let userId;
+    if (req.user) {
+        userId = req.user.userId;
+    }
+
+    let lastArticleId;
+    if (req.query.lastArticleId) {
+        lastArticleId = req.query.lastArticleId;
+    }
+
+    const { data, error, status } = await Article.getCategoryArticles({ userId, category, lastArticleId });
+    if (error) {
+        res.status(status).json({ error });
+        return;
+    }
+
+    res.status(200).json({ data });
+};
+
 const commentArticle = async (req, res) => {
     const { userId } = req.user;
     const { articleId } = req.params;
@@ -270,4 +297,5 @@ module.exports = {
     replyComment,
     readArticle,
     getHotArticles,
+    getCategoryArticles,
 };

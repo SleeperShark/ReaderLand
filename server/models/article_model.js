@@ -487,6 +487,53 @@ const getLatestArticles = async (userId, lastArticleId) => {
     }
 };
 
+const getCategoryArticles = async ({ userId, category, lastArticleId }) => {
+    if (lastArticleId && !ObjectId.isValid(lastArticleId)) {
+        console.log('Invalid lastArticleId');
+        return { error: 400, error: 'Invalid lastArticleId' };
+    }
+    try {
+        //TODO: 先不考慮 cache 的情境
+        let aggregateArr = [];
+
+        const matchObj = {};
+        if (lastArticleId) {
+            aggregateArr.push({ $match: { _id: { $lt: ObjectId(lastArticleId) } } });
+        }
+
+        aggregateArr.push(
+            {
+                $match: { category: { $in: [category] } },
+            },
+            { $sort: { _id: -1 } },
+            { $limit: 25 },
+            {
+                $project: {
+                    _id: 1,
+                },
+            }
+        );
+
+        let articlesIdArr = await Article.aggregate(aggregateArr);
+
+        articlesIdArr = articlesIdArr.map((elem) => elem._id);
+
+        let latest = await getFeedsFromId(articlesIdArr, userId);
+
+        latest.sort((a, b) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+
+        let EndOfFeed = latest.length < 25;
+
+        return { data: { latest, EndOfFeed } };
+    } catch (error) {
+        console.error('ERROR: getLatestArticles');
+        console.error(error);
+        return { error: 'Server Error', status: 500 };
+    }
+};
+
 // TODO: push userId to Article.likes array
 const likeArticle = async (userId, articleId) => {
     //* examine the articleId format
@@ -785,4 +832,5 @@ module.exports = {
     replyComment,
     readArticle,
     generateHotArticles,
+    getCategoryArticles,
 };

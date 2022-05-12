@@ -364,7 +364,13 @@ async function renderSwitchCategorySelection() {
         //TODO: record currType state
         const { type: currType } = switchContainer.dataset;
         scrollRecord[currType] = window.scrollY;
-        document.getElementById(`${currType}-article-container`).classList.add('hide');
+
+        console.log(document.getElementById(`${currType}-article-container`).classList);
+
+        document.querySelector(`#${currType}-article-container`).classList.add('hide');
+
+        console.log(currType);
+        console.log(targetType);
 
         //TODO: Setting state for targetType
         categorySpan.innerText = targetType;
@@ -380,11 +386,13 @@ async function renderSwitchCategorySelection() {
         if (container) {
             // Display container
             container.classList.remove('hide');
+            window.scroll({ top: scrollRecord[targetType] || 0 });
         } else {
             //TODO: create new Div and loading article
             container = document.createElement('div');
             container.id = `${targetType}-article-container`;
-            container.class = 'article-container';
+            container.classList.add('article-container');
+
             document.getElementById('articles-display').append(container);
             loadingIcon.style.display = 'inline-block';
             //TODO: loading articles

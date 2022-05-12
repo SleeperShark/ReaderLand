@@ -413,6 +413,31 @@ i.fa-comment-dots.favored {
     color: rgba(255, 255, 255, 0.7);
 }
 
+/* END DIV */
+.end-div {
+    margin-top: 50px;
+    color: white;
+    display: flex;
+    font-size: 1.4rem;
+    opacity: 0.7;
+}
+
+.end-div img {
+    width: 200px;
+    height: 150px;
+    opacity: 0.5;
+    margin-left: 60px;
+}
+
+.first-end-text {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+.second-end-text {
+    margin-top: 15px;
+    margin-left: 40px;
+}
+
 /* =================== Loading Spinner =================== */
 .lds-spinner {
     color: white;

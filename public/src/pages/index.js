@@ -440,6 +440,7 @@ async function init() {
     }
 
     await renderArticles(auth);
+
     await renderHotArticles();
 }
 
@@ -462,7 +463,18 @@ $(window).scroll(async function () {
         if (!endOfFeed) {
             loadigng[`${type}Loading`] = false;
         } else {
-            alert('End of Loading');
+            //TODO: render End of feed DIV'
+            alert('endDiv');
+            const endDiv = document.createElement('div');
+            endDiv.classList.add('end-div');
+            endDiv.innerHTML = `
+                <img src="https://d12aekp9ye7tfn.cloudfront.net/icon/end_of_feeds.png"/>
+                <div class='end-text-container'>
+                    <div class='first-end-text'>沒有文章囉 ~ </div>
+                    <div class='second-end-text'>點擊刷新獲得最新動態 ヽ(✿ﾟ▽ﾟ)ノ</div>
+                </div>
+            `;
+            document.getElementById(`${type}-article-container`).append(endDiv);
         }
     }
 });

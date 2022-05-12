@@ -403,13 +403,7 @@ const switches = document.querySelectorAll('.switch');
 switches.forEach((switchBtn) => {
     switchBtn.addEventListener('click', async (e) => {
         const currSwitch = document.querySelector('.switch.selected');
-        if (currSwitch == switchBtn) {
-            return;
-        }
-
-        // console.log(switchBtn.id);
-
-        if (switchBtn.id == 'category-switch') {
+        if (currSwitch == switchBtn || switchBtn.id == 'category-switch') {
             return;
         }
 

@@ -1,4 +1,5 @@
 let auth;
+const loadingIcon = document.querySelector('.lds-spinner');
 
 async function favoriteArticle(e) {
     const articleId = e.dataset.id;
@@ -248,11 +249,8 @@ async function renderArticles(auth, refresh = false) {
         end = EndOfFeed;
     }
 
-    if (refresh) {
-        const type = document.querySelector('.switch.selected').dataset.type;
-        document.getElementById(`${type}-article-container`).innerHTML = '';
-    }
-    console.log('rerender');
+    loadingIcon.style.display = 'none';
+
     for (let article of articles) {
         appendArticle({ article, auth, container });
     }
@@ -403,6 +401,9 @@ document.querySelectorAll('.refresh').forEach((refreshBtn) => {
         const currSwitch = refreshBtn.parentElement;
         const type = currSwitch.dataset.type;
         scrollRecord[type] = 0;
+
+        document.getElementById(`${type}-article-container`).innerHTML = '';
+        loadingIcon.style.display = 'inline-block';
 
         await renderArticles(auth, 'true');
     });

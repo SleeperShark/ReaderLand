@@ -39,11 +39,11 @@ main {
     transform: rotate(90deg);
 }
 
-.refresh:hover {
-    transform: scale(1.05) rotate(90deg);
+.switch .refresh:hover {
+    transform: scale(1.1) rotate(90deg);
 }
 
-.refresh:active {
+.switch .refresh:active {
     transform: scale(0.95) rotate(90deg);
 }
 
@@ -66,16 +66,19 @@ main {
     width: 170px;
 }
 
-#category-display i {
-    margin-left: 5px;
+#category-display {
+    display: flex;
 }
 
-#category-display i:hover {
-    transform: scale(1.2);
+#toggle-hint {
+    margin-left: auto;
+    margin-right: 0px;
+    margin-top: 2px;
 }
 
-#category-display i:active {
-    transform: scale(0.95);
+#category-display > span {
+    width: 100px;
+    display: inline-block;
 }
 
 /* CATEGORY SELECTION */

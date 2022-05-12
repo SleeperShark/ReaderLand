@@ -144,7 +144,8 @@ async function regenerateNewsfeed() {
 
     for (let i = 0; i < usersId.length; i++) {
         console.log(`Regenerate User ${usersId[i]}'s newsfeed...`);
-        await ArticleModel.generateNewsFeed(usersId[i]);
+        const preference = await UserSchema.findById(usersId[i], { follower: 1, subscribe: 1 });
+        await ArticleModel.generateNewsFeedInCache({ userId: usersId[i], preference });
     }
 
     return;

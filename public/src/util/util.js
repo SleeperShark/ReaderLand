@@ -278,6 +278,7 @@ function timeTransformer(ISODateString) {
     const currentTimestamp = new Date().getTime();
     // in minute
     let timeInterval = Math.floor((currentTimestamp - targetTimestamp) / 1000 / 60);
+    if (timeInterval <= 2) return '剛剛';
     if (timeInterval < 60) return `${timeInterval} 分鐘前`;
 
     // in hour

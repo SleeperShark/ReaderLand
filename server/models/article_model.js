@@ -395,7 +395,7 @@ const getNewsFeed = async (userId, refresh) => {
         //TODO: check preference exist
         const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
 
-        if (!preference.follower.length && !Object.keys(preference.subscribe).length) {
+        if (!preference.follower.length && (!preference.subscribe || !Object.keys(preference.subscribe).length)) {
             console.log('NO preference');
             return { data: { noPreference: true } };
         }

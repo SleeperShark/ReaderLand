@@ -308,7 +308,7 @@ async function assignFavorite() {
 }
 
 async function generateCacheNewsFeed() {
-    let usersArr = await User.find({}, { _id: 1, subscribe, follower }).limit(20);
+    let usersArr = await User.find({}, { _id: 1, subscribe: 1, follower: 1 }).limit(20);
 
     for (let { _id, follower, subscribe } of usersArr) {
         console.log(`Regenerate User ${_id}'s newsfeed...`);

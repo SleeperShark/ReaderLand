@@ -98,6 +98,9 @@ const signUp = async (name, email, password) => {
             email,
             role: USER_ROLE.USER,
             password: await hashAsync(password, salt),
+            subscribe: {},
+            follower: [],
+            followee: [],
         };
 
         await User.create(userInfo);

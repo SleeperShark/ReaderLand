@@ -499,7 +499,14 @@ const subscribe = async (userId, subscribe) => {
         console.log(`Successfully update user's subscription...`);
 
         console.log('Regenerate newsfeed...');
-        await ArticleModel.generateNewsFeed(userId);
+        if (!Object.keys(updateSub).length) {
+            console.log('Empty subscription, skip regeneration newsfeed step...');
+            return { data: updateResult };
+        }
+
+        const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
+
+        ArticleModel.generateNewsFeedInCache({ userId, preference });
 
         return { data: updateResult };
     } catch (error) {

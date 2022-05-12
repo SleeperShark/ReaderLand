@@ -215,10 +215,7 @@ async function renderArticles(auth, refresh = false) {
     let end;
 
     if (renderType == 'newsfeed') {
-        const {
-            data: { userFeeds, EndOfFeed },
-            error,
-        } = await getNewsfeedAPI(token, refresh);
+        const { data, error } = await getNewsfeedAPI(token, refresh);
 
         if (error) {
             alert('載入動態牆失敗，請稍後在試...');
@@ -226,8 +223,26 @@ async function renderArticles(auth, refresh = false) {
             return;
         }
 
-        articles = userFeeds;
-        end = EndOfFeed;
+        if (data.noPreference) {
+            // Render Empty newfeed div
+            if (document.getElementById('empty-newsfeed')) return;
+
+            loadingIcon.style.display = 'none';
+            const noPreferenceDiv = document.createElement('div');
+            noPreferenceDiv.id = 'empty-newsfeed';
+            noPreferenceDiv.innerHTML = `
+                <img id="empty-newsfeed-icon" src='https://d12aekp9ye7tfn.cloudfront.net/icon/no_preference.png'/>
+                <div id="empty-text-container">
+                    <div>你喜歡什麼樣的文章呢?</div>
+                    <div>點擊 <a href="/profile.html?to=subscribe">此處</a> 訂閱主題來豐富個人化的動態內容吧 (❛◡❛✿)
+                </div>
+            `;
+            document.getElementById('newsfeed-article-container').append(noPreferenceDiv);
+            return;
+        }
+
+        articles = data.userFeeds;
+        end = data.EndOfFeed;
     } else if (renderType == 'latest') {
         let query = '';
         if (refresh) {
@@ -302,12 +317,16 @@ async function renderCategories(auth) {
         document.getElementById('subscribe-header').innerText = '#訂閱主題';
 
         const { data: categories, error, status } = await getUserSubscription(token);
-        if (categories) {
-            appendCategories(categories);
-        } else {
+
+        if (error) {
             console.error(status);
             console.error(error);
             alert('系統異常: getUserSubscription');
+            return;
+        }
+
+        if (categories) {
+            appendCategories(categories);
         }
     } else {
         document.getElementById('subscribe-header').innerText = '#主題列表';
@@ -364,12 +383,7 @@ async function renderSwitchCategorySelection() {
         const { type: currType } = switchContainer.dataset;
         scrollRecord[currType] = window.scrollY;
 
-        console.log(document.getElementById(`${currType}-article-container`).classList);
-
         document.querySelector(`#${currType}-article-container`).classList.add('hide');
-
-        console.log(currType);
-        console.log(targetType);
 
         //TODO: Setting state for targetType
         categorySpan.innerText = targetType;
@@ -464,7 +478,7 @@ $(window).scroll(async function () {
             loadigng[`${type}Loading`] = false;
         } else {
             //TODO: render End of feed DIV'
-            alert('endDiv');
+            console.log('End of the articles feed');
             const endDiv = document.createElement('div');
             endDiv.classList.add('end-div');
             endDiv.innerHTML = `

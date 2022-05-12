@@ -1,4 +1,5 @@
 let allCategory;
+const directTo = new URL(window.location).searchParams.get('to');
 
 function randomColor() {
     return `rgb(${Math.random() * 256}, ${Math.random() * 256}, ${Math.random() * 256})`;
@@ -403,6 +404,9 @@ async function init() {
     //TODO: render draft list
     await renderDrafts();
     document.body.style.display = 'block';
+    if (directTo) {
+        document.getElementById(directTo).click();
+    }
 }
 
 init();

@@ -6,6 +6,7 @@ const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
 const res = require('express/lib/response');
 const { compareSync } = require('bcrypt');
+const { subscribe } = require('./user_model');
 
 //get userid: { _id, picture, name } object
 function mergeCommentsReaderInfo(article) {
@@ -389,11 +390,14 @@ const getNewsFeed = async (userId, refresh) => {
     if (!Cache.ready) {
         //TODO: cache faile situation
     }
+
     try {
         //TODO: check preference exist
         const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
-        if (!preference.follower.length && preference.subscribe) {
-            return { data: 'No preference' };
+
+        if (!preference.follower.length && !Object.keys(preference.subscribe).length) {
+            console.log('NO preference');
+            return { data: { noPreference: true } };
         }
 
         let EndOfFeed = false;
@@ -832,4 +836,5 @@ module.exports = {
     readArticle,
     generateHotArticles,
     getCategoryArticles,
+    generateNewsFeedInCache,
 };

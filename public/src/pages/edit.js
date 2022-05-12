@@ -173,8 +173,8 @@ function addTextAreaProperty(paragraphTimetamp) {
                     return;
                 }
 
-                console.log('Auto saving success after keyup');
-            }, 2000);
+                // console.log('Auto saving success after keyup');
+            }, 1200);
 
             // TODO: move to upper text block
             if (evt.keyCode == 38) {

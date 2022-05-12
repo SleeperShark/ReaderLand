@@ -63,8 +63,10 @@ const articleWeightCounter = (article, userPreference) => {
     let { subscribe, follower } = userPreference;
     follower = follower.map((elem) => elem.toString());
 
-    let weight = 0;
-    weight += category.reduce((prev, curr) => prev + (parseInt(subscribe[curr]) || 0), 1);
+    let weight = 1;
+    if (subscribe) {
+        weight += category.reduce((prev, curr) => prev + (parseInt(subscribe[curr]) || 0), 0);
+    }
 
     if (follower.includes(author.toString())) {
         weight *= 3;

@@ -218,11 +218,15 @@ const getArticle = async (articleId, userId = '') => {
 };
 
 const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }) => {
-    const { follower, subscribe } = preference;
+    let { follower, subscribe } = preference;
 
     let aggregateArr = [];
     if (lastArticleId) {
         aggregateArr.push({ $match: { _id: { $lt: ObjectId(lastArticleId) } } });
+    }
+
+    if (!subscribe) {
+        subscribe = {};
     }
 
     aggregateArr.push(

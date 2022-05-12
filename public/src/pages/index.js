@@ -209,11 +209,11 @@ function changeFollowerState({ authorId, remove, add }) {
 async function renderArticles(auth, refresh = false) {
     // hide all article disaply
     const renderType = document.querySelector('.switch.selected').dataset.type;
-
     const container = document.getElementById(`${renderType}-article-container`);
 
     let articles;
     let end;
+
     if (renderType == 'newsfeed') {
         const {
             data: { userFeeds, EndOfFeed },
@@ -238,15 +238,36 @@ async function renderArticles(auth, refresh = false) {
         const {
             data: { latest, EndOfFeed },
             error,
-        } = await getLatestArticles(query);
+        } = await getLatestArticles(token, query);
 
         if (error) {
-            alert('載入動態牆失敗，請稍後在試...');
+            alert('載入動態牆失敗，請稍後再試...');
             console.error(error);
             return;
         }
 
         articles = latest;
+        end = EndOfFeed;
+    } else {
+        console.log(renderType);
+        //Category fetch
+        let query = `?category=${renderType}`;
+        if (!refresh && container.lastElementChild) {
+            query += `&lastArticleId=${container.lastElementChild.dataset.id}`;
+        }
+        //TODO: render category
+        const {
+            data: { categoryArticles, EndOfFeed },
+            error,
+        } = await getCategoryArticleAPI(token, query);
+
+        if (error) {
+            alert('載入動態牆失敗，請稍後再試...');
+            console.error(error);
+            return;
+        }
+
+        articles = categoryArticles;
         end = EndOfFeed;
     }
 
@@ -326,19 +347,52 @@ async function renderSwitchCategorySelection() {
 
     const selection = document.getElementById('category-select');
     const categorySpan = document.querySelector('#category-display span');
+
     categories.forEach((cat) => {
         const catOption = document.createElement('div');
         catOption.innerText = cat;
         catOption.value = cat;
         catOption.classList.add('category-option');
         selection.append(catOption);
+    });
 
-        catOption.addEventListener('click', () => {
-            if (categorySpan.innerText == catOption.innerText) {
-                return;
-            }
-            categorySpan.innerText = catOption.innerText;
-        });
+    selection.addEventListener('click', async (e) => {
+        if (!e.target.classList.contains('category-option')) return;
+
+        const targetType = e.target.innerText;
+
+        //TODO: record currType state
+        const { type: currType } = switchContainer.dataset;
+        scrollRecord[currType] = window.scrollY;
+        document.getElementById(`${currType}-article-container`).classList.add('hide');
+
+        //TODO: Setting state for targetType
+        categorySpan.innerText = targetType;
+        categorySwitch.dataset.type = targetType;
+        switchContainer.dataset.type = targetType;
+
+        document.querySelector('.switch.selected').classList.remove('selected');
+        categorySwitch.classList.add('selected');
+
+        let container;
+        container = document.getElementById(`${targetType}-article-container`);
+
+        if (container) {
+            // Display container
+            container.classList.remove('hide');
+        } else {
+            //TODO: create new Div and loading article
+            container = document.createElement('div');
+            container.id = `${targetType}-article-container`;
+            container.class = 'article-container';
+            document.getElementById('articles-display').append(container);
+            loadingIcon.style.display = 'inline-block';
+            //TODO: loading articles
+            await renderArticles(auth);
+        }
+
+        //TODO: hide out currType switch and select target switch
+        hideSelectionBox();
     });
 }
 
@@ -372,8 +426,10 @@ async function init() {
         document.getElementById('newsfeed-switch').remove();
         document.getElementById('latest-switch').classList.add('selected');
         document.getElementById('latest-article-container').classList.remove('hide');
+        switchContainer.dataset.type = 'latest';
     } else {
         document.getElementById('newsfeed-article-container').classList.remove('hide');
+        switchContainer.dataset.type = 'newsfeed';
     }
 
     await renderArticles(auth);
@@ -406,6 +462,7 @@ $(window).scroll(async function () {
 
 //TODO: switch event listener
 const scrollRecord = {};
+const switchContainer = document.getElementById('switch-container');
 const switches = document.querySelectorAll('.switch');
 
 switches.forEach((switchBtn) => {
@@ -424,14 +481,18 @@ switches.forEach((switchBtn) => {
         scrollRecord[currType] = window.scrollY;
 
         document.getElementById(`${currType}-article-container`).classList.add('hide');
+
         const targetContainer = document.getElementById(`${targetType}-article-container`);
 
         if (!targetContainer.children.length) {
+            loadingIcon.style.display = 'block';
             await renderArticles(auth);
         }
 
         targetContainer.classList.remove('hide');
         window.scroll({ top: scrollRecord[targetType] || 0 });
+
+        switchContainer.dataset.type = targetType;
     });
 });
 

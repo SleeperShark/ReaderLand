@@ -44,8 +44,27 @@ const getNewsfeedAPI = async (userToken, refresh) => {
     });
 };
 
-const getLatestArticles = async (query) => {
-    return fetchHandler(`/api/articles/latest${query}`);
+const getLatestArticles = async (userToken, query) => {
+    if (token) {
+        return fetchHandler(`/api/articles/latest${query}`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${userToken}` },
+        });
+    } else {
+        return fetchHandler(`/api/articles/latest${query}`);
+    }
+};
+
+const getCategoryArticleAPI = async (userToken, query) => {
+    console.log(query);
+    if (userToken) {
+        return fetchHandler(`/api/articles${query}`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${userToken}` },
+        });
+    } else {
+        return fetchHandler(`/api/articles${query}`);
+    }
 };
 
 const getUserSubscription = async (userToken) => {

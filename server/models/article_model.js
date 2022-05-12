@@ -496,7 +496,6 @@ const getCategoryArticles = async ({ userId, category, lastArticleId }) => {
         //TODO: 先不考慮 cache 的情境
         let aggregateArr = [];
 
-        const matchObj = {};
         if (lastArticleId) {
             aggregateArr.push({ $match: { _id: { $lt: ObjectId(lastArticleId) } } });
         }
@@ -518,15 +517,15 @@ const getCategoryArticles = async ({ userId, category, lastArticleId }) => {
 
         articlesIdArr = articlesIdArr.map((elem) => elem._id);
 
-        let latest = await getFeedsFromId(articlesIdArr, userId);
+        let categoryArticles = await getFeedsFromId(articlesIdArr, userId);
 
-        latest.sort((a, b) => {
+        categoryArticles.sort((a, b) => {
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
 
-        let EndOfFeed = latest.length < 25;
+        let EndOfFeed = categoryArticles.length < 25;
 
-        return { data: { latest, EndOfFeed } };
+        return { data: { categoryArticles, EndOfFeed } };
     } catch (error) {
         console.error('ERROR: getLatestArticles');
         console.error(error);

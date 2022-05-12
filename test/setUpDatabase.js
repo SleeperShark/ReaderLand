@@ -1,5 +1,5 @@
 const { Article, User, Category, Notification, Draft, ObjectId } = require(`${__dirname}/../server/models/schemas`);
-const { generateNewsFeed } = require(`${__dirname}/../server/models/article_model`);
+const { generateNewsFeedInCache } = require(`${__dirname}/../server/models/article_model`);
 const Cache = require(`${__dirname}/../util/cache`);
 const fs = require('fs');
 const bcrypt = require('bcrypt');
@@ -308,11 +308,11 @@ async function assignFavorite() {
 }
 
 async function generateCacheNewsFeed() {
-    let usersId = await User.find({}, { _id: 1 }).limit(20);
+    let usersArr = await User.find({}, { _id: 1, subscribe, follower }).limit(20);
 
-    for (let { _id } of usersId) {
+    for (let { _id, follower, subscribe } of usersArr) {
         console.log(`Regenerate User ${_id}'s newsfeed...`);
-        await generateNewsFeed(_id);
+        await generateNewsFeedInCache({ userId: _id, preference: { follower, subscribe } });
     }
 }
 

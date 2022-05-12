@@ -72,6 +72,10 @@ async function followersNewPost(userId, articles, authorsInfo) {
 async function readerComment(userArticles, others) {
     console.log('Ready to Comment...');
     //TODO: find a random article
+    if (!userArticles.length) {
+        console.log("User doesn't have any articles, skip this acitivity...");
+        return;
+    }
     const article = userArticles[Math.floor(Math.random() * userArticles.length)];
 
     //TODO: choose random reader
@@ -123,6 +127,10 @@ async function authorReply(articles, userId, userEmail, others) {
 async function likeArticle(userArticles, others) {
     console.log('Ready to like one article...');
     //TODO: find a random article
+    if (!userArticles.length) {
+        console.log("User doesn't have any articles, skip this acitivity...");
+        return;
+    }
     const article = userArticles[Math.floor(Math.random() * userArticles.length)];
 
     //TODO: choose random reader
@@ -172,8 +180,9 @@ async function run() {
         console.log('Collecting User Info...');
 
         const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
-            { $sort: { _id: 1 } },
-            { $limit: 1 },
+            // { $sort: { _id: 1 } },
+            // { $limit: 1 },
+            { $match: { name: 'Alex' } },
             {
                 $lookup: {
                     from: 'User',

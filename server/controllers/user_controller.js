@@ -1,7 +1,7 @@
-require('dotenv').config();
+require('dotenv').config({ path: `${__dirname}/../../.env` });
 const validator = require('validator');
 const User = require('../models/user_model');
-const { generateUploadURL, senddingMail, HOST_URL } = require(`${__dirname}/../../util/util`);
+const { generateUploadURL, senddingMail } = require(`${__dirname}/../../util/util`);
 const Notification = require('../models/notification_model');
 
 const getUserInfo = async (req, res) => {
@@ -27,7 +27,10 @@ const signUp = async (req, res) => {
 
     name = validator.escape(name);
 
-    const { error, data: user } = await User.signUp(name, email, password);
+    const {
+        error,
+        data: { user, emailValidationToken },
+    } = await User.signUp(name, email, password);
     if (error) {
         res.status(403).json({ error });
         return;
@@ -38,22 +41,22 @@ const signUp = async (req, res) => {
         return;
     }
 
+    console.log(process.env.HOST_URL);
     //TODO: Sending Validation mail
-    //     const mailHTML = `
-    // <a href="${HOST_URL}/api/user/validateEmil" target="_blank">點擊連結驗證信箱</a>
-    //     `;
-    //     //TODO: sending Validation email
-    //     const { error: mailingError } = await senddingMail({
-    //         to: email,
-    //         subject: 'Test signup mailing',
-    //         text: 'ReaderLand: 驗證信箱',
-    //         html: mailHTML,
-    //         tls: { rejectUnauthorized: false },
-    //     });
+    const mailHTML = `
+    <a href="${process.env.HOST_URL}/api/user/validateEmil?token=${emailValidationToken}" target="_blank">點擊連結驗證信箱</a>
+        `;
+    //TODO: sending Validation email
+    const { error: mailingError } = await senddingMail({
+        to: email,
+        subject: 'ReaderLand 信箱驗證',
+        html: mailHTML,
+        tls: { rejectUnauthorized: false },
+    });
 
-    //     if (mailingError) {
-    //         console.log('Error in sending email');
-    //     }
+    if (mailingError) {
+        console.log('Error in sending email');
+    }
 
     //TODO: init Notification document
     Notification.initUserNotification(user._id);
@@ -73,7 +76,20 @@ const signUp = async (req, res) => {
 };
 
 const validateEmil = async (req, res) => {
-    res.status(200).send('<h1>Test Email Redirect</h1>');
+    const validateToken = req.query.token;
+    if (!validateToken) {
+        res.status(400).json({ error: 'Token is required for email validation.' });
+        return;
+    }
+
+    const { error, status, data } = await User.validateEmailToken(validateToken);
+
+    if (error) {
+        res.status(status).json({ error });
+        return;
+    }
+
+    res.status(200).json({ data });
 };
 
 const nativeSignIn = async (email, password) => {

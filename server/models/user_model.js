@@ -107,11 +107,48 @@ const signUp = async (name, email, password) => {
         console.log(`A new user ${name} has registered!`);
         const { user } = await nativeSignIn(email, password);
 
-        return { data: user };
+        const emailValidationToken = jwt.sign(
+            {
+                userId: user._id.toString(),
+                provider: user.provider,
+                name: user.name,
+                timestamp: new Date().toISOString(),
+            },
+            TOKEN_SECRET
+        );
+
+        return { data: { user, emailValidationToken } };
     } catch (error) {
         console.error('[ERROR] user_model: signUp');
         console.error(error);
         return { error: 'Server Error' };
+    }
+};
+
+const validateEmailToken = async (token) => {
+    let user;
+    try {
+        user = await promisify(jwt.verify)(token, TOKEN_SECRET);
+    } catch (error) {
+        return { status: 401, error: 'Token validation failed' };
+    }
+
+    const { userId, provider, name, timestamp } = user;
+
+    //Validate Time limit (10 min)
+    if (new Date().getTime() - new Date(timestamp).getTime() > 1000 * 60 * 10) {
+        return { status: 401, error: 'Token expired.' };
+    }
+
+    //Validate user info
+    try {
+        const userObj = await User.find({ _id: ObjectId(userId), provider, name });
+        console.log(userObj);
+        return { data: userObj };
+    } catch (error) {
+        console.error('[ERROR] validateEmailToken');
+        console.error(error);
+        return { status: 500, error: 'Server Error' };
     }
 };
 
@@ -631,6 +668,7 @@ module.exports = {
     authentication,
     nativeSignIn,
     signUp,
+    validateEmailToken,
     getUserDetail,
     getUserProfile,
     getAuthorProfile,

@@ -85,55 +85,62 @@ async function pullNewsFeed() {
     const newsfeedKeys = await Cache.keys('*_newsfeed');
 
     for (let feedKey of newsfeedKeys) {
-        const userId = feedKey.split('_')[0];
-        console.log(`Pulling new articles for User ${userId}`);
+        try {
+            const userId = feedKey.split('_')[0];
+            console.log(`Pulling new articles for User ${userId}`);
 
-        const timestampKey = userId + '_timestamp';
-        let timeStamp = await Cache.get(timestampKey);
+            const timestampKey = userId + '_timestamp';
+            let timeStamp = await Cache.get(timestampKey);
 
-        //TODO: collect Article After this time stamp
-        const { subscribe, follower } = await UserSchema.findById(userId, { follower: 1, subscribe: 1 });
+            //TODO: collect Article After this time stamp
+            const { subscribe, follower } = await UserSchema.findById(userId, { follower: 1, subscribe: 1 });
 
-        if (!subscribe || !Object.keys(subscribe).length) {
-            console.log('No preference, skip this user...');
+            if (!subscribe || !Object.keys(subscribe).length) {
+                console.log('No preference, skip this user...');
+            }
+
+            let pullArticles = await ArticleSchema.find(
+                { createdAt: { $gte: timeStamp }, author: { $nin: follower }, category: { $in: Object.keys(subscribe) } },
+                { _id: 1, author: 1, category: 1, createdAt: 1, readCount: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments' } }
+            );
+            const currTimestamp = new Date().toISOString();
+
+            if (!pullArticles.length) {
+                console.log('No new articles for user...');
+                continue;
+            }
+
+            pullArticles = JSON.parse(JSON.stringify(pullArticles));
+
+            // count article weight
+            for (let article of pullArticles) {
+                article.weight = articleWeightCounter(article, { subscribe, follower });
+            }
+            pullArticles.sort((a, b) => b.weight - a.weight);
+            pullArticles = pullArticles.map((elem) => elem._id.toString());
+
+            //TODO: insert new article into news feed
+            const newsFeed = await Cache.lrange(`${userId}_newsfeed`, 0, -1);
+
+            const inertedArray = shuffleTwo(newsFeed, pullArticles);
+            await Cache.del(`${userId}_newsfeed`);
+            await Cache.rpush(`${userId}_newsfeed`, ...inertedArray);
+            await Cache.set(`${userId}_timestamp`, currTimestamp);
+
+            if (!inertedArray) {
+                console.log('No Shuffle Policy, Dropping the task...');
+                break;
+            }
+
+            console.log('insert before: ' + newsFeed.length);
+            console.log('pull length: ' + pullArticles.length);
+            console.log('insert after: ' + inertedArray.length);
+        } catch (error) {
+            console.log('[ERROR]: pulling feed for user ' + userId);
+            console.error(new Date().toISOString());
+            console.error(error);
+            console.error();
         }
-
-        let pullArticles = await ArticleSchema.find(
-            { createdAt: { $gte: timeStamp }, author: { $nin: follower }, category: { $in: Object.keys(subscribe) } },
-            { _id: 1, author: 1, category: 1, createdAt: 1, readCount: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments' } }
-        );
-        const currTimestamp = new Date().toISOString();
-
-        if (!pullArticles.length) {
-            console.log('No new articles for user...');
-            continue;
-        }
-
-        pullArticles = JSON.parse(JSON.stringify(pullArticles));
-
-        // count article weight
-        for (let article of pullArticles) {
-            article.weight = articleWeightCounter(article, { subscribe, follower });
-        }
-        pullArticles.sort((a, b) => b.weight - a.weight);
-        pullArticles = pullArticles.map((elem) => elem._id.toString());
-
-        //TODO: insert new article into news feed
-        const newsFeed = await Cache.lrange(`${userId}_newsfeed`, 0, -1);
-
-        const inertedArray = shuffleTwo(newsFeed, pullArticles);
-        await Cache.del(`${userId}_newsfeed`);
-        await Cache.rpush(`${userId}_newsfeed`, ...inertedArray);
-        await Cache.set(`${userId}_timestamp`, currTimestamp);
-
-        if (!inertedArray) {
-            console.log('No Shuffle Policy, Dropping the task...');
-            break;
-        }
-
-        console.log('insert before: ' + newsFeed.length);
-        console.log('pull length: ' + pullArticles.length);
-        console.log('insert after: ' + inertedArray.length);
     }
 }
 
@@ -143,9 +150,16 @@ async function regenerateNewsfeed() {
     usersId = usersId.map((elem) => elem.split('_')[0]);
 
     for (let i = 0; i < usersId.length; i++) {
-        console.log(`Regenerate User ${usersId[i]}'s newsfeed...`);
-        const preference = await UserSchema.findById(usersId[i], { follower: 1, subscribe: 1 });
-        await ArticleModel.generateNewsFeedInCache({ userId: usersId[i], preference });
+        try {
+            console.log(`Regenerate User ${usersId[i]}'s newsfeed...`);
+            const preference = await UserSchema.findById(usersId[i], { follower: 1, subscribe: 1 });
+            await ArticleModel.generateNewsFeedInCache({ userId: usersId[i], preference });
+        } catch (error) {
+            console.log('[ERROR]: error in generate newsfeed for user ' + usersId[i]);
+            console.error(new Date().toISOString());
+            console.error(error);
+            console.error();
+        }
     }
 
     return;

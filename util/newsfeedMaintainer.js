@@ -94,9 +94,13 @@ async function pullNewsFeed() {
         //TODO: collect Article After this time stamp
         const { subscribe, follower } = await UserSchema.findById(userId, { follower: 1, subscribe: 1 });
 
+        if (!subscribe || !Object.keys(subscribe).length) {
+            console.log('No preference, skip this user...');
+        }
+
         let pullArticles = await ArticleSchema.find(
             { createdAt: { $gte: timeStamp }, author: { $nin: follower }, category: { $in: Object.keys(subscribe) } },
-            { _id: 1, category: 1, createdAt: 1, readCount: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments' } }
+            { _id: 1, author: 1, category: 1, createdAt: 1, readCount: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments' } }
         );
         const currTimestamp = new Date().toISOString();
 
@@ -109,7 +113,7 @@ async function pullNewsFeed() {
 
         // count article weight
         for (let article of pullArticles) {
-            article.weight = articleWeightCounter(article, { subscribe });
+            article.weight = articleWeightCounter(article, { subscribe, follower });
         }
         pullArticles.sort((a, b) => b.weight - a.weight);
         pullArticles = pullArticles.map((elem) => elem._id.toString());

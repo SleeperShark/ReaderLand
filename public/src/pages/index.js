@@ -1,5 +1,6 @@
 let auth;
 const loadingIcon = document.querySelector('.lds-spinner');
+let allCategory;
 
 async function favoriteArticle(e) {
     const articleId = e.dataset.id;
@@ -291,18 +292,46 @@ async function renderCategories(auth) {
     } else {
         document.getElementById('subscribe-header').innerText = '#主題列表';
 
-        const result = await getCategoriesAPI();
-        if (result.data) {
-            const categories = {};
-            result.data.forEach((cat) => {
-                categories[cat] = '';
-            });
-            appendCategories(categories);
+        let result;
+
+        if (allCategory) {
+            result = allCategory;
         } else {
-            console.log(result);
-            alert('系統異常: getCategoriesAPI');
+            const { data, error } = await getCategoriesAPI();
+            if (error) {
+                alert('載入主題標籤失敗...');
+                return;
+            }
+            result = data;
         }
+
+        const categories = {};
+        result.forEach((cat) => {
+            categories[cat] = '';
+        });
+
+        appendCategories(categories);
     }
+}
+
+async function renderSwitchCategorySelection() {
+    const { data: categories, error } = await getCategoriesAPI();
+    if (error) {
+        alert('載入主題失敗...');
+        console.error(error);
+        return;
+    }
+
+    allCategory = categories;
+
+    const selection = document.getElementById('category-select');
+    categories.forEach((cat) => {
+        const catOption = document.createElement('div');
+        catOption.innerText = cat;
+        catOption.value = cat;
+        catOption.classList.add('category-option');
+        selection.append(catOption);
+    });
 }
 
 async function renderHotArticles() {
@@ -328,8 +357,9 @@ async function renderHotArticles() {
 async function init() {
     auth = await authenticate();
     await renderHeader(auth);
-    await renderCategories(auth);
+    await renderSwitchCategorySelection();
 
+    await renderCategories(auth);
     if (!auth) {
         document.getElementById('newsfeed-switch').remove();
         document.getElementById('latest-switch').classList.add('selected');
@@ -371,11 +401,18 @@ const scrollRecord = {};
 const switches = document.querySelectorAll('.switch');
 
 switches.forEach((switchBtn) => {
-    switchBtn.addEventListener('click', async () => {
+    switchBtn.addEventListener('click', async (e) => {
         const currSwitch = document.querySelector('.switch.selected');
         if (currSwitch == switchBtn) {
             return;
         }
+
+        // console.log(switchBtn.id);
+
+        if (switchBtn.id == 'category-switch') {
+            return;
+        }
+
         currSwitch.classList.remove('selected');
         switchBtn.classList.add('selected');
 
@@ -408,3 +445,22 @@ document.querySelectorAll('.refresh').forEach((refreshBtn) => {
         await renderArticles(auth, 'true');
     });
 });
+
+// TODO: Toggle category selection
+const categorySwitch = document.getElementById('category-switch');
+const categorySelectBox = document.getElementById('category-select');
+const toggleHint = document.getElementById('toggle-hint');
+
+function hideSelectionBox() {
+    categorySelectBox.classList.add('hide');
+    toggleHint.classList.remove('fa-angle-up');
+    toggleHint.classList.add('fa-angle-down');
+}
+
+categorySwitch.addEventListener('mouseover', () => {
+    categorySelectBox.classList.remove('hide');
+    toggleHint.classList.remove('fa-angle-down');
+    toggleHint.classList.add('fa-angle-up');
+});
+
+categorySwitch.addEventListener('mouseleave', hideSelectionBox);

@@ -249,7 +249,6 @@ async function renderArticles(auth, refresh = false) {
         articles = latest;
         end = EndOfFeed;
     } else {
-        console.log(renderType);
         //Category fetch
         let query = `?category=${renderType}`;
         if (!refresh && container.lastElementChild) {
@@ -506,7 +505,7 @@ switches.forEach((switchBtn) => {
 
 document.querySelectorAll('.refresh').forEach((refreshBtn) => {
     refreshBtn.addEventListener('click', async () => {
-        const currSwitch = refreshBtn.parentElement;
+        const currSwitch = document.querySelector('.switch.selected');
         const type = currSwitch.dataset.type;
         scrollRecord[type] = 0;
 

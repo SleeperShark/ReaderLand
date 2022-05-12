@@ -56,7 +56,6 @@ const getLatestArticles = async (userToken, query) => {
 };
 
 const getCategoryArticleAPI = async (userToken, query) => {
-    console.log(query);
     if (userToken) {
         return fetchHandler(`/api/articles${query}`, {
             method: 'GET',

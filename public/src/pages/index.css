@@ -2,6 +2,7 @@ main {
     margin-top: 80px;
     background-color: black;
     width: calc(100vw - 9px);
+    min-height: calc(100vh - 80px);
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -31,18 +32,18 @@ main {
     opacity: 0.7;
 }
 
-.switch .fa-redo-alt {
+.switch .refresh {
+    display: none;
     font-size: 1rem;
     margin-left: 3px;
-    display: none;
     transform: rotate(90deg);
 }
 
-.switch .fa-redo-alt:hover {
+.refresh:hover {
     transform: scale(1.05) rotate(90deg);
 }
 
-.switch .fa-redo-alt:active {
+.refresh:active {
     transform: scale(0.95) rotate(90deg);
 }
 
@@ -56,9 +57,11 @@ main {
     opacity: 1;
 }
 
-.switch.selected > .fa-redo-alt {
+.switch.selected .refresh {
     display: inline-block;
 }
+
+/* ARTICLE DISPLAY */
 
 #articles-display {
     width: 50vw;

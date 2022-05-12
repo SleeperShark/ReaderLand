@@ -385,7 +385,7 @@ const getFeedsFromId = async (idArr, userId) => {
 };
 
 // TODO: get articles preview from customized newsfeed
-const getNewsFeed = async (userId) => {
+const getNewsFeed = async (userId, refresh) => {
     if (!Cache.ready) {
         //TODO: cache faile situation
     }
@@ -398,8 +398,14 @@ const getNewsFeed = async (userId) => {
 
         let EndOfFeed = false;
 
-        // Check if user's newsfeed exist
+        if (refresh) {
+            await Cache.del(`${userId}_newsfeed_tail`);
+            await Cache.del(`${userId}_timestamp`);
+            await Cache.del(`${userId}_newsfeed`);
+        }
+
         if (!(await Cache.exists(`${userId}_timestamp`))) {
+            // Check if user's newsfeed exist
             let { data } = await generateNewsFeedInCache({ userId, preference });
             if (!data) {
                 // No preference article

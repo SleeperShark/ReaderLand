@@ -204,7 +204,7 @@ function changeFollowerState({ authorId, remove, add }) {
     });
 }
 
-async function renderArticles(auth) {
+async function renderArticles(auth, refresh = false) {
     // hide all article disaply
     const renderType = document.querySelector('.switch.selected').dataset.type;
 
@@ -216,7 +216,7 @@ async function renderArticles(auth) {
         const {
             data: { userFeeds, EndOfFeed },
             error,
-        } = await getNewsfeedAPI(token);
+        } = await getNewsfeedAPI(token, refresh);
 
         if (error) {
             alert('載入動態牆失敗，請稍後在試...');
@@ -228,7 +228,9 @@ async function renderArticles(auth) {
         end = EndOfFeed;
     } else if (renderType == 'latest') {
         let query = '';
-        if (container.lastElementChild) {
+        if (refresh) {
+            query = '';
+        } else if (container.lastElementChild) {
             query = `?lastArticleId=${container.lastElementChild.dataset.id}`;
         }
         const {
@@ -246,6 +248,11 @@ async function renderArticles(auth) {
         end = EndOfFeed;
     }
 
+    if (refresh) {
+        const type = document.querySelector('.switch.selected').dataset.type;
+        document.getElementById(`${type}-article-container`).innerHTML = '';
+    }
+    console.log('rerender');
     for (let article of articles) {
         appendArticle({ article, auth, container });
     }
@@ -364,6 +371,7 @@ $(window).scroll(async function () {
 //TODO: switch event listener
 const scrollRecord = {};
 const switches = document.querySelectorAll('.switch');
+
 switches.forEach((switchBtn) => {
     switchBtn.addEventListener('click', async () => {
         const currSwitch = document.querySelector('.switch.selected');
@@ -384,7 +392,18 @@ switches.forEach((switchBtn) => {
         if (!targetContainer.children.length) {
             await renderArticles(auth);
         }
+
         targetContainer.classList.remove('hide');
         window.scroll({ top: scrollRecord[targetType] || 0 });
+    });
+});
+
+document.querySelectorAll('.refresh').forEach((refreshBtn) => {
+    refreshBtn.addEventListener('click', async () => {
+        const currSwitch = refreshBtn.parentElement;
+        const type = currSwitch.dataset.type;
+        scrollRecord[type] = 0;
+
+        await renderArticles(auth, 'true');
     });
 });

@@ -57,8 +57,15 @@ const getArticle = async (req, res) => {
 const getNewsFeed = async (req, res) => {
     try {
         const { userId } = req.user;
+        let refresh = req.query.refresh;
 
-        const { data, error, status } = await Article.getNewsFeed(userId);
+        if (refresh) {
+            refresh = refresh === 'true';
+        } else {
+            refresh = false;
+        }
+
+        const { data, error, status } = await Article.getNewsFeed(userId, refresh);
         if (error) {
             res.status(status).json({ error });
         }

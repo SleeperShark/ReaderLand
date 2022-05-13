@@ -102,7 +102,7 @@ submitBtn.addEventListener('click', async (event) => {
             const repeatPW = document.getElementById('repeat-password-input').value;
             //verify repeat password
             if (password !== repeatPW) {
-                alert('重複密碼不符，請再試一次😓');
+                await Swal.fire({ icon: 'warning', text: '重複密碼不符，請再試一次😓' });
                 return;
             }
 
@@ -125,14 +125,14 @@ submitBtn.addEventListener('click', async (event) => {
                 const {
                     user: { name },
                 } = res.data;
-                alert(`您好 ${name}, 請先至您的信箱點擊驗證連結完成註冊流程歐😀`);
+                await Swal.fire({ icon: 'success', title: '註冊成功', text: `您好 ${name}, 請先至您的信箱點擊驗證連結完成註冊流程歐😀` });
                 window.location.href = '/login.html';
             } else if (res.status == 400) {
-                alert('✘ 信箱格式不符。');
+                await Swal.fire({ icon: 'error', text: '✉ 信箱格式不符。' });
             } else if (res.status == 403) {
-                alert('✘ 此信箱已註冊。');
+                await Swal.fire({ icon: 'error', text: '✉ 此信箱已註冊。' });
             } else {
-                alert('✘ 系統異常，請稍後再試。');
+                await Swal.fire({ icon: 'error', text: '系統異常，請稍後再試😫。' });
             }
             hideLoadingHint();
     }

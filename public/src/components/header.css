@@ -126,7 +126,7 @@ header {
 /* for authentication */
 #create-article {
     display: inline-block;
-    height: 100%;
+    height: 55px;
     /* background-color: aliceblue; */
     text-align: center;
     font-size: 1.3rem;

@@ -27,7 +27,6 @@ main {
 }
 
 .navbar-item.selected {
-    font-style: Oblique;
     opacity: 1;
     background-color: rgba(49, 46, 129, 0.9);
 }
@@ -88,7 +87,7 @@ main {
 
 .favorite-article > .title {
     display: inline-block;
-    font-size: 2.2rem;
+    font-size: 1.6rem;
     font-weight: bolder;
     color: white;
     cursor: pointer;
@@ -352,7 +351,7 @@ main {
 }
 
 .followee > span {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: bold;
     margin-left: auto;
     margin-right: 10px;
@@ -397,7 +396,7 @@ main {
 
 .follower-name {
     margin-top: 2px;
-    font-size: 2rem;
+    font-size: 1.6rem;
     color: white;
     font-weight: bolder;
     letter-spacing: 2px;
@@ -613,6 +612,7 @@ main {
     right: 5px;
     font-size: 1.3rem;
     cursor: pointer;
+    display: none !important;
 }
 
 .published-edit:hover + .published-edit-hint {
@@ -632,7 +632,7 @@ main {
 }
 
 .published-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: bold;
     letter-spacing: 1px;
     cursor: pointer;
@@ -695,7 +695,7 @@ main {
 }
 
 .draft-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: bold;
     letter-spacing: 1px;
     cursor: pointer;

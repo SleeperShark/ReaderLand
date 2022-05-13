@@ -116,8 +116,6 @@ const signUp = async (name, email, password) => {
                 return;
             }
 
-            console.log(user);
-
             const { valid, name, _id } = user;
 
             if (!valid) {
@@ -155,24 +153,23 @@ const validateEmailToken = async (token) => {
     const { userId, provider, name, timestamp } = user;
 
     //Validate Time limit (10 min)
-    // if (new Date().getTime() - new Date(timestamp).getTime() > 1000 * 60 * 5) {
-    //     return { status: 401, error: 'Token expired.' };
-    // }
+    if (new Date().getTime() - new Date(timestamp).getTime() > 1000 * 60 * 10) {
+        return { status: 401, error: 'Token expired.' };
+    }
 
     //Validate user info
     try {
         let validateUser = await User.findOneAndUpdate(
             { _id: ObjectId(userId), provider, name, valid: false },
-            {},
-            // { $set: { valid: true } },
+            { $set: { valid: true } },
             { projection: { name: 1, valid: 1 }, new: true }
         );
 
         if (validateUser) {
             const { name, valid } = validateUser;
-            // if (!valid) {
-            //     return { error: 'Server Error', status: 500 };
-            // }
+            if (!valid) {
+                return { error: 'Server Error', status: 500 };
+            }
 
             return { data: name };
         } else {

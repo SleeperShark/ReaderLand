@@ -42,7 +42,6 @@ const signUp = async (req, res) => {
         return;
     }
 
-    console.log(process.env.HOST_URL);
     //TODO: Sending Validation mail
     const mailHTML = `
     <a href="${process.env.HOST_URL}/api/user/validateEmil?token=${emailValidationToken}" target="_blank">點擊連結驗證信箱</a>

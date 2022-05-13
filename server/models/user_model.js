@@ -104,10 +104,11 @@ const signUp = async (name, email, password) => {
         };
 
         await User.create(userInfo);
+
         console.log(`A new user ${name} has registered!`);
         const { user } = await nativeSignIn(email, password);
 
-        // Delete unvalidated user in 10 minute
+        //TODO: Delete unvalidated user in 10 minute
         setTimeout(async () => {
             const user = await User.findOne({ email }, { name: 1, valid: 1, _id: 1 });
             if (!user) {
@@ -135,9 +136,12 @@ const signUp = async (name, email, password) => {
 
         return { data: { user, emailValidationToken } };
     } catch (error) {
+        if (error.message.includes('duplicate')) {
+            return { error: 'Email already registered', status: 403 };
+        }
         console.error('[ERROR] user_model: signUp');
         console.error(error);
-        return { error: 'Server Error' };
+        return { error: 'Server Error', status: 500 };
     }
 };
 

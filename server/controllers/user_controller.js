@@ -28,14 +28,13 @@ const signUp = async (req, res) => {
 
     name = validator.escape(name);
 
-    const {
-        error,
-        data: { user, emailValidationToken },
-    } = await User.signUp(name, email, password);
+    const { error, status, data } = await User.signUp(name, email, password);
     if (error) {
-        res.status(403).json({ error });
+        res.status(status).json({ error });
         return;
     }
+
+    const { user, emailValidationToken } = data;
 
     if (!user) {
         res.status(500).json({ error: 'Database Query Error' });

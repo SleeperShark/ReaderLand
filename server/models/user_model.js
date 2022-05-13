@@ -106,7 +106,7 @@ const signUp = async (name, email, password) => {
         await User.create(userInfo);
 
         console.log(`A new user ${name} has registered!`);
-        const { user } = await nativeSignIn(email, password);
+        const { user } = await nativeSignIn(email, password, false);
 
         //TODO: Delete unvalidated user in 10 minute
         setTimeout(async () => {
@@ -185,7 +185,7 @@ const validateEmailToken = async (token) => {
     }
 };
 
-const nativeSignIn = async (email, password) => {
+const nativeSignIn = async (email, password, validRequired = true) => {
     try {
         const modelUser = await User.findOne({ email });
         const user = JSON.parse(JSON.stringify(modelUser));
@@ -194,7 +194,7 @@ const nativeSignIn = async (email, password) => {
             return { error: 'Password is wrong' };
         }
 
-        if (!modelUser.valid) {
+        if (!modelUser.valid && validRequired) {
             return { error: 'Unvalidated email account.', status: 400 };
         }
 

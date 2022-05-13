@@ -113,7 +113,7 @@ async function insertReader(authorsId, categories) {
             }, {});
 
         //TODO: insert document and get the reader ID
-        const reader = await User.create({ name, email, password, bio, picture, subscribe });
+        const reader = await User.create({ name, email, password, bio, picture, subscribe, valid: true });
 
         //TODO: create Notification document
         await Notification.create({

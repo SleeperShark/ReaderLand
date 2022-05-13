@@ -27,8 +27,7 @@ header {
     left: 0px;
     top: 0px;
     width: 100vw;
-    height: 80px;
-    padding: 5px 50px;
+    padding: 8px 50px;
     z-index: 999;
 
     background-color: rgb(60, 58, 58);
@@ -362,4 +361,8 @@ span.unread {
 
 .hide {
     display: none;
+}
+
+main {
+    margin-top: 110px;
 }

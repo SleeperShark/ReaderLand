@@ -8,6 +8,7 @@ const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const e = require('cors');
 
 const USER_ROLE = {
     ALL: -1,
@@ -107,6 +108,24 @@ const signUp = async (name, email, password) => {
         console.log(`A new user ${name} has registered!`);
         const { user } = await nativeSignIn(email, password);
 
+        // Delete unvalidated user in 10 minute
+        setTimeout(async () => {
+            const user = await User.findOne({ email }, { name: 1, valid: 1, _id: 1 });
+            if (!user) {
+                console.log(`No match user registered with ${email}`);
+                return;
+            }
+
+            console.log(user);
+
+            const { valid, name, _id } = user;
+
+            if (!valid) {
+                console.log(`Delete unvalidated user ${name}...`);
+                await User.findByIdAndDelete(_id);
+            }
+        }, 1000 * 60 * 10);
+
         const emailValidationToken = jwt.sign(
             {
                 userId: user._id.toString(),
@@ -136,15 +155,28 @@ const validateEmailToken = async (token) => {
     const { userId, provider, name, timestamp } = user;
 
     //Validate Time limit (10 min)
-    if (new Date().getTime() - new Date(timestamp).getTime() > 1000 * 60 * 10) {
+    if (new Date().getTime() - new Date(timestamp).getTime() > 1000 * 60 * 5) {
         return { status: 401, error: 'Token expired.' };
     }
 
     //Validate user info
     try {
-        const userObj = await User.find({ _id: ObjectId(userId), provider, name });
-        console.log(userObj);
-        return { data: userObj };
+        let validateUser = await User.findOneAndUpdate(
+            { _id: ObjectId(userId), provider, name, valid: false },
+            { $set: { valid: true } },
+            { projection: { name: 1, valid: 1 }, new: true }
+        );
+
+        if (validateUser) {
+            const { name, valid } = validateUser;
+            if (!valid) {
+                return { error: 'Server Error', status: 500 };
+            }
+
+            return { data: name };
+        } else {
+            return { error: 'No match user.', status: 400 };
+        }
     } catch (error) {
         console.error('[ERROR] validateEmailToken');
         console.error(error);

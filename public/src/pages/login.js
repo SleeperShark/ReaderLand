@@ -57,7 +57,7 @@ submitBtn.addEventListener('click', async (event) => {
     const password = document.getElementById('password-input').value;
 
     if (!email || !password) {
-        alert('請完整填寫欄位!');
+        await Swal.fire({ icon: 'warning', text: '請確實填寫欄位!' });
         return;
     }
 
@@ -84,15 +84,15 @@ submitBtn.addEventListener('click', async (event) => {
                     user: { name },
                 } = res.data;
                 localStorage.setItem('ReaderLandToken', accessToken);
-                alert(`${name}, 歡迎回來❤️!`);
+                await Swal.fire({ icon: 'success', title: '登入成功', text: `${name}, 歡迎回到ReaderLand!` });
                 window.location.href = '/index.html';
             } else if (res.status == 400) {
                 // Unvalidated email
-                alert('此信箱尚未驗證，請前往信箱確認驗證信😉。');
+                await Swal.fire({ icon: 'error', text: '此信箱尚未驗證，請前往信箱確認驗證信😉。' });
             } else if (res.status == 500) {
-                alert('系統異常，請稍後再試😫。');
+                await Swal.fire({ icon: 'error', text: '系統異常，請稍後再試😫。' });
             } else {
-                alert('登入資訊有誤，請再試一次😓。');
+                await Swal.fire({ icon: 'error', text: '登入資訊有誤，請再試一次😓。' });
             }
             hideLoadingHint();
             break;

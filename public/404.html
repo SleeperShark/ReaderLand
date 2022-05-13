@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ReaderLand</title>
+
+        <script src="https://kit.fontawesome.com/b9edaa44c7.js" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+
+        <link rel="icon" href="img/icon/ReaderLand.ico" sizes="16x16" />
+        <link rel="stylesheet" href="./src/components/header.css" />
+
+        <!-- Link for Logo Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet" />
+        <style>
+            main {
+                display: flex;
+                padding-left: 10vw;
+                margin-top: 100px;
+                width: 100vw;
+                height: 78vh;
+                color: white;
+            }
+            iframe {
+                width: 40vw;
+                height: 40vw;
+                border: 0px;
+            }
+            #context {
+                padding-top: 27vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            #first {
+                font-size: 2.7rem;
+                letter-spacing: 2px;
+                font-weight: bolder;
+            }
+            #second {
+                margin-top: 30px;
+                font-size: 1.3rem;
+            }
+            #second > a {
+                font-size: 1.8rem;
+                text-decoration: none;
+                color: rgb(36, 150, 216);
+                margin-left: 10px;
+                margin-right: 10px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <header></header>
+        <main>
+            <iframe src="https://embed.lottiefiles.com/animation/94905"></iframe>
+            <div id="context">
+                <div id="first">Oops!查無此頁歐｡ﾟヽ(ﾟ´Д`)ﾉﾟ｡</div>
+                <div id="second">點擊<a href="/index.html">這裡</a>回去首頁看看吧 (◉３◉)</div>
+            </div>
+        </main>
+        <script src="./src/components/header.js"></script>
+        <script>
+            let auth;
+            async function init() {
+                auth = await authenticate();
+                await renderHeader(auth);
+            }
+            init();
+        </script>
+    </body>
+</html>

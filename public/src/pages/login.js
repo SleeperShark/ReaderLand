@@ -66,6 +66,9 @@ submitBtn.addEventListener('click', async (event) => {
     switch (switchBtn.dataset.state) {
         case 'sign-in':
             body.provider = 'native';
+
+            showLoadingHint('sign-in');
+
             res = await fetch('/api/user/signin', {
                 method: 'POST',
                 headers: {
@@ -73,6 +76,7 @@ submitBtn.addEventListener('click', async (event) => {
                 },
                 body: JSON.stringify(body),
             });
+
             if (res.status == 200) {
                 res = await res.json();
                 const {
@@ -84,6 +88,7 @@ submitBtn.addEventListener('click', async (event) => {
                 window.location.href = '/index.html';
             } else {
                 alert('登入資訊有誤，請再試一次。');
+                hideLoadingHint();
             }
             break;
 
@@ -97,6 +102,9 @@ submitBtn.addEventListener('click', async (event) => {
             }
 
             body.name = name;
+            //TODO: waiting register hint
+            showLoadingHint('sign-up');
+
             res = await fetch('/api/user/signup', {
                 method: 'POST',
                 headers: {
@@ -104,27 +112,24 @@ submitBtn.addEventListener('click', async (event) => {
                 },
                 body: JSON.stringify(body),
             });
+
             if (res.status == 200) {
                 res = await res.json();
                 console.log(res.data);
 
                 const {
-                    accessToken,
                     user: { name },
                 } = res.data;
-                localStorage.setItem('ReaderLandToken', accessToken);
-                alert(`${name}, 歡迎來到 ReaderLand ❤️`);
-                window.location.href = '/index.html';
-                return;
+                alert(`您好 ${name}, 請先至您的信箱點擊驗證連結完成註冊流程歐😀`);
+                window.location.href = '/login.html';
             } else if (res.status == 400) {
                 alert('✘ 信箱格式不符。');
-                return;
             } else if (res.status == 403) {
                 alert('✘ 此信箱已註冊。');
-                return;
             } else {
                 alert('✘ 系統異常，請稍後再試。');
             }
+            hideLoadingHint();
     }
 });
 
@@ -134,3 +139,33 @@ document.getElementById('password-input').addEventListener('keypress', (e) => {
         submitBtn.click();
     }
 });
+
+const loadingHint = document.getElementById('loading-hint');
+let intervalId;
+
+function showLoadingHint(condition) {
+    loadingHint.style.display = 'block';
+
+    document.getElementById('loading-condition').innerText = condition === 'sign-in' ? '登入' : '註冊';
+    let counting = 0;
+
+    const waitingHintDot = document.getElementById('loading-dot');
+    intervalId = setInterval(() => {
+        switch (counting % 3) {
+            case 0:
+                waitingHintDot.innerText = '.';
+                break;
+            case 1:
+                waitingHintDot.innerText = '..';
+                break;
+            case 2:
+                waitingHintDot.innerText = '...';
+        }
+        counting += 1;
+    }, 700);
+}
+
+function hideLoadingHint() {
+    clearInterval(intervalId);
+    loadingHint.style.display = 'none';
+}

@@ -19,7 +19,7 @@ async function submitReply(submitBtn) {
     const replyEdit = submitBtn.previousSibling.previousSibling;
     const reply = replyEdit.value.trim();
     if (!reply) {
-        alert('請輸入回覆內容');
+        await warningAlert('請輸入回覆內容');
         return;
     }
 
@@ -236,7 +236,7 @@ async function renderArticle(auth) {
                     followBtn.classList.remove('followed');
                 } else {
                     console.error(result);
-                    alert('操作失敗');
+                    await errorAlert();
                 }
             } else {
                 // follow author
@@ -246,7 +246,7 @@ async function renderArticle(auth) {
                     followBtn.classList.add('followed');
                 } else {
                     console.error(result);
-                    alert('操作失敗');
+                    await errorAlert();
                 }
             }
         });
@@ -262,7 +262,7 @@ async function renderArticle(auth) {
                     likeDiv.classList.remove('favored');
                 } else {
                     console.error(result);
-                    alert('Unlike: 系統異常');
+                    await errorAlert();
                 }
             } else {
                 // like article
@@ -271,7 +271,7 @@ async function renderArticle(auth) {
                     likeDiv.classList.add('favored');
                 } else {
                     console.error(result);
-                    alert('like: 系統異常');
+                    await errorAlert();
                 }
             }
         });
@@ -286,7 +286,7 @@ async function renderArticle(auth) {
                     favoriteDiv.classList.remove('favored');
                 } else {
                     console.error(result);
-                    alert('系統異常: unfavorite');
+                    await errorAlert();
                 }
             } else {
                 // favorite the article
@@ -295,7 +295,7 @@ async function renderArticle(auth) {
                     favoriteDiv.classList.add('favored');
                 } else {
                     console.error(result);
-                    alert('系統異常: unfavorite');
+                    await errorAlert();
                 }
             }
         });
@@ -305,7 +305,7 @@ async function renderArticle(auth) {
         //TODO: submit comment event
         commentSubmitBtn.addEventListener('click', async () => {
             if (!commentArea.value.trim()) {
-                alert('請輸入留言內容');
+                await warningAlert('請輸入留言內容');
                 return;
             }
 
@@ -430,3 +430,27 @@ $(window).scroll(async function () {
         }
     }
 });
+
+function errorAlert() {
+    return Swal.fire({
+        icon: 'error',
+        toast: true,
+        text: '操作失敗，請稍後再試。',
+        position: 'top-end',
+        timer: 2000,
+        showCancelButton: false,
+        showConfirmButton: false,
+    });
+}
+
+function warningAlert(text) {
+    return Swal.fire({
+        icon: 'warning',
+        toast: true,
+        text,
+        position: 'top',
+        timer: 1200,
+        showCancelButton: false,
+        showConfirmButton: false,
+    });
+}

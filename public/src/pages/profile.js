@@ -10,7 +10,7 @@ async function renderDrafts() {
     if (error) {
         console.error(status);
         console.error(error);
-        alert('Error: getDraftAPI');
+        // alert('Error: getDraftAPI');
         return;
     }
 
@@ -44,7 +44,7 @@ async function renderDrafts() {
             if (error) {
                 console.error(status);
                 console.error(error);
-                alert('Error: Delete draft API');
+                // alert('Error: Delete draft API');
                 return;
             }
 

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ReaderLand</title>
+        <link rel="icon" href="img/icon/ReaderLand.ico" sizes="16x16" />
+        <link rel="stylesheet" href="src/components/header.css" />
+        <link rel="stylesheet" href="src/pages/login.css" />
+
+        <script src="https://kit.fontawesome.com/b9edaa44c7.js" crossorigin="anonymous"></script>
+
+        <!-- Link for Logo Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet" />
+
+        <style>
+            main {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .page {
+                width: 80vw;
+                /* border: 1px solid white; */
+                color: white;
+                display: flex;
+            }
+            #context {
+                font-size: 1.7rem;
+                font-weight: lighter;
+                /* background-color: aliceblue; */
+                padding-top: 100px;
+                opacity: 0.9;
+            }
+            #context div {
+                margin-top: 20px;
+            }
+            #greeting {
+                margin-left: 50px;
+            }
+            #context span {
+                font-size: 2.2rem;
+                font-weight: 400;
+            }
+            #context #redirect-hint {
+                margin-top: 90px;
+                font-size: 1.2rem;
+                margin-left: 180px;
+            }
+            #ReaderLand {
+                font-family: 'Patrick Hand', cursive;
+            }
+            .animation {
+                border: 0px;
+                width: 500px;
+                height: 500px;
+                opacity: 0.6;
+            }
+        </style>
+    </head>
+    <body>
+        <header></header>
+        <main>
+            <div id="welcome-page" class="page">
+                <iframe class="animation" src="https://embed.lottiefiles.com/animation/86880"></iframe>
+                <div id="context">
+                    <div id="celebration">恭喜 <span id="username"></span> 信箱驗證成功 (ﾉ>ω&lt; )ﾉ</div>
+                    <div id="greeting">準備進入 <span id="ReaderLand">ReaderLand</span> 體驗閱讀的快樂吧~</div>
+                    <div id="redirect-hint">即將在 <span id="counting"></span> 秒後前往登入頁面</div>
+                </div>
+            </div>
+        </main>
+        <script src="/src/components/header.js"></script>
+
+        <script>
+            const userName = new URL(window.location).searchParams.get('user');
+            const failure = new URL(window.location).searchParams.get('failure');
+
+            async function init() {
+                await renderHeader(false);
+
+                //TODO: welcome page
+                if (userName) {
+                    document.getElementById('username').innerText = userName;
+
+                    // counting
+                    const counting = document.getElementById('counting');
+                    for (let i = 3; i >= 0; i--) {
+                        counting.innerText = i;
+                        await new Promise((r) => {
+                            setTimeout(() => {
+                                r();
+                            }, 1000);
+                        });
+                    }
+                    window.location.href = '/login.html';
+                }
+            }
+            init();
+        </script>
+    </body>
+</html>

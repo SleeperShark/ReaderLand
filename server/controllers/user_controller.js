@@ -3,6 +3,7 @@ const validator = require('validator');
 const User = require('../models/user_model');
 const { generateUploadURL, senddingMail } = require(`${__dirname}/../../util/util`);
 const Notification = require('../models/notification_model');
+const path = require('path');
 
 const getUserInfo = async (req, res) => {
     let { name, email, picture, userId } = req.user;
@@ -82,14 +83,14 @@ const validateEmil = async (req, res) => {
         return;
     }
 
-    const { error, status, data } = await User.validateEmailToken(validateToken);
+    const { error, status, data: name } = await User.validateEmailToken(validateToken);
 
     if (error) {
         res.status(status).json({ error });
         return;
     }
 
-    res.status(200).json({ data });
+    res.redirect(`/validationResult.html?user=${name}`);
 };
 
 const nativeSignIn = async (email, password) => {

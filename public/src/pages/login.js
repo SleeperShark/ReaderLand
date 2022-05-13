@@ -86,10 +86,15 @@ submitBtn.addEventListener('click', async (event) => {
                 localStorage.setItem('ReaderLandToken', accessToken);
                 alert(`${name}, 歡迎回來❤️!`);
                 window.location.href = '/index.html';
+            } else if (res.status == 400) {
+                // Unvalidated email
+                alert('此信箱尚未驗證，請前往信箱確認驗證信😉。');
+            } else if (res.status == 500) {
+                alert('系統異常，請稍後再試😫。');
             } else {
-                alert('登入資訊有誤，請再試一次。');
-                hideLoadingHint();
+                alert('登入資訊有誤，請再試一次😓。');
             }
+            hideLoadingHint();
             break;
 
         case 'sign-up':
@@ -97,7 +102,7 @@ submitBtn.addEventListener('click', async (event) => {
             const repeatPW = document.getElementById('repeat-password-input').value;
             //verify repeat password
             if (password !== repeatPW) {
-                alert('重複密碼不符，請再試一次');
+                alert('重複密碼不符，請再試一次😓');
                 return;
             }
 

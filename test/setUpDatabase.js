@@ -47,7 +47,7 @@ async function insertAuthor(authors, categories) {
                     return prev;
                 }, {});
 
-            return { ...elem, email: `author_${idx}@ReaderLand.com`, password: bcrypt.hashSync('password', 10), subscribe };
+            return { ...elem, email: `author_${idx}@ReaderLand.com`, password: bcrypt.hashSync('password', 10), subscribe, valid: true };
         })
     );
 

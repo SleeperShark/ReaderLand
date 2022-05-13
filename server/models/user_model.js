@@ -8,7 +8,6 @@ const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
-const e = require('cors');
 
 const USER_ROLE = {
     ALL: -1,
@@ -189,6 +188,10 @@ const nativeSignIn = async (email, password) => {
 
         if (!(await comapreAsync(password, user.password))) {
             return { error: 'Password is wrong' };
+        }
+
+        if (!modelUser.valid) {
+            return { error: 'Unvalidated email account.', status: 400 };
         }
 
         const accessToken = jwt.sign(

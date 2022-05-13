@@ -99,6 +99,8 @@ function renderArticles(articles) {
 }
 
 async function init() {
+    document.querySelector('main').style.display = 'none';
+
     const auth = await authenticate();
     await renderHeader(auth);
     const { data: authorProfile, error, status } = await getAuthorProfileAPI(authorId);
@@ -113,6 +115,9 @@ async function init() {
     renderAuthorInfo(auth, authorProfile);
     renderArticles(authorProfile.articles);
     console.log(authorProfile);
+
+    document.querySelector('.lds-ripple').style.display = 'none';
+    document.querySelector('main').style.display = 'block';
 }
 
 init();

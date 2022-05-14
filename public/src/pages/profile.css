@@ -526,8 +526,11 @@ body {
     top: 12rem;
     left: 15rem;
     width: 4.8rem;
-
     display: none;
+}
+
+#change-avatar-btn:hover ~ #change-avatar-hint {
+    display: block;
 }
 
 #upload-avatar-hint {

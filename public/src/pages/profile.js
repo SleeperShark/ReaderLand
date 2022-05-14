@@ -429,14 +429,6 @@ document.querySelector('#navbar').addEventListener('click', (e) => {
     }
 });
 
-//TODO: show "更換頭像" hint when mouse over btn
-document.getElementById('change-avatar-btn').addEventListener('mouseenter', () => {
-    document.getElementById('change-avatar-hint').style.display = 'block';
-});
-document.getElementById('change-avatar-btn').addEventListener('mouseleave', () => {
-    document.getElementById('change-avatar-hint').style.display = 'none';
-});
-
 //TODO: edit name
 let EditNameProcessing = false;
 async function EditNameEvent() {

@@ -10,7 +10,7 @@ async function renderDrafts() {
     if (error) {
         console.error(status);
         console.error(error);
-        // alert('Error: getDraftAPI');
+        await toastBaker({ text: '載入草稿失敗，請稍後再試。', icon: 'error' });
         return;
     }
 
@@ -44,7 +44,7 @@ async function renderDrafts() {
             if (error) {
                 console.error(status);
                 console.error(error);
-                // alert('Error: Delete draft API');
+                await toastBaker({ icon: 'error', text: '移除草稿失敗，請稍後再試。' });
                 return;
             }
 
@@ -113,11 +113,10 @@ function renderFavorite(favoriteArticles) {
             if (error) {
                 console.error(status);
                 console.error(error);
-                alert('移除珍藏失敗，請稍後再試｡ﾟヽ(ﾟ´Д`)ﾉﾟ｡');
+                await toastBaker({ icon: 'error', text: '移除珍藏失敗，請稍後再試。' });
                 return;
             }
-
-            alert('成功移除珍藏');
+            await toastBaker({ icon: 'success', text: '成功移除珍藏' });
             e.target.parentElement.remove();
         });
     });
@@ -210,10 +209,10 @@ async function renderSubscribe(subscribe) {
     });
 
     document.querySelectorAll('.category-weight').forEach((weightInput) => {
-        weightInput.addEventListener('blur', () => {
+        weightInput.addEventListener('blur', async () => {
             // if value out of range -> alert and set back to 1
             if (weightInput.value > 10 || weightInput.value < 0) {
-                alert('主題權重只能是 0-10 之間的整數歐!先幫你重設為1 😎');
+                await toastBaker({ icon: 'warning', text: '主題權重只能是 0-10 之間的整數歐!先幫你重設為1 😎' });
                 weightInput.value = 1;
                 weightInput.innerText = 1;
                 return;
@@ -250,11 +249,10 @@ async function renderSubscribe(subscribe) {
         if (error) {
             console.error(status);
             console.error(error);
-            alert('系統異常: updateSubscribeAPI');
+            await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
             return;
         }
-
-        alert('訂閱成功!');
+        await toastBaker({ icon: 'success', text: '訂閱成功!' });
         renderSubscribe(updateResult);
     });
 }
@@ -304,11 +302,11 @@ function renderFollower(follower) {
             if (error) {
                 console.error(status);
                 console.error(error);
-                alert('取消追蹤失敗');
+                await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
                 return;
             }
 
-            alert(`取消追蹤 ${btn.parentElement.querySelector('.follower-name').innerText}`);
+            await toastBaker({ icon: 'success', text: `取消追蹤 ${btn.parentElement.querySelector('.follower-name').innerText}` });
             btn.parentElement.remove();
         });
     });
@@ -372,7 +370,7 @@ async function init() {
     const auth = await authenticate();
 
     if (!auth) {
-        alert('請先登入');
+        await toastBaker({ icon: 'warning', text: '請先登入!' });
         window.location.href = 'login.html';
     }
 
@@ -383,6 +381,13 @@ async function init() {
 
     //TODO: render each info display
     const { data: profile, error, status } = await getUserProfileAPI(token);
+
+    if (error) {
+        console.error(status);
+        console.error(error);
+        await toastBaker({ icon: 'error', text: '載入個人頁面失敗，請稍後再試' });
+        return;
+    }
 
     renderFavorite(profile.favorite);
 
@@ -395,12 +400,6 @@ async function init() {
     renderProfile({ picture: profile.picture, name: profile.name, bio: profile.bio });
 
     renderPublishedArticles(profile.publishedArticles);
-
-    if (error) {
-        console.error(status);
-        console.error(error);
-        alert('系統異常: getUserProfileAPI');
-    }
 
     //TODO: render draft list
     await renderDrafts();
@@ -459,7 +458,7 @@ async function EditNameEvent() {
     if (error) {
         console.error(status);
         console.error(error);
-        alert('系統異常: updateUserProfileAPI');
+        await toastBaker({ icon: 'error', text: '更新失敗，請稍後再試。' });
         return;
     }
 
@@ -512,7 +511,7 @@ async function EditBioEvent() {
         if (error) {
             console.error(status);
             console.error(error);
-            alert('系統異常: updateUserProfileAPI');
+            await toastBaker({ icon: 'error', text: '更新失敗，請稍後再試。' });
             return;
         }
 
@@ -572,65 +571,71 @@ changeAvatarBtn.addEventListener('click', () => {
 //TODO: upload avatar
 let uploading = false;
 fileInput.addEventListener('change', async () => {
-    if (!fileInput.value) {
-        return;
-    }
-
-    if (uploading) {
-        alert('照片上傳中，請稍後...');
-        return;
-    }
-
-    uploading = true;
-    // Show upload hint
     const uploadHint = document.getElementById('upload-avatar-hint');
-    uploadHint.innerText = '上傳中...';
-    uploadHint.style.display = 'inline-block';
+    try {
+        if (!fileInput.value) {
+            return;
+        }
 
-    var {
-        data: { uploadURL, avatarName, avatarURL },
-        error,
-        status,
-    } = await getUploadUrlAPI(token);
+        if (uploading) {
+            await toastBaker({ icon: 'info', text: '照片上傳中，請稍後...' });
+            return;
+        }
 
-    if (error) {
-        console.error(status);
+        uploading = true;
+        // Show upload hint
+        uploadHint.innerText = '上傳中...';
+        uploadHint.style.display = 'inline-block';
+
+        var {
+            data: { uploadURL, avatarName, avatarURL },
+            error,
+            status,
+        } = await getUploadUrlAPI(token);
+
+        if (error) {
+            console.error(status);
+            console.error(error);
+            await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
+            return;
+        }
+
+        let res = await fetch(uploadURL, {
+            method: 'PUT',
+            headers: { ContentType: 'image/jpeg	' },
+            body: fileInput.files[0],
+        });
+
+        if (res.status != 200) {
+            await res.json();
+            await toastBaker({ icon: 'error', text: '上傳圖片失敗，請稍後再試。' });
+            console.error(res);
+            return;
+        }
+
+        //TODO: save new avatar image name
+        var { data: user, error, status } = await updateUserProfileAPI(token, { picture: avatarName });
+        if (error) {
+            console.error(status);
+            console.error(error);
+            await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
+            return;
+        }
+
+        uploadHint.innerText = '上傳成功';
+        setTimeout(() => {
+            uploadHint.style.display = 'none';
+        }, 800);
+
+        //TODO: replace with new avatar, reset token and header profile image
+        document.getElementById('profile-avatar').src = user.picture;
+        window.localStorage.setItem('ReaderLandToken', user.accessToken);
+        document.getElementById('avatar').src = user.picture;
+    } catch (error) {
         console.error(error);
-        alert('Error: getUploadURLAPI');
-        return;
+        await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
     }
 
-    let res = await fetch(uploadURL, {
-        method: 'PUT',
-        headers: { ContentType: 'image/jpeg	' },
-        body: fileInput.files[0],
-    });
-
-    if (res.status != 200) {
-        await res.json();
-        alert('Error in uploading new avatar');
-        console.error(res);
-        return;
-    }
-
-    //TODO: save new avatar image name
-    var { data: user, error, status } = await updateUserProfileAPI(token, { picture: avatarName });
-    if (error) {
-        console.error(status);
-        console.error(error);
-        alert('Error: update new picture name in db.');
-        return;
-    }
-
-    uploadHint.innerText = '上傳成功';
-    setTimeout(() => {
-        uploadHint.style.display = 'none';
-    }, 800);
-
-    //TODO: replace with new avatar, reset token and header profile image
-    document.getElementById('profile-avatar').src = user.picture;
-    window.localStorage.setItem('ReaderLandToken', user.accessToken);
-    document.getElementById('avatar').src = user.picture;
-
+    uploadHint.style.display = 'none';
     uploading = false;
 });

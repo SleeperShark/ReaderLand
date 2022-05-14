@@ -293,7 +293,6 @@ function timeTransformer(ISODateString) {
 }
 
 function toastBaker(config) {
-    console.log(config);
     return Swal.fire({
         toast: true,
         position: 'top',

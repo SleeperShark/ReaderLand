@@ -62,13 +62,12 @@ async function appendNewparagraphAndSavingDraft(paragraphTimetamp, nextParagraph
         showSavingHint();
         //TODO: update draft
         const { error, status } = await updateDraftAPI(token, draftId, updateData);
+
         if (error) {
             console.error(status);
             console.error(error);
-            alert('Error: updateDraftAPI after apeending');
+            await toastBaker({ icon: 'error', text: '系統異常，變更儲存失敗。' });
         }
-
-        console.log('saving success');
     }
 
     return newParagraph;
@@ -98,15 +97,14 @@ async function removeEmptyParagraphAndSavingDraft(paragraphTimetamp) {
 
     //TODO: update delete action
     showSavingHint();
-    const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
+
+    const { error, status } = await updateDraftAPI(token, draftId, updateData);
     if (error) {
         console.error(status);
         console.error(error);
-        alert('Error: update Draft after remove paragraph');
+        await toastBaker({ icon: 'error', text: '系統異常，變更儲存失敗。' });
         return;
     }
-
-    console.log('update Success');
 }
 
 function moveToUpperTextarea(currTextareaID) {
@@ -164,16 +162,14 @@ function addTextAreaProperty(paragraphTimetamp) {
                 updateData['$set'][`context.${paragraphTimetamp}.content`] = this.value;
 
                 showSavingHint();
-                const { data, error, status } = await updateDraftAPI(token, draftId, updateData);
+                const { error, status } = await updateDraftAPI(token, draftId, updateData);
 
                 if (error) {
                     console.error(status);
                     console.error(error);
-                    alert('Error: Autosaving content');
+                    await toastBaker({ icon: 'error', text: '系統異常，變更儲存失敗。' });
                     return;
                 }
-
-                // console.log('Auto saving success after keyup');
             }, 1200);
 
             // TODO: move to upper text block
@@ -331,7 +327,7 @@ async function createDraft(token, initTimeStamp) {
     if (error) {
         console.error(status);
         console.error(error);
-        alert('Error: createDraftAPI');
+        await toastBaker({ icon: 'error', text: '系統異常，建立草稿失敗。' });
     }
 
     return draftId;
@@ -374,7 +370,7 @@ async function init() {
         if (error) {
             console.error(status);
             console.error(error);
-            alert('Error: updateDraftAPI');
+            await toastBaker({ icon: 'error', text: '系統異常，變更儲存失敗。' });
             return;
         }
 
@@ -404,20 +400,20 @@ async function init() {
         if (error) {
             console.error(status);
             console.error(error);
-            alert('Error: getDraftAPIs');
+            await toastBaker({ icon: 'error', text: '系統異常，無法載入草稿。' });
         } else {
             await renderDraft({ draft, headParagraph, defaultInput, titleInput });
         }
     }
 
     //TODO: create-article btn event listener
-    document.getElementById('create-article').addEventListener('click', (e) => {
+    document.getElementById('create-article').addEventListener('click', async (e) => {
         e.preventDefault();
 
         // Getting title
         const title = document.getElementById('title-input').value;
         if (!title) {
-            alert('請輸入文章標題');
+            await toastBaker({ icon: 'warning', text: '請輸入文章標題' });
             return;
         }
 
@@ -460,7 +456,7 @@ async function init() {
         });
 
         if (!Object.keys(context).length) {
-            alert('請輸入內文');
+            await toastBaker({ icon: 'warning', text: '請輸入內文再發布文章。' });
             return;
         }
 
@@ -471,8 +467,6 @@ async function init() {
             title,
             head,
         };
-
-        console.log(articleInfo);
 
         document.getElementById('submit-board').classList.remove('hide');
     });
@@ -504,7 +498,7 @@ async function init() {
         // collect category
         let categories = document.querySelectorAll('.category.selected');
         if (!categories.length) {
-            alert('請至少選擇一樣主題標籤');
+            await toastBaker({ icon: 'warning', text: '請至少選擇一個主題標籤。' });
             return;
         }
         articleInfo.category = [];
@@ -527,15 +521,14 @@ async function init() {
         if (error) {
             console.error(status);
             console.error(error);
-            alert('系統異常: POST /api/articles');
+            await toastBaker({ icon: 'error', text: '系統異常，建立文章失敗，請稍後再試。' });
             return;
         }
 
-        alert(`新增成功，文章id: ${articleId}`);
+        await toastBaker({ icon: 'success', text: '發布成功✧*｡٩(ˊᗜˋ*)و✧*｡', timer: 1500 });
 
         //TODO: delete draft
         const result = await deleteDraftAPI(token, draftId);
-        console.log(result);
 
         window.location.href = `/article.html?id=${articleId}`;
     });
@@ -553,18 +546,18 @@ document.addEventListener('keydown', function (event) {
 });
 
 // TODO: remove the draft if every is empty
-window.onbeforeunload = async function () {
-    if (document.getElementById('title-input').value) {
-        return undefined;
-    }
+// window.onbeforeunload = async function () {
+//     if (document.getElementById('title-input').value) {
+//         return undefined;
+//     }
 
-    const texts = document.getElementsByClassName('text-input');
-    for (let textInput of texts) {
-        if (textInput.value) {
-            return undefined;
-        }
-    }
+//     const texts = document.getElementsByClassName('text-input');
+//     for (let textInput of texts) {
+//         if (textInput.value) {
+//             return undefined;
+//         }
+//     }
 
-    await deleteDraftAPI(token, draftId);
-    return undefined;
-};
+//     await deleteDraftAPI(token, draftId);
+//     return undefined;
+// };

@@ -217,7 +217,7 @@ const getArticle = async (articleId, userId = '') => {
     }
 };
 
-const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }) => {
+const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }, cache = true) => {
     let { follower, subscribe } = preference;
 
     let aggregateArr = [];
@@ -269,6 +269,18 @@ const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }) =>
         arr[idx]['weight'] = articleWeightCounter(article, preference);
     });
 
+    if (!cache) {
+        return newsfeedMaterial;
+    }
+
+    const cacheFeed = [];
+    for (let i = 0; i < newsfeedMaterial.length; i += 50) {
+        const temp = newsfeedMaterial.slice(i, 50 + i);
+        temp.sort((a, b) => b.weight - a.weight);
+
+        cacheFeed.push(...temp.map((elem) => elem._id.toString()));
+    }
+
     console.log('Saving Newsfeed into cache...');
 
     // First generated
@@ -279,14 +291,6 @@ const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }) =>
 
     console.log('Adding tail for feeds...');
     await Cache.set(`${userId}_newsfeed_tail`, newsfeedMaterial[newsfeedMaterial.length - 1]._id.toString());
-
-    const cacheFeed = [];
-    for (let i = 0; i < newsfeedMaterial.length; i += 50) {
-        const temp = newsfeedMaterial.slice(i, 50 + i);
-        temp.sort((a, b) => b.weight - a.weight);
-
-        cacheFeed.push(...temp.map((elem) => elem._id.toString()));
-    }
 
     await Cache.rpush(`${userId}_newsfeed`, ...cacheFeed);
     console.log("Update User's newsfeed successfully");
@@ -391,10 +395,6 @@ const getFeedsFromId = async (idArr, userId) => {
 
 // TODO: get articles preview from customized newsfeed
 const getNewsFeed = async (userId, refresh) => {
-    if (!Cache.ready) {
-        //TODO: cache faile situation
-    }
-
     try {
         //TODO: check preference exist
         const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
@@ -405,41 +405,60 @@ const getNewsFeed = async (userId, refresh) => {
         }
 
         let EndOfFeed = false;
+        let feedsId;
 
-        if (refresh) {
-            await Cache.del(`${userId}_newsfeed_tail`);
-            await Cache.del(`${userId}_timestamp`);
-            await Cache.del(`${userId}_newsfeed`);
-        }
+        if (!Cache.ready) {
+            //TODO: Cache fail condition
+            feedsWeight = await generateNewsFeedInCache({ userId, preference }, false);
+            const feedsId = feedsWeight.map((elem) => elem._id);
 
-        if (!(await Cache.exists(`${userId}_timestamp`))) {
-            // Check if user's newsfeed exist
-            let { data } = await generateNewsFeedInCache({ userId, preference });
-            if (!data) {
-                // No preference article
-                return { data: { EndOfFeed: true } };
-            }
-        }
+            const id_weight = feedsWeight.reduce((accu, curr) => {
+                accu[curr._id.toString()] = curr.weight;
+                return accu;
+            }, {});
 
-        //* get 25 feeds back from cache
-        const luaScript = `
-        local feeds = redis.call('lrange', KEYS[1], 0, 24);
-        redis.call('ltrim', KEYS[1], 25, -1);
+            let userFeeds = await getFeedsFromId(feedsId, userId);
+            userFeeds.sort((a, b) => id_weight[b._id.toString()] - id_weight[a._id.toString()]);
 
-        local left = redis.call('lrange', KEYS[1], 0, -1);
-        return {feeds, #left};
-        `;
-        let [feedsId, left] = await Cache.eval(luaScript, 1, `${userId}_newsfeed`);
-
-        if (left == 0) {
-            let lastArticleId = await Cache.get(`${userId}_newsfeed_tail`);
-            let { data } = await generateNewsFeedInCache({ userId, lastArticleId, preference });
-
-            if (!data) {
-                EndOfFeed = true;
+            return { data: { userFeeds, EndOfFeed: true, cacheFail: true } };
+        } else {
+            //TODO: get feeds id from cache
+            if (refresh) {
                 await Cache.del(`${userId}_newsfeed_tail`);
                 await Cache.del(`${userId}_timestamp`);
+                await Cache.del(`${userId}_newsfeed`);
             }
+
+            if (!(await Cache.exists(`${userId}_timestamp`))) {
+                // Check if user's newsfeed exist
+                let { data } = await generateNewsFeedInCache({ userId, preference });
+                if (!data) {
+                    // No preference article
+                    return { data: { EndOfFeed: true } };
+                }
+            }
+
+            //* get 25 feeds back from cache
+            const luaScript = `
+            local feeds = redis.call('lrange', KEYS[1], 0, 24);
+            redis.call('ltrim', KEYS[1], 25, -1);
+    
+            local left = redis.call('lrange', KEYS[1], 0, -1);
+            return {feeds, #left};
+            `;
+            let [idArr, left] = await Cache.eval(luaScript, 1, `${userId}_newsfeed`);
+
+            if (left == 0) {
+                let lastArticleId = await Cache.get(`${userId}_newsfeed_tail`);
+                let { data } = await generateNewsFeedInCache({ userId, lastArticleId, preference });
+
+                if (!data) {
+                    EndOfFeed = true;
+                    await Cache.del(`${userId}_newsfeed_tail`);
+                    await Cache.del(`${userId}_timestamp`);
+                }
+            }
+            feedsId = idArr;
         }
 
         // // TODO: get articles preview from articleId

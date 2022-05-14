@@ -1,6 +1,7 @@
 let auth;
 const loadingIcon = document.querySelector('.lds-spinner');
 let allCategory;
+let cache;
 
 async function favoriteArticle(e) {
     const articleId = e.dataset.id;
@@ -218,7 +219,7 @@ async function renderArticles(auth, refresh = false) {
         if (error) {
             await toastBaker({ icon: 'error', text: '系統異常，無法載入動態牆，請稍後再試' });
             console.error(error);
-            return;
+            return { end: '' };
         }
 
         if (data.noPreference) {
@@ -236,7 +237,7 @@ async function renderArticles(auth, refresh = false) {
                 </div>
             `;
             document.getElementById('newsfeed-article-container').append(noPreferenceDiv);
-            return;
+            return { end: '' };
         }
 
         articles = data.userFeeds;
@@ -248,19 +249,16 @@ async function renderArticles(auth, refresh = false) {
         } else if (container.lastElementChild) {
             query = `?lastArticleId=${container.lastElementChild.dataset.id}`;
         }
-        const {
-            data: { latest, EndOfFeed },
-            error,
-        } = await getLatestArticles(token, query);
+        const { data, error } = await getLatestArticles(token, query);
 
         if (error) {
             await toastBaker({ icon: 'error', text: '系統異常，無法載入最新文章，請稍後再試' });
             console.error(error);
-            return;
+            return { end: '' };
         }
 
-        articles = latest;
-        end = EndOfFeed;
+        articles = data.latest;
+        end = data.EndOfFeed;
     } else {
         //Category fetch
         let query = `?category=${renderType}`;
@@ -276,7 +274,7 @@ async function renderArticles(auth, refresh = false) {
         if (error) {
             await toastBaker({ icon: 'error', text: '系統異常，無法載入最新文章，請稍後再試' });
             console.error(error);
-            return;
+            return { end: '' };
         }
 
         articles = categoryArticles;
@@ -289,7 +287,7 @@ async function renderArticles(auth, refresh = false) {
         appendArticle({ article, auth, container });
     }
 
-    return end;
+    return { end };
 }
 
 function appendCategories(subscription) {
@@ -407,7 +405,11 @@ async function renderSwitchCategorySelection() {
             document.getElementById('articles-display').append(container);
             loadingIcon.style.display = 'inline-block';
             //TODO: loading articles
-            await renderArticles(auth);
+            const { end } = await renderArticles(auth);
+            if (end.toString()) {
+                renderEndDiv(targetType, end);
+            }
+            window.scroll({ top: 0 });
         }
 
         //TODO: hide out currType switch and select target switch
@@ -441,17 +443,23 @@ async function init() {
     await renderSwitchCategorySelection();
 
     await renderCategories(auth);
+    let type;
     if (!auth) {
         document.getElementById('newsfeed-switch').remove();
         document.getElementById('latest-switch').classList.add('selected');
         document.getElementById('latest-article-container').classList.remove('hide');
         switchContainer.dataset.type = 'latest';
+        type = latest;
     } else {
         document.getElementById('newsfeed-article-container').classList.remove('hide');
         switchContainer.dataset.type = 'newsfeed';
+        type = 'newsfeed';
     }
 
-    await renderArticles(auth);
+    const { end } = await renderArticles(auth);
+    if (end.toString()) {
+        renderEndDiv(type, end);
+    }
 
     await renderHotArticles();
 }
@@ -471,25 +479,30 @@ $(window).scroll(async function () {
         }
 
         loadigng[`${type}Loading`] = true;
-        const endOfFeed = await renderArticles(auth);
-        if (!endOfFeed) {
-            loadigng[`${type}Loading`] = false;
-        } else {
-            //TODO: render End of feed DIV'
-            console.log('End of the articles feed');
-            const endDiv = document.createElement('div');
-            endDiv.classList.add('end-div');
-            endDiv.innerHTML = `
-                <img src="https://d12aekp9ye7tfn.cloudfront.net/icon/end_of_feeds.png"/>
-                <div class='end-text-container'>
-                    <div class='first-end-text'>沒有文章囉 ~ </div>
-                    <div class='second-end-text'>點擊刷新獲得最新動態 ヽ(✿ﾟ▽ﾟ)ノ</div>
-                </div>
-            `;
-            document.getElementById(`${type}-article-container`).append(endDiv);
+        const { end } = await renderArticles(auth);
+        if (end.toString()) {
+            renderEndDiv(type, end);
         }
     }
 });
+
+function renderEndDiv(type, endOfFeed) {
+    if (!endOfFeed) {
+        loadigng[`${type}Loading`] = false;
+    } else {
+        //TODO: render End of feed DIV'
+        const endDiv = document.createElement('div');
+        endDiv.classList.add('end-div');
+        endDiv.innerHTML = `
+            <img src="https://d12aekp9ye7tfn.cloudfront.net/icon/end_of_feeds.png"/>
+            <div class='end-text-container'>
+                <div class='first-end-text'>沒有文章囉 ~ </div>
+                <div class='second-end-text'>點擊刷新獲得最新動態 ヽ(✿ﾟ▽ﾟ)ノ</div>
+            </div>
+        `;
+        document.getElementById(`${type}-article-container`).append(endDiv);
+    }
+}
 
 //TODO: switch event listener
 const scrollRecord = {};
@@ -536,7 +549,13 @@ document.querySelectorAll('.refresh').forEach((refreshBtn) => {
         document.getElementById(`${type}-article-container`).innerHTML = '';
         loadingIcon.style.display = 'inline-block';
 
-        await renderArticles(auth, 'true');
+        const { end } = await renderArticles(auth, 'true');
+
+        if (end.toString()) {
+            renderEndDiv(type, end);
+        }
+
+        window.scrollTo({ top: 0 });
     });
 });
 

@@ -226,9 +226,9 @@ async function renderHeader(auth) {
             socket.emit('fetch-notification', JSON.stringify({ loadedNotification: loaded }));
         });
 
-        document.getElementById('action-signout').addEventListener('click', () => {
+        document.getElementById('action-signout').addEventListener('click', async () => {
             localStorage.removeItem('ReaderLandToken');
-            alert('已成功登出 🚪');
+            await toastBaker({ text: '已成功登出 🚪', icon: 'success' });
             window.location.href = '/index.html';
         });
 

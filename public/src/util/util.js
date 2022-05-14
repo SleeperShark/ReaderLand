@@ -296,7 +296,7 @@ function toastBaker(config) {
     return Swal.fire({
         toast: true,
         position: 'top',
-        timer: 1200,
+        timer: 1600,
         showCancelButton: false,
         showConfirmButton: false,
         ...config,

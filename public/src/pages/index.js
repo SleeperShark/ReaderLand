@@ -10,10 +10,9 @@ async function favoriteArticle(e) {
 
         if (result.data) {
             e.className = 'far fa-bookmark favorite';
-            console.log('移除成功');
         } else {
-            console.log(result);
-            alert('取消珍藏失敗，請稍後再試');
+            console.error(result.error);
+            await toastBaker({ icon: 'error', text: '系統異常，請稍後再試' });
         }
     } else {
         // TODO: Favorite the article
@@ -21,10 +20,9 @@ async function favoriteArticle(e) {
 
         if (result.data) {
             e.className = 'fas fa-bookmark favored favorite';
-            console.log('新增成功');
         } else {
-            console.log(result);
-            alert('珍藏文章失敗，請再試一次');
+            console.error(result.error);
+            await toastBaker({ icon: 'error', text: '系統異常，請稍後再試' });
         }
     }
 }
@@ -170,7 +168,7 @@ function appendArticle({ article, auth, container }) {
             if (error) {
                 console.error(status);
                 console.error(error);
-                alert('取消失敗，請稍後在試');
+                await toastBaker({ icon: 'error', text: '系統異常，請稍後再試' });
                 return;
             }
 
@@ -184,7 +182,7 @@ function appendArticle({ article, auth, container }) {
             if (error) {
                 console.error(status);
                 console.error(error);
-                alert('取消失敗，請稍後在試');
+                await toastBaker({ icon: 'error', text: '系統異常，請稍後再試' });
                 return;
             }
 
@@ -218,7 +216,7 @@ async function renderArticles(auth, refresh = false) {
         const { data, error } = await getNewsfeedAPI(token, refresh);
 
         if (error) {
-            alert('載入動態牆失敗，請稍後在試...');
+            await toastBaker({ icon: 'error', text: '系統異常，無法載入動態牆，請稍後再試' });
             console.error(error);
             return;
         }
@@ -256,7 +254,7 @@ async function renderArticles(auth, refresh = false) {
         } = await getLatestArticles(token, query);
 
         if (error) {
-            alert('載入動態牆失敗，請稍後再試...');
+            await toastBaker({ icon: 'error', text: '系統異常，無法載入最新文章，請稍後再試' });
             console.error(error);
             return;
         }
@@ -276,7 +274,7 @@ async function renderArticles(auth, refresh = false) {
         } = await getCategoryArticleAPI(token, query);
 
         if (error) {
-            alert('載入動態牆失敗，請稍後再試...');
+            await toastBaker({ icon: 'error', text: '系統異常，無法載入最新文章，請稍後再試' });
             console.error(error);
             return;
         }
@@ -321,7 +319,7 @@ async function renderCategories(auth) {
         if (error) {
             console.error(status);
             console.error(error);
-            alert('系統異常: getUserSubscription');
+            await toastBaker({ icon: 'error', text: '主題列表載入失敗' });
             return;
         }
 
@@ -338,7 +336,7 @@ async function renderCategories(auth) {
         } else {
             const { data, error } = await getCategoriesAPI();
             if (error) {
-                alert('載入主題標籤失敗...');
+                await toastBaker({ icon: 'error', text: '主題列表載入失敗' });
                 return;
             }
             result = data;
@@ -356,7 +354,7 @@ async function renderCategories(auth) {
 async function renderSwitchCategorySelection() {
     const { data: categories, error } = await getCategoriesAPI();
     if (error) {
-        alert('載入主題失敗...');
+        await toastBaker({ icon: 'error', text: '主題列表載入失敗' });
         console.error(error);
         return;
     }

@@ -39,7 +39,7 @@ function renderAuthorInfo(auth, authorProfile) {
             if (error) {
                 console.error(status);
                 console.error(error);
-                alert(`系統錯誤: unFollowAuthorAPI`);
+                await toastBaker({ icon: 'error', text: '系統異常，請稍後再試' });
                 return;
             }
             followBtn.classList.remove('followed');
@@ -49,7 +49,7 @@ function renderAuthorInfo(auth, authorProfile) {
             if (error) {
                 console.error(status);
                 console.error(error);
-                alert(`系統錯誤: unFollowAuthorAPI`);
+                await toastBaker({ icon: 'error', text: '系統異常，請稍後再試' });
                 return;
             }
             followBtn.classList.add('followed');
@@ -113,14 +113,13 @@ async function init() {
     if (error) {
         console.error(status);
         console.error(error);
-        alert('系統異常: getAuthorProfileAPI');
+        await toastBaker({ icon: 'error', text: '系統異常，請稍後再試' });
         return;
     }
 
     // render author info
     renderAuthorInfo(auth, authorProfile);
     renderArticles(authorProfile.articles);
-    console.log(authorProfile);
 
     document.querySelector('.lds-ripple').style.display = 'none';
     document.querySelector('main').style.display = 'block';

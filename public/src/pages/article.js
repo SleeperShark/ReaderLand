@@ -135,6 +135,11 @@ async function renderArticle(auth) {
     }
     const article = result.data;
 
+    // no matched article
+    if (result.status == 400) {
+        window.location.href = '/404.html';
+    }
+
     // TODO: Render content of the article
     //* title
     document.getElementById('title').innerText = article.title;

@@ -284,9 +284,11 @@ async function renderArticle(auth) {
         //TODO: favorite / unfavorite article event
         document.getElementById('favorite-icon').addEventListener('click', async () => {
             const favoriteDiv = document.getElementById('favorite');
+            const favoriteHint = document.getElementById('favorite-hint');
             if (favoriteDiv.classList.contains('favored')) {
                 // unfavorite the artilce
                 const result = await unFavoriteArticleAPI(token, articleId);
+                favoriteHint.innerText = '珍藏文章';
                 if (result.data) {
                     favoriteDiv.classList.remove('favored');
                 } else {
@@ -296,6 +298,7 @@ async function renderArticle(auth) {
             } else {
                 // favorite the article
                 const result = await favoriteArticleAPI(token, articleId);
+                favoriteHint.innerText = '取消珍藏';
                 if (result.data) {
                     favoriteDiv.classList.add('favored');
                 } else {
@@ -431,13 +434,11 @@ document.addEventListener('keydown', function (event) {
 // TODO: copy link to clipboard when click link icon
 document.querySelector('#copy-link-icon').addEventListener('click', async () => {
     try {
-        const type = 'text/plain';
-        const blob = new Blob([window.location.href], { type });
-        const data = [new ClipboardItem({ [type]: blob })];
+        await navigator.clipboard.writeText(window.location.href);
 
-        await navigator.clipboard.write(data);
+        await toastBaker({ icon: 'success', text: '成功複製連結' });
     } catch (error) {
-        alert('error');
+        await toastBaker({ icon: 'error', text: '操作失敗，請稍後再試' });
         console.error(error);
     }
 });

@@ -19,7 +19,7 @@ async function submitReply(submitBtn) {
     const replyEdit = submitBtn.previousSibling.previousSibling;
     const reply = replyEdit.value.trim();
     if (!reply) {
-        await warningAlert('請輸入回覆內容');
+        await toastBaker({ icon: 'warning', text: '請輸入回覆內容' });
         return;
     }
 
@@ -32,12 +32,12 @@ async function submitReply(submitBtn) {
         if (error) {
             console.error(status);
             console.error(error);
-            alert('API 異常: replyCommentAPI');
+            await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
         }
         return;
     } catch (error) {
         console.error(error);
-        alert('系統異常: submit reply');
+        await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
     }
 }
 
@@ -241,7 +241,7 @@ async function renderArticle(auth) {
                     followBtn.classList.remove('followed');
                 } else {
                     console.error(result);
-                    await errorAlert();
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
                 }
             } else {
                 // follow author
@@ -251,7 +251,7 @@ async function renderArticle(auth) {
                     followBtn.classList.add('followed');
                 } else {
                     console.error(result);
-                    await errorAlert();
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
                 }
             }
         });
@@ -267,7 +267,7 @@ async function renderArticle(auth) {
                     likeDiv.classList.remove('favored');
                 } else {
                     console.error(result);
-                    await errorAlert();
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
                 }
             } else {
                 // like article
@@ -276,7 +276,7 @@ async function renderArticle(auth) {
                     likeDiv.classList.add('favored');
                 } else {
                     console.error(result);
-                    await errorAlert();
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
                 }
             }
         });
@@ -291,7 +291,7 @@ async function renderArticle(auth) {
                     favoriteDiv.classList.remove('favored');
                 } else {
                     console.error(result);
-                    await errorAlert();
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
                 }
             } else {
                 // favorite the article
@@ -300,7 +300,7 @@ async function renderArticle(auth) {
                     favoriteDiv.classList.add('favored');
                 } else {
                     console.error(result);
-                    await errorAlert();
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
                 }
             }
         });
@@ -310,7 +310,7 @@ async function renderArticle(auth) {
         //TODO: submit comment event
         commentSubmitBtn.addEventListener('click', async () => {
             if (!commentArea.value.trim()) {
-                await warningAlert('請輸入留言內容');
+                await toastBaker({ icon: 'warning', text: '請輸入留言內容。' });
                 return;
             }
 
@@ -319,14 +319,14 @@ async function renderArticle(auth) {
 
                 if (error) {
                     console.error(error);
-                    alert('留言失敗，請稍後在試');
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
                 }
 
                 commentArea.value = '';
                 // document.getElementById('comment-container').scrollTop = 0;
             } catch (error) {
                 console.error(error);
-                alert('系統異常: POST /api/articles/:articleId/comment');
+                await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
             }
         });
         //TODO: submit comment when hit enter
@@ -435,32 +435,8 @@ $(window).scroll(async function () {
         if (error) {
             console.error(status);
             console.error(error);
-            alert('Error: readArticleAPI');
+            // alert('Error: readArticleAPI');
             return;
         }
     }
 });
-
-function errorAlert() {
-    return Swal.fire({
-        icon: 'error',
-        toast: true,
-        text: '操作失敗，請稍後再試。',
-        position: 'top-end',
-        timer: 2000,
-        showCancelButton: false,
-        showConfirmButton: false,
-    });
-}
-
-function warningAlert(text) {
-    return Swal.fire({
-        icon: 'warning',
-        toast: true,
-        text,
-        position: 'top',
-        timer: 1200,
-        showCancelButton: false,
-        showConfirmButton: false,
-    });
-}

@@ -291,3 +291,15 @@ function timeTransformer(ISODateString) {
 
     return ISODateString.split('T')[0];
 }
+
+function toastBaker(config) {
+    console.log(config);
+    return Swal.fire({
+        toast: true,
+        position: 'top',
+        timer: 1200,
+        showCancelButton: false,
+        showConfirmButton: false,
+        ...config,
+    });
+}

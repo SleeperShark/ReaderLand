@@ -335,6 +335,7 @@ async function createDraft(token, initTimeStamp) {
 
 async function init() {
     textCountingSpan.innerText = textCounting;
+    document.querySelector('main').style.display = 'none';
 
     const auth = await authenticate();
     await renderHeader(auth);
@@ -405,6 +406,9 @@ async function init() {
             await renderDraft({ draft, headParagraph, defaultInput, titleInput });
         }
     }
+
+    document.querySelector('main').style.display = 'flex';
+    document.querySelector('.lds-spinner').style.display = 'none';
 
     //TODO: create-article btn event listener
     document.getElementById('create-article').addEventListener('click', async (e) => {

@@ -57,7 +57,7 @@ submitBtn.addEventListener('click', async (event) => {
     const password = document.getElementById('password-input').value;
 
     if (!email || !password) {
-        await Swal.fire({ icon: 'warning', text: '請確實填寫欄位!' });
+        await toastBaker({ icon: 'warning', text: '請確實填寫欄位!' });
         return;
     }
 
@@ -69,30 +69,35 @@ submitBtn.addEventListener('click', async (event) => {
 
             showLoadingHint('sign-in');
 
-            res = await fetch('/api/user/signin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'Application/json',
-                },
-                body: JSON.stringify(body),
-            });
+            try {
+                res = await fetch('/api/user/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'Application/json',
+                    },
+                    body: JSON.stringify(body),
+                });
 
-            if (res.status == 200) {
-                res = await res.json();
-                const {
-                    accessToken,
-                    user: { name },
-                } = res.data;
-                localStorage.setItem('ReaderLandToken', accessToken);
-                await Swal.fire({ icon: 'success', title: '登入成功', text: `${name}, 歡迎回到ReaderLand!` });
-                window.location.href = '/index.html';
-            } else if (res.status == 400) {
-                // Unvalidated email
-                await Swal.fire({ icon: 'error', text: '此信箱尚未驗證，請前往信箱確認驗證信😉。' });
-            } else if (res.status == 500) {
-                await Swal.fire({ icon: 'error', text: '系統異常，請稍後再試😫。' });
-            } else {
-                await Swal.fire({ icon: 'error', text: '登入資訊有誤，請再試一次😓。' });
+                if (res.status == 200) {
+                    res = await res.json();
+                    const {
+                        accessToken,
+                        user: { name },
+                    } = res.data;
+                    localStorage.setItem('ReaderLandToken', accessToken);
+                    await toastBaker({ icon: 'success', title: '登入成功', text: `${name}, 歡迎回到ReaderLand!`, timer: 2000 });
+                    window.location.href = '/index.html';
+                } else if (res.status == 400) {
+                    // Unvalidated email
+                    await toastBaker({ icon: 'warning', text: '信箱尚未驗證，請前往信箱確認驗證信😉。' });
+                } else if (res.status == 500) {
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試😫。' });
+                } else {
+                    await toastBaker({ icon: 'error', text: '登入資訊有誤，請再試一次😓。' });
+                }
+            } catch (error) {
+                console.error(error);
+                await toastBaker({ icon: 'error', text: '系統異常，請稍後再試😫。' });
             }
             hideLoadingHint();
             break;
@@ -102,7 +107,7 @@ submitBtn.addEventListener('click', async (event) => {
             const repeatPW = document.getElementById('repeat-password-input').value;
             //verify repeat password
             if (password !== repeatPW) {
-                await Swal.fire({ icon: 'warning', text: '重複密碼不符，請再試一次😓' });
+                await toastBaker({ icon: 'warning', text: '重複密碼不符，請再試一次😓。' });
                 return;
             }
 
@@ -110,29 +115,36 @@ submitBtn.addEventListener('click', async (event) => {
             //TODO: waiting register hint
             showLoadingHint('sign-up');
 
-            res = await fetch('/api/user/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'Application/json',
-                },
-                body: JSON.stringify(body),
-            });
+            try {
+                res = await fetch('/api/user/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'Application/json',
+                    },
+                    body: JSON.stringify(body),
+                });
 
-            if (res.status == 200) {
-                res = await res.json();
-                console.log(res.data);
+                if (res.status == 200) {
+                    res = await res.json();
+                    console.log(res.data);
 
-                const {
-                    user: { name },
-                } = res.data;
-                await Swal.fire({ icon: 'success', title: '註冊成功', text: `您好 ${name}, 請先至您的信箱點擊驗證連結完成註冊流程歐😀` });
-                window.location.href = '/login.html';
-            } else if (res.status == 400) {
-                await Swal.fire({ icon: 'error', text: '✉ 信箱格式不符。' });
-            } else if (res.status == 403) {
-                await Swal.fire({ icon: 'error', text: '✉ 此信箱已註冊。' });
-            } else {
-                await Swal.fire({ icon: 'error', text: '系統異常，請稍後再試😫。' });
+                    const {
+                        user: { name },
+                    } = res.data;
+
+                    await toastBaker({ icon: 'success', title: '註冊成功', text: `您好 ${name}, 請先至您的信箱點擊驗證連結完成註冊流程歐😀` });
+
+                    window.location.href = '/login.html';
+                } else if (res.status == 400) {
+                    await toastBaker({ icon: 'error', text: '✉ 信箱格式不符。' });
+                } else if (res.status == 403) {
+                    await toastBaker({ icon: 'error', text: '✉ 此信箱已註冊。' });
+                } else {
+                    await toastBaker({ icon: 'error', text: '系統異常，請稍後再試😫。' });
+                }
+            } catch (error) {
+                console.error(error);
+                await toastBaker({ icon: 'error', text: '系統異常，請稍後再試😫。' });
             }
             hideLoadingHint();
     }

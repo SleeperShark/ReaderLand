@@ -201,6 +201,7 @@ footer {
     color: white;
     display: flex;
     flex-direction: row;
+    align-items: center;
     justify-content: center;
     font-size: 1.8rem;
 
@@ -217,6 +218,7 @@ footer {
 
 .feedback i {
     position: relative;
+    padding-right: 8px;
 }
 
 .favored {
@@ -228,7 +230,6 @@ footer {
 }
 
 .count {
-    margin-left: -4px;
     font-size: 1.5rem;
     height: 100%;
     position: absolute;
@@ -236,6 +237,10 @@ footer {
     right: -30px;
     color: white;
     font-weight: 100;
+}
+
+#copy-link {
+    transform: translateX(-30px);
 }
 
 #comment-board {

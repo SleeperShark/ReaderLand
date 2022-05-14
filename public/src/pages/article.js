@@ -425,6 +425,20 @@ document.addEventListener('keydown', function (event) {
     }
 });
 
+// TODO: copy link to clipboard when click link icon
+document.querySelector('#copy-link-icon').addEventListener('click', async () => {
+    try {
+        const type = 'text/plain';
+        const blob = new Blob([window.location.href], { type });
+        const data = [new ClipboardItem({ [type]: blob })];
+
+        await navigator.clipboard.write(data);
+    } catch (error) {
+        alert('error');
+        console.error(error);
+    }
+});
+
 //TODO: increase readCount when scroll to bottom
 $(window).scroll(async function () {
     if ($(window).scrollTop() + $(window).height() + 110 >= $(document).height()) {

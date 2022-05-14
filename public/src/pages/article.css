@@ -239,10 +239,6 @@ footer {
     font-weight: 100;
 }
 
-#copy-link {
-    transform: translateX(-30px);
-}
-
 #comment-board {
     position: fixed;
     width: 500px;

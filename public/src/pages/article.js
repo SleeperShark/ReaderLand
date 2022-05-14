@@ -336,6 +336,9 @@ async function renderArticle(auth) {
                 commentSubmitBtn.click();
             }
         });
+
+        // Setting link position
+        document.querySelector('#copy-link').style.transform = 'translateX(-30px)';
     } // end of if(auth)
 }
 

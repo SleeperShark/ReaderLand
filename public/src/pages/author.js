@@ -104,6 +104,12 @@ async function init() {
     const auth = await authenticate();
     await renderHeader(auth);
     const { data: authorProfile, error, status } = await getAuthorProfileAPI(authorId);
+
+    if (status == 400) {
+        window.location.href = '/404.html';
+        return;
+    }
+
     if (error) {
         console.error(status);
         console.error(error);

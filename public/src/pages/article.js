@@ -349,9 +349,14 @@ function EnterToSubmitReplyEvent() {
 }
 
 async function init() {
+    document.querySelector('main').style.display = 'none';
+
     const auth = await authenticate();
     await renderHeader(auth);
     await renderArticle(auth);
+
+    document.querySelector('.lds-spinner').style.display = 'none';
+    document.querySelector('main').style.display = 'block';
 
     // EnterToSubmitReplyEvent();
 

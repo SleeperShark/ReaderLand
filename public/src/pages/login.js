@@ -132,7 +132,7 @@ submitBtn.addEventListener('click', async (event) => {
                         user: { name },
                     } = res.data;
 
-                    await toastBaker({ icon: 'success', title: '註冊成功', text: `您好 ${name}, 請先至您的信箱點擊驗證連結完成註冊流程歐😀` });
+                    await toastBaker({ icon: 'success', title: '註冊成功', text: `您好 ${name}, 請先至您的信箱點擊驗證連結完成註冊流程歐😀`, timer: 4000 });
 
                     window.location.href = '/login.html';
                 } else if (res.status == 400) {

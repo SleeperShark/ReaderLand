@@ -8,11 +8,13 @@ const createDraft = async (userId, head) => {
         type: 'text',
         content: '',
     };
+
     try {
         const draft = await Draft.create({
             author: userId,
             head,
             createdAt: new Date(Number(head)).toISOString(),
+            lastUpdatedAt: new Date(Number(head)).toISOString(),
             context,
             title: '',
         });

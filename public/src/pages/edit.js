@@ -270,13 +270,16 @@ async function renderCategoriesSelection() {
 function resizeTextarea(textareaId) {
     const textarea = $(`#${textareaId}`);
 
+    console.log(textarea);
+
     function temporaryAdjustHieght() {
+        console.log(this);
+        console.log('here');
         this.style.height = 'auto';
         this.style.height = this.scrollHeight + 'px';
     }
 
     textarea.on('focus', temporaryAdjustHieght);
-
     textarea.focus();
     textarea.unbind('focus', temporaryAdjustHieght);
 }
@@ -296,7 +299,7 @@ async function renderDraft({ draft: { title, head, context }, headParagraph, def
     defaultInput.value = context[currtTimestamp].content;
 
     addTextAreaProperty(defaultInput.id);
-    resizeTextarea(defaultInput.id);
+    // resizeTextarea(defaultInput.id);
 
     textCounting += defaultInput.value.length;
     // render rest of paragraph
@@ -407,6 +410,11 @@ async function init() {
 
     document.querySelector('main').style.display = 'flex';
     document.querySelector('.lds-spinner').style.display = 'none';
+
+    // Resize paragraph
+    document.querySelectorAll('.text-input').forEach((elem) => {
+        resizeTextarea(elem.id);
+    });
 
     //TODO: create-article btn event listener
     document.getElementById('create-article').addEventListener('click', async (e) => {

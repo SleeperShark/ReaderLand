@@ -389,12 +389,9 @@ async function init() {
         socket.on('update-comment', (msg) => {
             const articleObj = JSON.parse(msg);
             renderCommentBoard(articleObj);
-            console.log(articleObj);
-            console.log(commentCountSpan.innerText);
             commentCountSpan.innerText = articleObj.comments.length;
 
             if (articleObj.commentEvent) {
-                console.log('comment Event');
                 document.getElementById('new-comment-hint').classList.remove('hide');
             }
         });

@@ -126,7 +126,6 @@ submitBtn.addEventListener('click', async (event) => {
 
                 if (res.status == 200) {
                     res = await res.json();
-                    console.log(res.data);
 
                     const {
                         user: { name },

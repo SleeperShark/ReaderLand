@@ -374,8 +374,6 @@ async function init() {
             await toastBaker({ icon: 'error', text: '系統異常，變更儲存失敗。' });
             return;
         }
-
-        console.log('Saving title success');
     });
 
     if (!draftId) {
@@ -429,7 +427,6 @@ async function init() {
         let head;
 
         paragraphs.forEach((paragraph) => {
-            console.log(paragraph);
             const {
                 dataset: { type, timestamp, next },
             } = paragraph;

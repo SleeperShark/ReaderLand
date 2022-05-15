@@ -202,7 +202,6 @@ function changeFollowerState({ authorId, remove, add }) {
     document.querySelectorAll(`button.profile-follow-btn[data-authorid="${authorId}"]`).forEach((btn) => {
         btn.classList.remove(remove);
         btn.classList.add(add);
-        console.log('change state...');
     });
 }
 
@@ -257,8 +256,6 @@ async function renderArticles(auth, refresh = false) {
             cacheFail = false;
             lastArticleIdForNewsfeed = undefined;
         }
-
-        console.log(data);
     } else if (renderType == 'latest') {
         let query = '';
         if (refresh) {
@@ -475,7 +472,6 @@ async function init() {
     }
 
     const { end } = await renderArticles(auth);
-    console.log('Render Here');
     if (end.toString()) {
         renderEndDiv(type, end);
     }
@@ -564,7 +560,6 @@ switches.forEach((switchBtn) => {
 
 document.querySelectorAll('.refresh').forEach((refreshBtn) => {
     refreshBtn.addEventListener('click', async () => {
-        console.log('click');
         const currSwitch = document.querySelector('.switch.selected');
         const type = currSwitch.dataset.type;
         scrollRecord[type] = 0;

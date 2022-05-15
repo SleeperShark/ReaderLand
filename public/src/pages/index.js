@@ -1,7 +1,8 @@
 let auth;
 const loadingIcon = document.querySelector('.lds-spinner');
 let allCategory;
-let cache;
+let cacheFail;
+let lastArticleId;
 
 async function favoriteArticle(e) {
     const articleId = e.dataset.id;
@@ -214,7 +215,7 @@ async function renderArticles(auth, refresh = false) {
     let end;
 
     if (renderType == 'newsfeed') {
-        const { data, error } = await getNewsfeedAPI(token, refresh);
+        const { data, error } = await getNewsfeedAPI(token, { refresh, lastArticleId });
 
         if (error) {
             await toastBaker({ icon: 'error', text: '系統異常，無法載入動態牆，請稍後再試' });
@@ -242,6 +243,13 @@ async function renderArticles(auth, refresh = false) {
 
         articles = data.userFeeds;
         end = data.EndOfFeed;
+
+        if (data.cacheFail) {
+            lastArticleId = data.lastArticleId;
+            cacheFail = true;
+        }
+
+        console.log(data);
     } else if (renderType == 'latest') {
         let query = '';
         if (refresh) {
@@ -474,6 +482,7 @@ const loadigng = {
 $(window).scroll(async function () {
     if ($(window).scrollTop() + $(window).height() + 110 >= $(document).height()) {
         const type = document.querySelector('.switch.selected').dataset.type;
+
         if (loadigng[`${type}Loading`]) {
             return;
         }
@@ -501,6 +510,7 @@ function renderEndDiv(type, endOfFeed) {
             </div>
         `;
         document.getElementById(`${type}-article-container`).append(endDiv);
+        loadigng[`${type}Loading`] = true;
     }
 }
 

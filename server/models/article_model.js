@@ -219,6 +219,7 @@ const getArticle = async (articleId, userId = '') => {
 
 const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }, cache = true) => {
     let { follower, subscribe } = preference;
+    let limit = cache ? 200 : 25;
 
     let aggregateArr = [];
     if (lastArticleId) {
@@ -237,7 +238,7 @@ const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }, ca
             $match: { $or: [{ author: { $in: follower } }, { category: { $in: Object.keys(subscribe) } }] },
         },
         {
-            $limit: 200,
+            $limit: limit,
         },
         {
             $project: {
@@ -270,7 +271,7 @@ const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }, ca
     });
 
     if (!cache) {
-        return newsfeedMaterial;
+        return { data: newsfeedMaterial };
     }
 
     const cacheFeed = [];
@@ -296,8 +297,6 @@ const generateNewsFeedInCache = async ({ userId, lastArticleId, preference }, ca
     console.log("Update User's newsfeed successfully");
 
     return { data: true };
-
-    // fs.writeFileSync('weightRecord.json', JSON.stringify(weightRecord));
 };
 
 const getFeedsFromId = async (idArr, userId) => {
@@ -394,23 +393,41 @@ const getFeedsFromId = async (idArr, userId) => {
 };
 
 // TODO: get articles preview from customized newsfeed
-const getNewsFeed = async (userId, refresh) => {
+const getNewsFeed = async (userId, refresh, lastArticleId) => {
     try {
         //TODO: check preference exist
         const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
 
         if (!preference.follower.length && (!preference.subscribe || !Object.keys(preference.subscribe).length)) {
-            console.log('NO preference');
             return { data: { noPreference: true } };
         }
 
         let EndOfFeed = false;
         let feedsId;
 
+        let lastId = refresh ? undefined : lastArticleId;
+
         if (!Cache.ready) {
             //TODO: Cache fail condition
-            feedsWeight = await generateNewsFeedInCache({ userId, preference }, false);
+            console.log(lastId, refresh);
+            let { data: feedsWeight } = await generateNewsFeedInCache({ userId, preference, lastArticleId: lastId }, false);
+
             const feedsId = feedsWeight.map((elem) => elem._id);
+
+            //TODO: get Last articleId
+            const lastArticleId =
+                feedsWeight
+                    .reduce(
+                        (accu, elem) => {
+                            if (new Date(elem.createdAt).getTime() < new Date(accu.createdAt).getTime()) {
+                                return elem;
+                            } else {
+                                return accu;
+                            }
+                        },
+                        { createdAt: new Date() }
+                    )
+                    ._id.toString() || undefined;
 
             const id_weight = feedsWeight.reduce((accu, curr) => {
                 accu[curr._id.toString()] = curr.weight;
@@ -418,9 +435,10 @@ const getNewsFeed = async (userId, refresh) => {
             }, {});
 
             let userFeeds = await getFeedsFromId(feedsId, userId);
+
             userFeeds.sort((a, b) => id_weight[b._id.toString()] - id_weight[a._id.toString()]);
 
-            return { data: { userFeeds, EndOfFeed: true, cacheFail: true } };
+            return { data: { userFeeds, EndOfFeed: feedsId.length < 25, cacheFail: true, lastArticleId } };
         } else {
             //TODO: get feeds id from cache
             if (refresh) {

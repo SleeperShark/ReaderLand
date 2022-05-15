@@ -57,7 +57,7 @@ const getArticle = async (req, res) => {
 const getNewsFeed = async (req, res) => {
     try {
         const { userId } = req.user;
-        let refresh = req.query.refresh;
+        let { refresh, lastArticleId } = req.query;
 
         if (refresh) {
             refresh = refresh === 'true';
@@ -65,7 +65,7 @@ const getNewsFeed = async (req, res) => {
             refresh = false;
         }
 
-        const { data, error, status } = await Article.getNewsFeed(userId, refresh);
+        const { data, error, status } = await Article.getNewsFeed(userId, refresh, lastArticleId);
         if (error) {
             res.status(status).json({ error });
         }

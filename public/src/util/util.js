@@ -33,11 +33,17 @@ const unFollowAuthorAPI = (userToken, authorId) => {
     });
 };
 
-const getNewsfeedAPI = async (userToken, refresh) => {
-    let query = '';
+const getNewsfeedAPI = async (userToken, { refresh, lastArticleId, cache }) => {
+    let query = [];
     if (refresh) {
-        query = '?refresh=true';
+        query.push('refresh=true');
     }
+    if (!cache && lastArticleId) {
+        query.push(`lastArticleId=${lastArticleId}`);
+    }
+
+    query = `?${query.join('&')}`;
+
     return fetchHandler(`/api/articles/newsfeed${query}`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${userToken}` },

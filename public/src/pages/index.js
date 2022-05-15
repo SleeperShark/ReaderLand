@@ -304,8 +304,6 @@ async function renderArticles(auth, refresh = false) {
         appendArticle({ article, auth, container });
     }
 
-    loadigng[`${renderType}Loading`] = true;
-
     return { end };
 }
 

@@ -479,8 +479,15 @@ const getNewsFeed = async (userId, refresh, lastArticleId) => {
             feedsId = idArr;
         }
 
-        // // TODO: get articles preview from articleId
+        const idOrder = feedsId.reduce((accu, elem, idx) => {
+            accu[elem] = idx;
+            return accu;
+        }, {});
+
+        // TODO: get articles preview from articleId
         let userFeeds = await getFeedsFromId(feedsId, userId);
+
+        userFeeds.sort((a, b) => idOrder[a._id.toString()] - idOrder[b._id.toString()]);
 
         return { data: { userFeeds, EndOfFeed } };
     } catch (error) {

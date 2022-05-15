@@ -215,6 +215,11 @@ async function renderArticles(auth, refresh = false) {
     let end;
 
     if (renderType == 'newsfeed') {
+        if (refresh) {
+            lastArticleId = undefined;
+        }
+        console.log(refresh, lastArticleId);
+
         const { data, error } = await getNewsfeedAPI(token, { refresh, lastArticleId });
 
         if (error) {
@@ -247,6 +252,9 @@ async function renderArticles(auth, refresh = false) {
         if (data.cacheFail) {
             lastArticleId = data.lastArticleId;
             cacheFail = true;
+        } else {
+            cacheFail = false;
+            lastArticleId = undefined;
         }
 
         console.log(data);
@@ -559,7 +567,7 @@ document.querySelectorAll('.refresh').forEach((refreshBtn) => {
         document.getElementById(`${type}-article-container`).innerHTML = '';
         loadingIcon.style.display = 'inline-block';
 
-        const { end } = await renderArticles(auth, 'true');
+        const { end } = await renderArticles(auth, true);
 
         if (end.toString()) {
             renderEndDiv(type, end);

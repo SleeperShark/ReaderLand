@@ -2,7 +2,7 @@ let auth;
 const loadingIcon = document.querySelector('.lds-spinner');
 let allCategory;
 let cacheFail;
-let lastArticleId;
+let lastArticleIdForNewsfeed;
 
 async function favoriteArticle(e) {
     const articleId = e.dataset.id;
@@ -214,13 +214,14 @@ async function renderArticles(auth, refresh = false) {
     let articles;
     let end;
 
+    loadigng[`${renderType}Loading`] = true;
+
     if (renderType == 'newsfeed') {
         if (refresh) {
-            lastArticleId = undefined;
+            lastArticleIdForNewsfeed = undefined;
         }
-        console.log(refresh, lastArticleId);
 
-        const { data, error } = await getNewsfeedAPI(token, { refresh, lastArticleId });
+        const { data, error } = await getNewsfeedAPI(token, { refresh, lastArticleIdForNewsfeed });
 
         if (error) {
             await toastBaker({ icon: 'error', text: '系統異常，無法載入動態牆，請稍後再試' });
@@ -250,11 +251,11 @@ async function renderArticles(auth, refresh = false) {
         end = data.EndOfFeed;
 
         if (data.cacheFail) {
-            lastArticleId = data.lastArticleId;
+            lastArticleIdForNewsfeed = data.lastArticleId;
             cacheFail = true;
         } else {
             cacheFail = false;
-            lastArticleId = undefined;
+            lastArticleIdForNewsfeed = undefined;
         }
 
         console.log(data);
@@ -302,6 +303,8 @@ async function renderArticles(auth, refresh = false) {
     for (let article of articles) {
         appendArticle({ article, auth, container });
     }
+
+    loadigng[`${renderType}Loading`] = true;
 
     return { end };
 }
@@ -459,13 +462,14 @@ async function init() {
     await renderSwitchCategorySelection();
 
     await renderCategories(auth);
+
     let type;
     if (!auth) {
         document.getElementById('newsfeed-switch').remove();
         document.getElementById('latest-switch').classList.add('selected');
         document.getElementById('latest-article-container').classList.remove('hide');
         switchContainer.dataset.type = 'latest';
-        type = latest;
+        type = 'latest';
     } else {
         document.getElementById('newsfeed-article-container').classList.remove('hide');
         switchContainer.dataset.type = 'newsfeed';
@@ -473,11 +477,29 @@ async function init() {
     }
 
     const { end } = await renderArticles(auth);
+    console.log('Render Here');
     if (end.toString()) {
         renderEndDiv(type, end);
     }
 
     await renderHotArticles();
+
+    //TODO: Load more feed when scroll to btm
+    $(window).scroll(async function () {
+        if ($(window).scrollTop() + $(window).height() + 110 >= $(document).height()) {
+            const type = document.querySelector('.switch.selected').dataset.type;
+
+            if (loadigng[`${type}Loading`]) {
+                return;
+            }
+
+            loadigng[`${type}Loading`] = true;
+            const { end } = await renderArticles(auth, false);
+            if (end.toString()) {
+                renderEndDiv(type, end);
+            }
+        }
+    });
 }
 
 init();
@@ -486,22 +508,6 @@ const loadigng = {
     latestLoading: false,
     newsfeedLoading: false,
 };
-//TODO: Load more feed when scroll to btm
-$(window).scroll(async function () {
-    if ($(window).scrollTop() + $(window).height() + 110 >= $(document).height()) {
-        const type = document.querySelector('.switch.selected').dataset.type;
-
-        if (loadigng[`${type}Loading`]) {
-            return;
-        }
-
-        loadigng[`${type}Loading`] = true;
-        const { end } = await renderArticles(auth);
-        if (end.toString()) {
-            renderEndDiv(type, end);
-        }
-    }
-});
 
 function renderEndDiv(type, endOfFeed) {
     if (!endOfFeed) {
@@ -560,6 +566,7 @@ switches.forEach((switchBtn) => {
 
 document.querySelectorAll('.refresh').forEach((refreshBtn) => {
     refreshBtn.addEventListener('click', async () => {
+        console.log('click');
         const currSwitch = document.querySelector('.switch.selected');
         const type = currSwitch.dataset.type;
         scrollRecord[type] = 0;

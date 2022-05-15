@@ -758,6 +758,10 @@ body {
     margin-bottom: 1rem;
 }
 
+.draft-title:hover {
+    color: rgb(101, 96, 255);
+}
+
 .draft-edit,
 .draft-discard {
     font-size: 1.3rem;

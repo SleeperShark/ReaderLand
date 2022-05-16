@@ -11,6 +11,14 @@ const wrapAsync = (fn) => {
     };
 };
 
+const modelResultResponder = ({ data, error, status }, response) => {
+    if (error) {
+        return response.status(status).json({ error });
+    } else {
+        return response.status(200).json({ data });
+    }
+};
+
 const timeDecayer = (curr, createdAt) => {
     const currInHour = Math.floor(new Date(curr).getTime() / 1000 / 60 / 60);
     const createdAtInHour = Math.floor(new Date(createdAt).getTime() / 1000 / 60 / 60);
@@ -145,6 +153,7 @@ const senddingMail = async (mailOption) => {
 
 module.exports = {
     wrapAsync,
+    modelResultResponder,
     timeDecayer,
     generateUploadURL,
     articleWeightCounter,

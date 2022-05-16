@@ -1,6 +1,7 @@
 const Article = require('../models/article_model.js');
 const Notification = require(`${__dirname}/../models/notification_model`);
 const Cache = require('../../util/cache');
+const { modelResultResponder } = require(`${__dirname}/../../util/util`);
 
 const createArticle = async (req, res) => {
     try {
@@ -66,13 +67,14 @@ const getNewsFeed = async (req, res) => {
         }
 
         const { data, error, status } = await Article.getNewsFeed(userId, refresh, lastArticleId);
+
         if (error) {
             res.status(status).json({ error });
         }
 
         res.status(200).json({ data });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ error: 'Server Error' });
         return;
     }
@@ -121,15 +123,10 @@ const unlikeArticle = async (req, res) => {
     res.status(200).json({ data: likeCount });
 };
 
-const getCategories = async (req, res) => {
+const getCategories = async (_, res) => {
     const result = await Article.getCategories();
 
-    if (result.error) {
-        res.status(result.status).json({ error: result.error });
-        return;
-    }
-
-    res.status(200).json({ data: result.categories });
+    modelResultResponder(result, res);
 };
 
 const getLatestArticles = async (req, res) => {
@@ -238,35 +235,30 @@ const replyComment = async (req, res) => {
 const readArticle = async (req, res) => {
     const { articleId } = req.params;
 
-    const { data: readCount, error, status } = await Article.readArticle(articleId);
+    // const { data: readCount, error, status } = await Article.readArticle(articleId);
+    const result = await Article.readArticle(articleId);
 
-    if (error) {
-        res.status(status).json({ error });
-        return;
+    if (result.data) {
+        //TODO: Updating article read count with socketIO
+        const io = req.app.get('socketio');
+        io.to(articleId).emit('update-read', result.data);
     }
 
-    //TODO: Updating article read count with socketIO
-    const io = req.app.get('socketio');
-    io.to(articleId).emit('update-read', readCount);
-
-    res.status(200).json({ data: readCount });
+    modelResultResponder(result, res);
 };
 
-const getHotArticles = async (req, res) => {
+const getHotArticles = async (_, res) => {
     if (!Cache.ready) {
-        const { data, error } = await Article.generateHotArticles();
-        if (error) {
-            res.status(500).error(error);
-            return;
-        }
+        const result = await Article.generateHotArticles();
 
-        res.status(200).json({ data });
+        modelResultResponder(result, res);
     } else {
         let hotArticles;
 
         if (!(await Cache.exists('hot_articles'))) {
-            console.log('Generating hot');
+            // Generate hot articles and store it in cache
             const { data, error } = await Article.generateHotArticles();
+
             if (error) {
                 res.status(500).error(error);
                 return;
@@ -277,6 +269,7 @@ const getHotArticles = async (req, res) => {
                 await Cache.rpush('hot_articles', JSON.stringify(article));
             }
         } else {
+            // Get hot articles from cache
             hotArticles = await Cache.lrange('hot_articles', 0, -1);
             hotArticles = hotArticles.map((elem) => JSON.parse(elem));
         }

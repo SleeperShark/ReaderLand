@@ -92,7 +92,7 @@ const createArticle = async (articleInfo) => {
             pushToNewsfeed(article);
         }
 
-        return { article };
+        return { data: article };
     } catch (error) {
         console.log(error);
         let status = 500;
@@ -664,7 +664,8 @@ const getCategories = async () => {
     try {
         let categories = await Category.find({}, { _id: 0, category: 1 });
         categories = categories.map((elem) => elem.category);
-        return { categories };
+
+        return { data: categories };
     } catch (error) {
         console.error(error);
         return { status: 500, error: error.message };

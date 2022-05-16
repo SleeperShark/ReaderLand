@@ -109,18 +109,15 @@ const unlikeArticle = async (req, res) => {
     const { articleId } = req.params;
     const { userId } = req.user;
 
-    const { error, status, data: likeCount } = await Article.unlikeArticle(userId, articleId);
+    const result = await Article.unlikeArticle(userId, articleId);
 
-    if (error) {
-        res.status(status).json({ error });
-        return;
+    if (result.data !== undefined) {
+        //TODO: Updating article feedback with socketIO
+        const io = req.app.get('socketio');
+        io.to(articleId).emit('update-like', result.data);
     }
 
-    //TODO: Updating article feedback with socketIO
-    const io = req.app.get('socketio');
-    io.to(articleId).emit('update-like', likeCount);
-
-    res.status(200).json({ data: likeCount });
+    modelResultResponder(result, res);
 };
 
 const getCategories = async (_, res) => {

@@ -130,21 +130,12 @@ const getCategories = async (_, res) => {
 };
 
 const getLatestArticles = async (req, res) => {
-    let userId;
-    if (req.user) {
-        userId = req.user.userId;
-    }
+    let userId = req.user?.userId;
     const lastArticleId = req.query.lastArticleId;
 
-    const { data, error, status } = await Article.getLatestArticles(userId, lastArticleId);
+    const result = await Article.getLatestArticles(userId, lastArticleId);
 
-    if (error) {
-        res.status(status).json({ error });
-        return;
-    }
-
-    res.status(200).json({ data });
-    return;
+    modelResultResponder(result, res);
 };
 
 const getCategoryArticles = async (req, res) => {

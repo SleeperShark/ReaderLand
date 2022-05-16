@@ -84,25 +84,21 @@ const likeArticle = async (req, res) => {
     const { articleId } = req.params;
     const { userId } = req.user;
 
-    const {
-        error,
-        status,
-        data: { likeCount, author },
-    } = await Article.likeArticle(userId, articleId);
+    const result = await Article.likeArticle(userId, articleId);
 
-    if (error) {
-        res.status(status).json({ error });
-        return;
+    if (result.data) {
+        const { likeCount, author } = result.data;
+
+        //TODO: Sending Like Article Notification
+        const io = req.app.get('socketio');
+        await Notification.likeArticleNotification({ articleId, userId, likeCount, author }, io);
+
+        //TODO: Updating article feedback with socketIO
+        io.to(articleId).emit('update-like', likeCount);
     }
 
-    const io = req.app.get('socketio');
-    //TODO: Sending Like Article Notification
-    await Notification.likeArticleNotification({ articleId, userId, likeCount, author }, io);
-
-    //TODO: Updating article feedback with socketIO
-    io.to(articleId).emit('update-like', likeCount);
-
-    res.status(200).json({ data: likeCount });
+    result.data = result.data.likeCount;
+    modelResultResponder(result, res);
 };
 
 const unlikeArticle = async (req, res) => {

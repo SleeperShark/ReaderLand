@@ -216,20 +216,19 @@ const replyComment = async (req, res) => {
         return;
     }
 
-    const { error, status, data: article } = await Article.replyComment({ userId, articleId, reply, commentId });
+    // const { error, status, data: article } = await Article.replyComment({ userId, articleId, reply, commentId });
+    const result = await Article.replyComment({ userId, articleId, reply, commentId });
 
-    if (error) {
-        res.status(status).json({ error });
+    if (result.data) {
+        // Push notification
+        const io = req.app.get('socketio');
+        Notification.replyNotification({ articleId, commentId }, io);
+
+        // sending new comments to socket in article room
+        io.to(articleId).emit('update-comment', JSON.stringify(result.data));
     }
 
-    // Push notification
-    const io = req.app.get('socketio');
-    Notification.replyNotification({ articleId, commentId }, io);
-
-    // sending new comments to socket in article room
-    io.to(articleId).emit('update-comment', JSON.stringify(article));
-
-    res.status(200).json({ data: article });
+    modelResultResponder(result, res);
 };
 
 const readArticle = async (req, res) => {

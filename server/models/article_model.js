@@ -545,7 +545,13 @@ const getCategoryArticles = async ({ userId, category, lastArticleId }) => {
         return { error: 400, error: 'Invalid lastArticleId' };
     }
     try {
-        //TODO: 先不考慮 cache 的情境
+        // Validate category existence
+        const valid = await Category.countDocuments({ category });
+        if (valid != 1) {
+            return { error: 'No matched category.', status: 400 };
+        }
+
+        //TODO: NO Cache scenario
         let aggregateArr = [];
 
         if (lastArticleId) {
@@ -566,7 +572,6 @@ const getCategoryArticles = async ({ userId, category, lastArticleId }) => {
         );
 
         let articlesIdArr = await Article.aggregate(aggregateArr);
-
         articlesIdArr = articlesIdArr.map((elem) => elem._id);
 
         let categoryArticles = await getFeedsFromId(articlesIdArr, userId);

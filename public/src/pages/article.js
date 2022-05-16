@@ -391,6 +391,7 @@ async function init() {
             renderCommentBoard(articleObj);
             commentCountSpan.innerText = articleObj.comments.length;
 
+            // check if the event is reply or comment
             if (articleObj.commentEvent) {
                 document.getElementById('new-comment-hint').classList.remove('hide');
             }

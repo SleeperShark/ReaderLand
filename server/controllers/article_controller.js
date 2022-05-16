@@ -184,26 +184,22 @@ const commentArticle = async (req, res) => {
         return;
     }
 
-    const {
-        error,
-        status,
-        data: { article, commentId },
-    } = await Article.commentArticle({ userId, articleId, comment });
-
-    if (error) {
-        res.status(status).json({ error });
-        return;
-    }
+    const result = await Article.commentArticle({ userId, articleId, comment });
 
     //TODO: Sending Notification and socketIO
-    const io = req.app.get('socketio');
-    Notification.commentNotification({ articleId, userId, commentId }, io);
+    if (result.data) {
+        const { commentId, article } = result.data;
 
-    // sending new comments to socket in article room
-    article.commentEvent = true;
-    io.to(articleId).emit('update-comment', JSON.stringify(article));
+        const io = req.app.get('socketio');
+        Notification.commentNotification({ articleId, userId, commentId }, io);
 
-    return res.status(200).json({ data: article });
+        article.commentEvent = true;
+        io.to(articleId).emit('update-comment', JSON.stringify(article));
+    }
+
+    result.data = result.data.article;
+
+    modelResultResponder(result, res);
 };
 
 const replyComment = async (req, res) => {

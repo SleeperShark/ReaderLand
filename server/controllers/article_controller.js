@@ -148,30 +148,20 @@ const getLatestArticles = async (req, res) => {
 };
 
 const getCategoryArticles = async (req, res) => {
-    if (!req.query.category) {
+    const category = req.query.category;
+
+    if (!category) {
         console.log('[ERROR] No category');
         res.status(400).json({ error: 'Please Specify the category of the articles.' });
         return;
     }
-    const category = req.query.category;
 
-    let userId;
-    if (req.user) {
-        userId = req.user.userId;
-    }
+    let userId = req.user?.userId;
+    let lastArticleId = req.query.lastArticleId;
 
-    let lastArticleId;
-    if (req.query.lastArticleId) {
-        lastArticleId = req.query.lastArticleId;
-    }
+    const result = await Article.getCategoryArticles({ userId, category, lastArticleId });
 
-    const { data, error, status } = await Article.getCategoryArticles({ userId, category, lastArticleId });
-    if (error) {
-        res.status(status).json({ error });
-        return;
-    }
-
-    res.status(200).json({ data });
+    modelResultResponder(result, res);
 };
 
 const commentArticle = async (req, res) => {

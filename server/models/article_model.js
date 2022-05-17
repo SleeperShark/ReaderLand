@@ -210,7 +210,7 @@ const getArticle = async (articleId, userId = '') => {
 
         mergeCommentsReaderInfo(article);
 
-        return { article };
+        return { data: article };
     } catch (error) {
         console.log(error);
         return { error: error.message, status: 500 };

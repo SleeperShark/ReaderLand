@@ -664,12 +664,11 @@ const unfavorite = async (userId, articleId) => {
         );
 
         console.log('Successfully remove article from favorite list...');
+        return { data: articleId };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };
     }
-
-    return {};
 };
 
 const getAuthorProfile = async (authorId) => {

@@ -157,18 +157,29 @@ const getUserProfile = async (req, res) => {
 const updateUserProfile = async (req, res) => {
     const { userId } = req.user;
     const updateInfo = {};
+
+    // TODO: Verify updated info
     for (let field in req.body) {
+        if (!['name', 'bio', 'picture'].includes(field)) {
+            res.status(400).json({ error: `Invalid updated field ${field}.` });
+            return;
+        }
+
         updateInfo[field] = req.body[field];
+        if (['name', 'picture'].includes(field) && !updateInfo[field]) {
+            res.status(400).json({ error: "Name or picture can't be empty." });
+            return;
+        }
     }
 
-    const { data, error, status } = await User.updateUserProfile(userId, updateInfo);
-
-    if (error) {
-        res.status(status).json({ error });
+    if (Object.keys(updateInfo).length == 0) {
+        res.status(400).json({ error: 'No updated info.' });
         return;
     }
 
-    res.status(200).json({ data });
+    const result = await User.updateUserProfile(userId, updateInfo);
+
+    modelResultResponder(result, res);
 };
 
 const follow = async (req, res) => {

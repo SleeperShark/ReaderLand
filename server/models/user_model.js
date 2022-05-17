@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { User, ObjectId, Category, Article } = require('./schemas');
+const { User, ObjectId, Article } = require('./schemas');
+const Category = require(`${__dirname}/category_model`);
 const ArticleModel = require(`${__dirname}/article_model`);
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET, IMAGE_URL } = process.env;
@@ -561,32 +562,21 @@ const getSubscription = async (userId) => {
 
 const subscribe = async (userId, subscribe) => {
     try {
-        // verify if category in Cateogry schema
-        let categories = await Category.find({}, { _id: 0, category: 1 });
-        categories = categories.map((elem) => elem.category);
-        const updateSub = {};
-
-        // remove unexist category
-        for (cat in subscribe) {
-            if (categories.includes(cat)) {
-                updateSub[cat] = subscribe[cat];
-            }
+        const validateResult = await Category.verifyCategories(Object.keys(subscribe));
+        if (validateResult.error) {
+            return { error: validateResult.error, status: 400 };
         }
 
-        const updateResult = await User.findByIdAndUpdate(userId, { $set: { subscribe: updateSub } }, { projection: { subscribe: 1 }, new: true });
+        const { follower, subscribe: updatedSubscribe } = await User.findByIdAndUpdate(userId, { $set: { subscribe } }, { projection: { subscribe: 1, follower: 1 }, new: true });
         console.log(`Successfully update user's subscription...`);
 
-        console.log('Regenerate newsfeed...');
-        if (!Object.keys(updateSub).length) {
-            console.log('Empty subscription, skip regeneration newsfeed step...');
-            return { data: updateResult };
+        if (!follower.length && (!updatedSubscribe || !Object.keys(updatedSubscribe).length)) {
+            console.log('No preference, skip the regeneration.');
+        } else {
+            ArticleModel.generateNewsFeedInCache({ userId, preference: { follower, subscribe: updatedSubscribe } });
         }
 
-        const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
-
-        ArticleModel.generateNewsFeedInCache({ userId, preference });
-
-        return { data: updateResult };
+        return { data: updatedSubscribe };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

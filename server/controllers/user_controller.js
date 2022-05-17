@@ -223,22 +223,19 @@ const subscribe = async (req, res) => {
         res.status(400).json({ error: 'category and weightis required in subscription object' });
         return;
     }
-    Object.keys(newSubscribe).forEach((cat) => {
-        const weight = parseInt(newSubscribe[cat]);
-        if (isNaN(weight) || weight < 1 || weight > 10) {
+
+    // examine whether the weight value is integer between 1 to 10
+    const weights = Object.values(newSubscribe).map((weight) => parseInt(weight));
+    for (let i = 0; i < weights.length; i++) {
+        if (isNaN(weights[i]) || weights[i] < 1 || weights[i] > 10) {
             res.status(400).json({ error: 'weight value should be between 1 to 10.' });
             return;
         }
-    });
-
-    const { data: subscribe, error, status } = await User.subscribe(userId, newSubscribe);
-
-    if (error) {
-        res.status(status).json({ error: error });
-        return;
     }
 
-    res.status(200).json({ data: subscribe.subscribe });
+    const result = await User.subscribe(userId, newSubscribe);
+
+    modelResultResponder(result, res);
 };
 
 const favorite = async (req, res) => {

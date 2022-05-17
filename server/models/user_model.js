@@ -473,11 +473,11 @@ const follow = async (userId, followerId) => {
         return { error: 'followerId format error', status: 400 };
     }
 
-    followerId = ObjectId(followerId);
+    const followerObjectId = ObjectId(followerId);
 
     try {
         // check if followe exist
-        let exist = await User.countDocuments({ _id: followerId });
+        let exist = await User.findById(followerObjectId);
 
         if (!exist) {
             return { error: "FollowerId doesn't exist.", status: 400 };
@@ -488,9 +488,9 @@ const follow = async (userId, followerId) => {
                 $set: {
                     follower: {
                         $cond: {
-                            if: { $in: [followerId, '$follower'] },
+                            if: { $in: [followerObjectId, '$follower'] },
                             then: '$follower',
-                            else: { $concatArrays: ['$follower', [followerId]] },
+                            else: { $concatArrays: ['$follower', [followerObjectId]] },
                         },
                     },
                 },
@@ -498,7 +498,7 @@ const follow = async (userId, followerId) => {
         ]);
         console.log("Successfully update user's follower list...");
 
-        await User.updateOne({ _id: followerId }, [
+        await User.updateOne({ _id: followerObjectId }, [
             {
                 $set: {
                     followee: {
@@ -513,7 +513,7 @@ const follow = async (userId, followerId) => {
         ]);
         console.log("Successfully update follower's followee list...");
 
-        return { follow: 1 };
+        return { data: followerId };
     } catch (error) {
         console.error(error);
         return { error: 'Server Error', status: 500 };
@@ -526,7 +526,6 @@ const unfollow = async (userId, followerId) => {
         return { error: "User can't be follower itself", status: 400 };
     }
 
-    // validate whether followerId follow the BSON format
     if (!ObjectId.isValid(followerId)) {
         console.error('Invalid followerId');
         return { error: 'followerId format error', status: 400 };

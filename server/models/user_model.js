@@ -527,26 +527,26 @@ const unfollow = async (userId, followerId) => {
     }
 
     // validate whether followerId follow the BSON format
-
     if (!ObjectId.isValid(followerId)) {
         console.error('Invalid followerId');
         return { error: 'followerId format error', status: 400 };
     }
-    followerId = ObjectId(followerId);
+
+    const followerObjectId = ObjectId(followerId);
 
     try {
         // remove followerId from user's follower list
-        await User.findByIdAndUpdate(userId, { $pull: { follower: followerId } });
+        await User.findByIdAndUpdate(userId, { $pull: { follower: followerObjectId } });
         console.log("Remove followerId from user's follower list...");
 
         // remove userId from follower's followee list
-        await User.findByIdAndUpdate(followerId, { $pull: { followee: userId } });
+        await User.findByIdAndUpdate(followerObjectId, { $pull: { followee: userId } });
         console.log("Remove userId from follower's followee list...");
+        return { data: followerId };
     } catch (error) {
         console.error(error);
         return { status: 500, error: 'Server error' };
     }
-    return { unfollow: 1 };
 };
 
 const getSubscription = async (userId) => {

@@ -180,16 +180,13 @@ const follow = async (req, res) => {
         res.status(400).json({ error: 'FollowerId is required.' });
         return;
     }
-    const { error } = await User.follow(userId, followerId);
+    const result = await User.follow(userId, followerId);
 
-    if (error) {
-        res.status(result.status || 500).json({ error: result.error });
-        return;
+    if (result.data) {
+        Notification.pushFollowNotification(userId, followerId, io);
     }
 
-    Notification.pushFollowNotification(userId, followerId, io);
-
-    res.status(200).json({ data: 'OK' });
+    modelResultResponder(result, res);
 };
 
 const unfollow = async (req, res) => {
@@ -204,14 +201,11 @@ const unfollow = async (req, res) => {
 
     const result = await User.unfollow(userId, followerId);
 
-    if (result.error) {
-        res.status(result.status).json({ error: result.error });
-        return;
+    if (result.data) {
+        Notification.pullFollowNotification(followerId, userId, io);
     }
 
-    Notification.pullFollowNotification(followerId, userId, io);
-
-    res.status(200).json({ data: 'Ok' });
+    modelResultResponder(result, res);
 };
 
 const subscribe = async (req, res) => {

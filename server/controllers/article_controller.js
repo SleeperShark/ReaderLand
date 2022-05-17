@@ -49,13 +49,6 @@ const getArticle = async (req, res) => {
     const result = await Article.getArticle(articleId, userId);
 
     modelResultResponder(result, res);
-
-    // if (result.error) {
-    //     res.status(result.status).json({ error: result.error });
-    //     return;
-    // }
-
-    // res.status(200).json({ data: result.article });
 };
 
 const getNewsFeed = async (req, res) => {

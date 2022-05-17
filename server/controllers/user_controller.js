@@ -252,12 +252,7 @@ const favorite = async (req, res) => {
 
     const result = await User.favorite(userId, articleId);
 
-    if (result.error) {
-        res.status(result.status).json({ error: result.error });
-        return;
-    }
-
-    return res.status(200).json({ data: 'Ok' });
+    modelResultResponder(result, res);
 };
 
 const unfavorite = async (req, res) => {

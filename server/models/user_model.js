@@ -601,35 +601,23 @@ const favorite = async (userId, articleId) => {
         return { error: 'Invalid articleId', status: 400 };
     }
 
-    articleId = ObjectId(articleId);
+    const articleObjectId = ObjectId(articleId);
 
     try {
-        const exist = await Article.countDocuments({ _id: articleId });
+        const exist = await Article.countDocuments({ _id: articleObjectId });
         if (!exist) {
             return { error: "article does't exist.", status: 400 };
         }
 
-        const resultArr = await User.findById({ _id: userId }, { _id: 0, favorite: 1 });
-        const newFavorite = { articleId, createdAt: new Date().toISOString() };
-        let favorite = resultArr.favorite;
+        // Remove article from favorite if exist
+        await User.updateOne({ _id: userId }, { $pull: { favorite: { articleId: articleObjectId } } });
 
-        let updated = false;
-        for (let i = 0; i < favorite.length; i++) {
-            if (favorite[i].articleId.toString() == articleId.toString()) {
-                favorite = [newFavorite, ...favorite.slice(0, i), ...favorite.slice(i + 1, favorite.length)];
-                updated = true;
-                break;
-            }
-        }
-
-        if (!updated) {
-            favorite = [newFavorite, ...favorite];
-        }
-        await User.findByIdAndUpdate(userId, { $set: { favorite } });
+        // push articleId to favorite array
+        await User.updateOne({ _id: userId }, { $push: { favorite: { articleId: articleObjectId, createdAt: new Date().toISOString() } } });
 
         console.log('Successfully add article to favorite list...');
 
-        return { favorite: 1 };
+        return { data: articleId };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

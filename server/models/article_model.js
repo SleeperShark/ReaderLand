@@ -541,8 +541,8 @@ const getCategoryArticles = async ({ userId, category, lastArticleId }) => {
     }
     try {
         // Validate category existence
-        const valid = await Category.countDocuments({ category });
-        if (valid != 1) {
+        const valid = await Category.findOne({ category });
+        if (!valid) {
             return { error: 'No matched category.', status: 400 };
         }
 

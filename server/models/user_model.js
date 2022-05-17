@@ -535,6 +535,12 @@ const unfollow = async (userId, followerId) => {
     const followerObjectId = ObjectId(followerId);
 
     try {
+        // validate followerId exist
+        const exist = await User.findById(followerId);
+        if (!exist) {
+            return { error: 'No matched follower.', status: 400 };
+        }
+
         // remove followerId from user's follower list
         await User.findByIdAndUpdate(userId, { $pull: { follower: followerObjectId } });
         console.log("Remove followerId from user's follower list...");
@@ -542,6 +548,7 @@ const unfollow = async (userId, followerId) => {
         // remove userId from follower's followee list
         await User.findByIdAndUpdate(followerObjectId, { $pull: { followee: userId } });
         console.log("Remove userId from follower's followee list...");
+
         return { data: followerId };
     } catch (error) {
         console.error(error);

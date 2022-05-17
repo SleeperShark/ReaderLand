@@ -24,19 +24,17 @@ const createArticle = async (req, res) => {
             return;
         }
 
-        const { article, error, status } = await Article.createArticle(articleInfo);
+        const result = await Article.createArticle(articleInfo);
 
-        if (error) {
-            res.status(status).json({ error });
-            return;
+        if (result.data) {
+            //TODO: Sending Notification and socketIO
+            const io = req.app.get('socketio');
+            Notification.newPostNotification(result.data, io);
+
+            result.data = result.data._id.toString();
         }
 
-        //TODO: Sending Notification and socketIO
-        const io = req.app.get('socketio');
-        Notification.newPostNotification(article, io);
-
-        res.status(200).json({ data: article._id.toString() });
-        return;
+        modelResultResponder(result, res);
     } catch (error) {
         console.error(error);
     }

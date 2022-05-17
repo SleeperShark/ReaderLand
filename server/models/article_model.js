@@ -1,12 +1,8 @@
 require('dotenv').config({ path: __dirname + '/../../.env' });
 const { IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
-const Notification = require('./notification_model');
 const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
-const res = require('express/lib/response');
-const { compareSync } = require('bcrypt');
-const { subscribe } = require('./user_model');
 
 //get userid: { _id, picture, name } object
 function mergeCommentsReaderInfo(article) {

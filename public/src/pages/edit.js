@@ -436,7 +436,7 @@ async function init() {
 
         paragraphs.forEach((paragraph) => {
             const {
-                dataset: { type, timestamp, next },
+                dataset: { type, timestamp },
             } = paragraph;
 
             let content;

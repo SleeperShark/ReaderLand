@@ -409,7 +409,6 @@ const getNewsFeed = async (userId, refresh, lastArticleId) => {
 
         if (!Cache.ready) {
             //TODO: Cache fail condition
-            console.log(lastId, refresh);
             let { data: feedsWeight } = await generateNewsFeedInCache({ userId, preference, lastArticleId: lastId }, false);
 
             const feedsId = feedsWeight.map((elem) => elem._id);

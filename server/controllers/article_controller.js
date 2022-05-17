@@ -45,6 +45,7 @@ const createArticle = async (req, res) => {
 const getArticle = async (req, res) => {
     const articleId = req.params.articleId;
     const userId = req.user?.userId;
+
     const result = await Article.getArticle(articleId, userId);
 
     if (result.error) {
@@ -59,20 +60,11 @@ const getNewsFeed = async (req, res) => {
     try {
         const { userId } = req.user;
         let { refresh, lastArticleId } = req.query;
+        refresh = refresh && true;
 
-        if (refresh) {
-            refresh = refresh === 'true';
-        } else {
-            refresh = false;
-        }
+        const result = await Article.getNewsFeed(userId, refresh, lastArticleId);
 
-        const { data, error, status } = await Article.getNewsFeed(userId, refresh, lastArticleId);
-
-        if (error) {
-            res.status(status).json({ error });
-        }
-
-        res.status(200).json({ data });
+        modelResultResponder(result, res);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server Error' });

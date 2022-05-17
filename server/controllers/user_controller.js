@@ -1,7 +1,7 @@
 require('dotenv').config({ path: `${__dirname}/../../.env` });
 const validator = require('validator');
 const User = require('../models/user_model');
-const { generateUploadURL, senddingMail } = require(`${__dirname}/../../util/util`);
+const { generateUploadURL, senddingMail, modelResultResponder } = require(`${__dirname}/../../util/util`);
 const Notification = require('../models/notification_model');
 
 const getUserInfo = async (req, res) => {
@@ -296,14 +296,9 @@ const getSubscription = async (req, res) => {
 const getAuthorProfile = async (req, res) => {
     const { id: authorId } = req.params;
 
-    const { data, error, status } = await User.getAuthorProfile(authorId);
+    const result = await User.getAuthorProfile(authorId);
 
-    if (error) {
-        res.status(status).json({ error });
-        return;
-    }
-
-    res.status(200).json({ data });
+    modelResultResponder(result, res);
 };
 
 const getUploadAvatarUrl = async (_, res) => {

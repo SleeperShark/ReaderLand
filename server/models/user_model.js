@@ -677,8 +677,9 @@ const getAuthorProfile = async (authorId) => {
         console.error('Invalid authorId');
         return { error: 'Invalid authorId', status: 400 };
     }
+
     try {
-        const authorProfile = await User.aggregate([
+        const [authorProfile] = await User.aggregate([
             { $match: { _id: ObjectId(authorId) } },
             { $project: { follower: 1, followee: 1, name: 1, bio: 1, picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] } } },
             {
@@ -694,7 +695,8 @@ const getAuthorProfile = async (authorId) => {
                 },
             },
         ]);
-        return { data: authorProfile[0] };
+
+        return { data: authorProfile };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

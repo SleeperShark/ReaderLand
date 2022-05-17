@@ -144,14 +144,9 @@ const signIn = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
-    const { error, status, data } = await User.getUserProfile(req.user.userId);
+    const result = await User.getUserProfile(req.user.userId);
 
-    if (error) {
-        res.status(status).json({ error });
-        return;
-    }
-
-    return res.status(200).json({ data });
+    modelResultResponder(result, res);
 };
 
 const updateUserProfile = async (req, res) => {

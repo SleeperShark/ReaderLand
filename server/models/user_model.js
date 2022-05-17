@@ -408,7 +408,7 @@ const getUserProfile = async (userId) => {
         return { data: profile };
     } catch (error) {
         console.error(error);
-        return { error: 'Server error', status: 400 };
+        return { error: 'Server error', status: 500 };
     }
 };
 

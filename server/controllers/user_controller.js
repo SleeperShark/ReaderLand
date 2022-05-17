@@ -281,14 +281,10 @@ const unfavorite = async (req, res) => {
 
 const getSubscription = async (req, res) => {
     const { userId } = req.user;
+
     const result = await User.getSubscription(userId);
 
-    if (result.error) {
-        res.status(result.status).json({ error: result.error });
-        return;
-    }
-
-    res.status(200).json({ data: result.subscribe });
+    modelResultResponder(result, res);
 
     return;
 };

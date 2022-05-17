@@ -550,9 +550,9 @@ const unfollow = async (userId, followerId) => {
 
 const getSubscription = async (userId) => {
     try {
-        const result = await User.findById(userId, { subscribe: 1, _id: 0 });
+        const { subscribe } = await User.findById(userId, { subscribe: 1, _id: 0 });
 
-        return { subscribe: result.subscribe };
+        return { data: subscribe };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

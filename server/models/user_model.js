@@ -220,16 +220,17 @@ const nativeSignIn = async (email, password, validRequired = true) => {
     }
 };
 
+// Validate user for authentication
 const getUserDetail = async (email, roleId) => {
     try {
+        const filter = { email };
         if (roleId) {
-            return { user: await User.findOne({ email, role: roleId }) };
-        } else {
-            return { user: await User.findOne({ email }) };
+            filter.role = roleId;
         }
+        return { user: await User.findOne(filter) };
     } catch (error) {
         console.error(error);
-        return { error: error.message };
+        return { error: 'Server error', status: 500 };
     }
 };
 

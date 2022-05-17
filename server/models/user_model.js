@@ -46,6 +46,7 @@ const authentication = (roleId, required = true) => {
                 } else {
                     result = await getUserDetail(user.email, roleId);
                 }
+
                 if (result.error) {
                     res.status(403).json({ error: 'Forbidden' });
                 } else {
@@ -59,7 +60,7 @@ const authentication = (roleId, required = true) => {
             return;
         } catch (error) {
             console.log(error);
-            res.status(403).json({ error: 'Forbidden' });
+            res.status(500).json({ error: 'Server error' });
             return;
         }
     };

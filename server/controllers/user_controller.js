@@ -3,7 +3,6 @@ const validator = require('validator');
 const User = require('../models/user_model');
 const { generateUploadURL, senddingMail } = require(`${__dirname}/../../util/util`);
 const Notification = require('../models/notification_model');
-const path = require('path');
 
 const getUserInfo = async (req, res) => {
     let { name, email, picture, userId } = req.user;
@@ -307,7 +306,7 @@ const getAuthorProfile = async (req, res) => {
     res.status(200).json({ data });
 };
 
-const getUploadAvatarUrl = async (req, res) => {
+const getUploadAvatarUrl = async (_, res) => {
     try {
         const { uploadURL, imageName } = await generateUploadURL('avatar/');
         res.status(200).json({ data: { uploadURL, avatarName: imageName, avatarURL: process.env.IMAGE_URL + '/avatar/' + imageName } });

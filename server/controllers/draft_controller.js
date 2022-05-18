@@ -56,14 +56,9 @@ const deleteDraft = async (req, res) => {
         return;
     }
 
-    const { error, status } = await Draft.deleteDraft(userId, draftId);
+    const result = await Draft.deleteDraft(userId, draftId);
 
-    if (error) {
-        res.status(status).json({ error });
-        return;
-    }
-
-    res.status(200).json({ data: 'ok' });
+    modelResultResponder(result, res);
 };
 
 module.exports = {

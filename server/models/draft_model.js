@@ -47,9 +47,9 @@ const updateDraft = async ({ userId, draftId, updateData }) => {
     updateData['lastUpdatedAt'] = new Date().toISOString();
 
     try {
-        const result = await Draft.updateOne({ _id: ObjectId(draftId), author: userId }, updateData, { upsert: true });
+        const { matchedCount } = await Draft.updateOne({ _id: ObjectId(draftId), author: userId }, updateData, { upsert: true });
 
-        if (!result.matchedCount) {
+        if (!matchedCount) {
             console.error('Unmatched draft info.');
             return { status: 400, error: 'Unmatched draft info.' };
         }
@@ -104,7 +104,7 @@ const deleteDraft = async (userId, draftId) => {
 
         console.log(`Successfully delete the draft: ${draftId}...`);
 
-        return { data: 'ok' };
+        return { data: draftId };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

@@ -152,7 +152,7 @@ const validateEmailToken = async (token) => {
     try {
         user = await promisify(jwt.verify)(token, TOKEN_SECRET);
     } catch (error) {
-        return { status: 401, error: 'Token validation failed' };
+        return { status: 401, error: 'Unauthorized' };
     }
 
     const { userId, provider, name, timestamp } = user;
@@ -178,7 +178,7 @@ const validateEmailToken = async (token) => {
 
             return { data: name };
         } else {
-            return { error: 'No match user.', status: 400 };
+            return { error: 'No matched user.', status: 400 };
         }
     } catch (error) {
         console.error('[ERROR] validateEmailToken');

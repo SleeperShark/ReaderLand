@@ -80,9 +80,9 @@ const likeArticle = async (req, res) => {
 
         //TODO: Updating article feedback with socketIO
         io.to(articleId).emit('update-like', likeCount);
+        result.data = result.data.likeCount;
     }
 
-    result.data = result.data.likeCount;
     modelResultResponder(result, res);
 };
 

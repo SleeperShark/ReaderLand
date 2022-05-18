@@ -1,7 +1,7 @@
 require('dotenv').config({ path: __dirname + '/../../.env' });
 const { IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
-const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
+const { articleWeightCounter, isObjectEmpty } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
 
 //get userid: { _id, picture, name } object
@@ -593,16 +593,14 @@ const likeArticle = async (userId, articleId) => {
         return { error: 'ArticleId format error', status: 400 };
     }
 
-    articleId = ObjectId(articleId);
-
     try {
         //* Check if Article exist
-        const exist = await Article.countDocuments({ _id: articleId });
+        const exist = await Article.findById(ObjectId(articleId));
         if (!exist) {
             return { error: "Article doesn't exist.", status: 400 };
         }
 
-        await Article.updateOne({ _id: articleId }, [
+        await Article.updateOne({ _id: ObjectId(articleId) }, [
             {
                 $set: {
                     likes: {

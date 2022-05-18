@@ -9,7 +9,7 @@ const initUserNotification = async (userIdObj) => {
         console.log("Init new user's notification document...");
         await Notification.create({ notifications: [], unread: 0, _id: userIdObj });
     } catch (error) {
-        console.error('[ERROR]: initUserNotification in notification_model.js');
+        console.error('[ERROR] initUserNotification in notification_model.js');
         console.error(error);
         throw error;
     }
@@ -21,7 +21,7 @@ const deleteUserNotification = async (userIdObj) => {
         console.log("Delete user's Notification document...");
         await Notification.findByIdAndDelete(userIdObj);
     } catch (error) {
-        console.error('[ERROR]: initUserNotification in notification_model.js');
+        console.error('[ERROR] initUserNotification in notification_model.js');
         console.error(error);
     }
 };
@@ -43,11 +43,13 @@ const pushFollowNotification = async (followeeId, followerId, io) => {
         console.log('Successfully push notification to follower...');
 
         const socketId = io.usersId_socketId[followerId.toString()];
+
         if (socketId) {
             console.log('Push new follow notification to ' + socketId);
             io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
         }
     } catch (error) {
+        console.error('[Error] pushFollowNotification');
         console.error(error);
     }
 };
@@ -73,6 +75,7 @@ const pullFollowNotification = async (followerId, followeeId, io) => {
         const updateObject = { $pull: { notifications: { $and: [{ type: 'follow' }, { subject: followeeId }] } } };
         await Notification.updateOne({ _id: followerId }, updateObject);
 
+        // substract 1 from unread count
         if (record[record.length - 1].hasOwnProperty('isread')) {
             await Notification.updateOne({ _id: followerId }, [{ $set: { unread: { $cond: { if: { $eq: ['$unread', 0] }, then: 0, else: { $subtract: ['$unread', 1] } } } } }]);
         }
@@ -88,7 +91,7 @@ const pullFollowNotification = async (followerId, followeeId, io) => {
         }
         return;
     } catch (error) {
-        console.error('[ERRPR]: pullFollowNotification');
+        console.error('[ERROR] pullFollowNotification');
         console.error(error);
     }
 };
@@ -152,7 +155,7 @@ const likeArticleNotification = async ({ articleId, userId: readerIdObj, likeCou
             io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: likeNotification } }));
         }
     } catch (error) {
-        console.error('[ERROR]: likeArticleNotification');
+        console.error('[ERROR] likeArticleNotification');
         console.error(error);
     }
 };
@@ -191,7 +194,7 @@ const commentNotification = async ({ articleId, userId: readerId, commentId }, i
             io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
         }
     } catch (error) {
-        console.error('ERROR: commentNotification');
+        console.error('[ERROR] commentNotification');
         console.error(error);
     }
 };
@@ -239,7 +242,7 @@ const replyNotification = async ({ articleId, commentId }, io) => {
             io.to(socketId).emit('update-notification', JSON.stringify({ unreadCount, update: { prepend: newNotification } }));
         }
     } catch (error) {
-        console.error('ERROR: replyNotification');
+        console.error('[ERROR] replyNotification');
         console.error(error);
     }
 };

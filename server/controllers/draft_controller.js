@@ -27,13 +27,9 @@ const getDraft = async (req, res) => {
         return;
     }
 
-    const { data, error, status } = await Draft.getDraft(userId, draftId);
-    if (error) {
-        res.status(status).json({ error });
-        return;
-    }
+    const result = await Draft.getDraft(userId, draftId);
 
-    res.status(200).json({ data });
+    modelResultResponder(result, res);
 };
 
 const updateDraft = async (req, res) => {

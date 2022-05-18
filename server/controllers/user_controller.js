@@ -1,7 +1,7 @@
 require('dotenv').config({ path: `${__dirname}/../../.env` });
 const validator = require('validator');
 const User = require('../models/user_model');
-const { generateUploadURL, senddingMail, modelResultResponder } = require(`${__dirname}/../../util/util`);
+const { generateUploadURL, validationEmail, modelResultResponder } = require(`${__dirname}/../../util/util`);
 const Notification = require('../models/notification_model');
 
 const getUserInfo = async (req, res) => {
@@ -36,41 +36,42 @@ const signUp = async (req, res) => {
     const { user, emailValidationToken } = data;
 
     if (!user) {
-        res.status(500).json({ error: 'Database Query Error' });
+        res.status(500).json({ error: 'Server Error' });
         return;
     }
 
-    //TODO: Sending Validation mail
-    const mailHTML = `
-    <a href="${process.env.HOST_URL}/api/user/validateEmil?token=${emailValidationToken}" target="_blank">點擊連結驗證信箱</a>
-        `;
-    //TODO: sending Validation email
-    const { error: mailingError } = await senddingMail({
-        to: email,
-        subject: 'ReaderLand 信箱驗證',
-        html: mailHTML,
-        tls: { rejectUnauthorized: false },
-    });
+    // TODO: timeout for unvalidated account after 10 min
+    const removeUserTimeout = setTimeout(async () => {
+        try {
+            console.log('Deleting unvalidating account...');
+            await User.deleteUser(user._id);
+            await Notification.deleteUserNotification(user._id);
+        } catch (error) {
+            console.error('[Error] removeUserTimeout');
+            console.error(error);
+        }
+    }, 1000 * 60 * 10);
 
-    if (mailingError) {
-        console.log('Error in sending email');
+    try {
+        //TODO: sending Validation email
+        await validationEmail({
+            email,
+            validationToken: emailValidationToken,
+        });
+
+        //TODO: init Notification document
+        await Notification.initUserNotification(user._id);
+    } catch (_) {
+        console.log('Error in initiating, removing user from db...');
+        clearTimeout(removeUserTimeout);
+
+        await User.deleteUser(user._id);
+        await Notification.deleteUserNotification(user._id);
+        res.status(500).json({ error: 'Server error' });
+        return;
     }
 
-    //TODO: init Notification document
-    Notification.initUserNotification(user._id);
-
-    res.status(200).json({
-        data: {
-            accessToken: user.accessToken,
-            user: {
-                id: user._id,
-                provider: user.provider,
-                name: user.name,
-                email: user.email,
-                picture: user.picture,
-            },
-        },
-    });
+    return res.status(200).json({ data: { user: { userId: user._id, name: user.name, email: user.email } } });
 };
 
 const validateEmil = async (req, res) => {

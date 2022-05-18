@@ -6,13 +6,24 @@ function ISOTimestamp() {
 
 const initUserNotification = async (userIdObj) => {
     try {
-        await Notification.create({ notifications: [], unread: 0, _id: userIdObj });
         console.log("Init new user's notification document...");
+        await Notification.create({ notifications: [], unread: 0, _id: userIdObj });
+    } catch (error) {
+        console.error('[ERROR]: initUserNotification in notification_model.js');
+        console.error(error);
+        throw error;
+    }
+    return;
+};
+
+const deleteUserNotification = async (userIdObj) => {
+    try {
+        console.log("Delete user's Notification document...");
+        await Notification.findByIdAndDelete(userIdObj);
     } catch (error) {
         console.error('[ERROR]: initUserNotification in notification_model.js');
         console.error(error);
     }
-    return;
 };
 
 const pushFollowNotification = async (followeeId, followerId, io) => {
@@ -324,6 +335,7 @@ const clearUnread = async (userId, clearnum) => {
 
 module.exports = {
     initUserNotification,
+    deleteUserNotification,
     pushFollowNotification,
     pullFollowNotification,
     newPostNotification,

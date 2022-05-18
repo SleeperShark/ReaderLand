@@ -139,15 +139,18 @@ const mailer = require('nodemailer').createTransport({
     tls: { rejectUnauthorized: false },
 });
 
-const senddingMail = async (mailOption) => {
+const sendMailAsync = require('util').promisify(mailer.sendMail).bind(mailer);
+
+const validationEmail = async ({ email, validationToken }) => {
+    const mailHTML = `<a href="${process.env.HOST_URL}/api/user/validateEmil?token=${validationToken}" target="_blank">點擊連結驗證信箱</a>`;
+
+    console.log('Sending email for validation...');
     try {
-        console.log('Sending Email for Validation...');
-        await mailer.sendMail({ ...mailOption, from: MAILER_USER });
-        return { data: 'Success' };
+        await sendMailAsync({ from: MAILER_USER, tls: { rejectUnauthorized: false }, to: email, subject: 'ReaderLand 信箱驗證', html: mailHTML });
     } catch (error) {
-        console.error('[ERROR] nodemailer failed to send mail...');
+        console.error('[ ERROR ] sending validation email');
         console.error(error);
-        return { error: 'Sending failed' };
+        throw error;
     }
 };
 
@@ -158,5 +161,5 @@ module.exports = {
     generateUploadURL,
     articleWeightCounter,
     rateLimiter,
-    senddingMail,
+    validationEmail,
 };

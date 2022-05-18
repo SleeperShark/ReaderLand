@@ -105,30 +105,13 @@ const signUp = async (name, email, password) => {
             followee: [],
         };
 
-        await User.create(userInfo);
+        const user = await User.create(userInfo);
 
         console.log(`A new user ${name} has registered!`);
-        const { data: user } = await nativeSignIn(email, password, false);
-
-        //TODO: Delete unvalidated user in 10 minute
-        setTimeout(async () => {
-            const user = await User.findOne({ email }, { name: 1, valid: 1, _id: 1 });
-            if (!user) {
-                console.log(`No match user registered with ${email}`);
-                return;
-            }
-
-            const { valid, name, _id } = user;
-
-            if (!valid) {
-                console.log(`Delete unvalidated user ${name}...`);
-                await User.findByIdAndDelete(_id);
-            }
-        }, 1000 * 60 * 10);
 
         const emailValidationToken = jwt.sign(
             {
-                userId: user.id,
+                userId: user._id.toString(),
                 provider: user.provider,
                 name: user.name,
                 timestamp: new Date().toISOString(),
@@ -144,6 +127,15 @@ const signUp = async (name, email, password) => {
         console.error('[ERROR] user_model: signUp');
         console.error(error);
         return { error: 'Server Error', status: 500 };
+    }
+};
+
+const deleteUser = async (userObjectId) => {
+    try {
+        await User.findByIdAndDelete(userObjectId);
+    } catch (error) {
+        console.error('[ Error ]: deleteUser');
+        console.error(error);
     }
 };
 
@@ -704,6 +696,7 @@ module.exports = {
     authentication,
     nativeSignIn,
     signUp,
+    deleteUser,
     validateEmailToken,
     getUserDetail,
     getUserProfile,

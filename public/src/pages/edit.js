@@ -403,6 +403,7 @@ async function init() {
             console.error(status);
             console.error(error);
             await toastBaker({ icon: 'error', text: '系統異常，無法載入草稿。' });
+            window.location.href = '/profile.html';
         } else {
             await renderDraft({ draft, headParagraph, defaultInput, titleInput });
         }

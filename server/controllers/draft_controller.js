@@ -13,13 +13,9 @@ const createDraft = async (req, res) => {
 const getDraftsList = async (req, res) => {
     const { userId } = req.user;
 
-    const { data: drafts, error, status } = await Draft.getDraftsList(userId);
+    const result = await Draft.getDraftsList(userId);
 
-    if (error) {
-        res.status(status).json({ error });
-    }
-
-    res.status(200).json({ data: drafts });
+    modelResultResponder(result, res);
 };
 
 const getDraft = async (req, res) => {

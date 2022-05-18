@@ -11,6 +11,13 @@ const wrapAsync = (fn) => {
     };
 };
 
+const isObjectEmpty = (target) => {
+    if (Object.keys(target).length == 0) {
+        return true;
+    }
+    return false;
+};
+
 const modelResultResponder = ({ data, error, status }, response) => {
     if (error) {
         return response.status(status).json({ error });
@@ -156,6 +163,7 @@ const validationEmail = async ({ email, validationToken }) => {
 
 module.exports = {
     wrapAsync,
+    isObjectEmpty,
     modelResultResponder,
     timeDecayer,
     generateUploadURL,

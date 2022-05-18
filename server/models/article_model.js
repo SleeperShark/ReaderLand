@@ -595,7 +595,7 @@ const likeArticle = async (userId, articleId) => {
 
     try {
         //* Check if Article exist
-        const exist = await Article.findById(ObjectId(articleId));
+        const exist = await Article.findById(ObjectId(articleId), { _id: 1 });
         if (!exist) {
             return { error: "Article doesn't exist.", status: 400 };
         }
@@ -632,23 +632,22 @@ const unlikeArticle = async (userId, articleId) => {
         return { error: 'ArticleId format error', status: 400 };
     }
 
-    articleId = ObjectId(articleId);
-
     try {
         //* Check if Article exist
-        const exist = await Article.countDocuments({ _id: articleId });
+        const exist = await Article.findById(ObjectId(articleId), { _id: 1 });
         if (!exist) {
             return { error: "Article doesn't exist.", status: 400 };
         }
 
         const { likes } = await Article.findByIdAndUpdate(
-            articleId,
+            ObjectId(articleId),
             { $pull: { likes: userId } },
             {
                 $project: { likes: 1 },
                 new: true,
             }
         );
+
         console.log("Remove userId from article's likes array...");
 
         return { data: likes.length };

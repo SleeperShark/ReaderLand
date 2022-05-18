@@ -259,6 +259,17 @@ const getUnreadCount = async (userId) => {
     }
 };
 
+async function unsetIsreadProperty({ userId, start, clearnum }) {
+    const unsetObj = {};
+
+    for (let i = 0; i < clearnum; i++) {
+        const key = `notifications.${start + i}.isread`;
+        unsetObj[key] = '';
+    }
+
+    await Notification.findByIdAndUpdate(userId, { $unset: unsetObj, $set: { unread: 0 } });
+}
+
 const getNotifications = async (userId, offset) => {
     try {
         let [{ notifications, length, subject_info, unread }] = await Notification.aggregate([
@@ -305,35 +316,27 @@ const getNotifications = async (userId, offset) => {
 
         // Update notification if is not firstloaded
         if (offset != 0) {
-            const unsetObj = {};
-            const start = length - offset - 10;
-            for (let i = 0; i < 10; i++) {
-                const key = `notifications.${start + i}.isread`;
-                unsetObj[key] = '';
-            }
-            await Notification.findByIdAndUpdate(userId, { $unset: unsetObj });
+            await unsetIsreadProperty({ userId, start: length - offset - 10, clearnum: 10 });
         }
 
         return { data: { notifications, length, unread } };
     } catch (error) {
+        console.error('[ERROR] getNotifications');
         console.error(error);
         return { error: 'Server error', status: 500 };
     }
 };
 
 const clearUnread = async (userId, clearnum) => {
-    // Get total length of Notifications
-    let result = await Notification.findById(userId, { length: { $size: '$notifications' } });
-    let { length } = JSON.parse(JSON.stringify(result));
+    try {
+        // Get total length of Notifications
+        let { length } = await Notification.findById(userId, { length: { $size: '$notifications' } });
 
-    const unsetObj = {};
-    const start = length - clearnum;
-    for (let i = 0; i < clearnum; i++) {
-        const key = `notifications.${start + i}.isread`;
-        unsetObj[key] = '';
+        await unsetIsreadProperty({ userId, start: length - clearnum, clearnum });
+    } catch (error) {
+        console.error('[ERROR] clearUnread');
+        console.error(error);
     }
-
-    await Notification.findByIdAndUpdate(userId, { $unset: unsetObj, $set: { unread: 0 } });
 };
 
 module.exports = {

@@ -90,57 +90,28 @@ const validateEmil = async (req, res) => {
     res.redirect(`/validationResult.html?user=${name}`);
 };
 
-const nativeSignIn = async (email, password) => {
-    if (!email || !password) {
-        return { error: 'Request Error: email and password are required.', status: 400 };
-    }
-    try {
-        return await User.nativeSignIn(email, password);
-    } catch (error) {
-        return { error };
-    }
-};
-
 const signIn = async (req, res) => {
-    const data = req.body;
-    console.log(data);
+    const { provider, email, password } = req.body;
+
+    if (!provider || !email || !password) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
     let result;
 
-    switch (data.provider) {
+    switch (provider) {
         case 'native':
-            result = await nativeSignIn(data.email, data.password);
+            result = await User.nativeSignIn(email, password);
             break;
         // case 'facebook':
         //     result = await facebookSignIn(data.access_token);
         //     break;
         default:
-            result = { error: 'Wrong Request' };
+            result = { error: 'Invalid signin request', status: 400 };
     }
 
-    if (result.error) {
-        const status_code = result.status ? result.status : 403;
-        res.status(status_code).json({ error: result.error });
-        return;
-    }
-
-    const user = result.user;
-    if (!user) {
-        res.status(500).send({ error: 'Database Query Error' });
-        return;
-    }
-
-    res.status(200).json({
-        data: {
-            accessToken: user.accessToken,
-            user: {
-                id: user._id,
-                provider: user.provider,
-                name: user.name,
-                email: user.email,
-                picture: user.picture,
-            },
-        },
-    });
+    modelResultResponder(result, res);
 };
 
 const getUserProfile = async (req, res) => {

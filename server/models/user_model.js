@@ -108,7 +108,7 @@ const signUp = async (name, email, password) => {
         await User.create(userInfo);
 
         console.log(`A new user ${name} has registered!`);
-        const { user } = await nativeSignIn(email, password, false);
+        const { data: user } = await nativeSignIn(email, password, false);
 
         //TODO: Delete unvalidated user in 10 minute
         setTimeout(async () => {
@@ -128,7 +128,7 @@ const signUp = async (name, email, password) => {
 
         const emailValidationToken = jwt.sign(
             {
-                userId: user._id.toString(),
+                userId: user.id,
                 provider: user.provider,
                 name: user.name,
                 timestamp: new Date().toISOString(),
@@ -193,11 +193,12 @@ const nativeSignIn = async (email, password, validRequired = true) => {
         const user = JSON.parse(JSON.stringify(modelUser));
 
         if (!(await comapreAsync(password, user.password))) {
-            return { error: 'Password is wrong' };
+            return { error: 'Unauthorized', status: 401 };
         }
 
         if (!modelUser.valid && validRequired) {
-            return { error: 'Unvalidated email account.', status: 400 };
+            console.log('Unvalidated Email');
+            return { error: 'Unauthorized', status: 401 };
         }
 
         const accessToken = jwt.sign(
@@ -211,12 +212,21 @@ const nativeSignIn = async (email, password, validRequired = true) => {
             TOKEN_SECRET
         );
 
-        user.accessToken = accessToken;
-
-        return { user };
+        return {
+            data: {
+                accessToken,
+                user: {
+                    id: user._id.toString(),
+                    provider: user.provider,
+                    name: user.name,
+                    email: user.email,
+                    picture: user.picture,
+                },
+            },
+        };
     } catch (error) {
         console.error(error);
-        return { error };
+        return { error: 'Server error', status: 500 };
     }
 };
 
@@ -224,9 +234,11 @@ const nativeSignIn = async (email, password, validRequired = true) => {
 const getUserDetail = async (email, roleId) => {
     try {
         const filter = { email };
+
         if (roleId) {
             filter.role = roleId;
         }
+
         return { user: await User.findOne(filter) };
     } catch (error) {
         console.error(error);

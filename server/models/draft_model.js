@@ -49,16 +49,14 @@ const updateDraft = async ({ userId, draftId, updateData }) => {
     try {
         const result = await Draft.updateOne({ _id: ObjectId(draftId), author: userId }, updateData, { upsert: true });
 
-        console.log(result);
-        console.log(updateData);
-
         if (!result.matchedCount) {
             console.error('Unmatched draft info.');
-            console.log(updateData);
             return { status: 400, error: 'Unmatched draft info.' };
         }
 
-        return { data: 'OK' };
+        console.log('Successfully updated draft...');
+
+        return { data: { draftId, lastUpdatedAt: updateData.lastUpdatedAt } };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

@@ -42,14 +42,9 @@ const updateDraft = async (req, res) => {
         return;
     }
 
-    const { data, error, status } = await Draft.updateDraft({ userId, draftId, updateData });
+    const result = await Draft.updateDraft({ userId, draftId, updateData });
 
-    if (error) {
-        res.status(status).json({ error });
-        return;
-    }
-
-    res.status(200).json({ data: 'ok' });
+    modelResultResponder(result, res);
 };
 
 const deleteDraft = async (req, res) => {

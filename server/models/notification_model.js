@@ -300,7 +300,7 @@ const getNotifications = async (userId, offset) => {
             elem.subject = subject_info[elem.subject.toString()];
         });
 
-        // Update notification if is not firseloaded
+        // Update notification if is not firstloaded
         if (offset != 0) {
             const unsetObj = {};
             const start = length - offset - 10;

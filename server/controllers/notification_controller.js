@@ -16,13 +16,9 @@ const getNotifications = async (req, res) => {
         return;
     }
 
-    const { data, error, status } = await Notification.getNotifications(req.user.userId, offset);
+    const result = await Notification.getNotifications(req.user.userId, offset);
 
-    if (error) {
-        res.status(status).json({ error });
-    }
-
-    res.status(200).json({ data });
+    modelResultResponder(result, res);
 };
 
 module.exports = {

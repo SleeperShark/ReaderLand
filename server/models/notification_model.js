@@ -250,7 +250,7 @@ const getUnreadCount = async (userId) => {
 
         return { data: unread };
     } catch (error) {
-        console.error('Error: getUnreadCount');
+        console.error('[Error] getUnreadCount');
         console.error(error);
         return { status: 500, error: 'Server error' };
     }

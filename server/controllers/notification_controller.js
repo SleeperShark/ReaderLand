@@ -1,13 +1,10 @@
 const Notification = require('../models/notification_model');
+const { modelResultResponder } = require(`${__dirname}/../../util/util`);
 
 const getUnreadCount = async (req, res) => {
-    const { data, error, status } = await Notification.getUnreadCount(req.user.userId);
+    const result = await Notification.getUnreadCount(req.user.userId);
 
-    if (error) {
-        res.status(status).json({ error });
-    }
-
-    res.status(200).json({ data });
+    modelResultResponder(result, res);
 };
 
 const getNotifications = async (req, res) => {

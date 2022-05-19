@@ -16,7 +16,7 @@ const USER_ROLE = {
 
 const validAndExist = async (userId) => {
     try {
-        if (!ObjectId(userId)) {
+        if (!ObjectId.isValid(userId)) {
             return { error: 'Invalid userId.', status: 400 };
         }
 

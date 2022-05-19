@@ -4,7 +4,7 @@ var assert = require('chai').assert;
 
 // describe('userExist', () => {});
 
-describe('userExist function', function () {
+describe('validAndExist', function () {
     let fakeUser;
 
     before(async function () {
@@ -16,8 +16,8 @@ describe('userExist function', function () {
     });
 
     it('User exist scenario', async function () {
-        const exist = await user_model.userExist(fakeUser._id.toString());
-        assert.equal(exist, true, 'fake User should be in db.');
+        const { data: userId } = await user_model.validAndExist(fakeUser._id.toString());
+        assert.equal(userId, fakeUser._id.toString(), 'fake User should be in db.');
     });
 
     it("User doesn't exist scenario", async function () {
@@ -31,18 +31,18 @@ describe('userExist function', function () {
             }
         }
 
-        const exist = await user_model.userExist(fakeId);
-        assert.equal(exist, null, "Fake random Id shouldn't exist.");
+        const { status: InvalidErrorStatus } = await user_model.validAndExist(fakeId);
+        assert.equal(InvalidErrorStatus, 400, "Fake random Id shouldn't exist.");
     });
 
     it('Invalid userId error', async function () {
         let extraLetter = fakeUser._id.toString() + '5';
         let lackLetter = fakeUser._id.toString().slice(0, -1);
 
-        let extraExist = await user_model.userExist(extraLetter);
-        let lackExist = await user_model.userExist(lackLetter);
+        let { status: extraErrorStatus } = await user_model.validAndExist(extraLetter);
+        let { status: lackErrorStatus } = await user_model.validAndExist(lackLetter);
 
-        console.log(extraExist);
-        console.log(lackExist);
+        assert.equal(extraErrorStatus, 400, 'Invalid Object id error for extra letter');
+        assert.equal(lackErrorStatus, 400, 'Invalid Object id error for lacking letter');
     });
 });

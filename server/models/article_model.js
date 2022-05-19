@@ -4,14 +4,24 @@ const { Article, ObjectId, User, Category } = require('./schemas');
 const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
 
-async function validAndExist(articleId) {
-    if (!ObjectId.isValid(articleId)) {
-        return false;
-    }
+const validAndExist = async (articleId) => {
+    try {
+        if (!ObjectId.isValid(articleId)) {
+            return { error: 'Invalid articleId', status: 400 };
+        }
 
-    const exist = await Article.findById(ObjectId(articleId), { _id: 1 });
-    return exist && true;
-}
+        const exist = await Article.findById(ObjectId(articleId), { _id: 1 });
+        if (!exist) {
+            return { error: 'Invalid articleId', status: 400 };
+        }
+
+        return { data: true };
+    } catch (error) {
+        console.error('[ERROR] validAndExist');
+        console.error(error);
+        return { error: 'Server Error', status: 500 };
+    }
+};
 
 //get userid: { _id, picture, name } object
 function mergeCommentsReaderInfo(article) {

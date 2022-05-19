@@ -1,6 +1,7 @@
 require('dotenv').config({ path: `${__dirname}/../../.env` });
 const validator = require('validator');
 const User = require('../models/user_model');
+const Article = require(`${__dirname}/../models/article_model`);
 const { generateUploadURL, validationEmail, modelResultResponder } = require(`${__dirname}/../../util/util`);
 const Notification = require('../models/notification_model');
 
@@ -219,6 +220,12 @@ const favorite = async (req, res) => {
         return;
     }
 
+    const { error, status } = await Article.validAndExist(articleId);
+    if (error) {
+        res.status(status).json({ error });
+        return;
+    }
+
     const result = await User.favorite(userId, articleId);
 
     modelResultResponder(result, res);
@@ -230,6 +237,12 @@ const unfavorite = async (req, res) => {
 
     if (!articleId) {
         res.status(400).json({ error: 'ArticleId is required.' });
+        return;
+    }
+
+    const { error, status } = await Article.validAndExist(articleId);
+    if (error) {
+        res.status(status).json({ error });
         return;
     }
 

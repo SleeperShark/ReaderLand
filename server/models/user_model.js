@@ -629,11 +629,6 @@ const favorite = async (userId, articleId) => {
 // TODO: remove articleId from user's favorite array
 const unfavorite = async (userId, articleId) => {
     try {
-        const exist = await Article.validAndExist(articleId);
-        if (!exist) {
-            return { error: 'Invalid articleId', status: 400 };
-        }
-
         await User.updateOne(
             { _id: userId },
             {

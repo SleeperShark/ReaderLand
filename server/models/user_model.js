@@ -1,7 +1,5 @@
 require('dotenv').config();
 const { User, ObjectId } = require('./schemas');
-const Category = require(`${__dirname}/category_model`);
-const Article = require(`${__dirname}/article_model`);
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET, IMAGE_URL } = process.env;
 const bcrypt = require('bcrypt');
@@ -582,21 +580,15 @@ const getSubscription = async (userId) => {
 
 const subscribe = async (userId, subscribe) => {
     try {
-        const validateResult = await Category.verifyCategories(Object.keys(subscribe));
-        if (validateResult.error) {
-            return { error: validateResult.error, status: 400 };
-        }
-
         const { follower, subscribe: updatedSubscribe } = await User.findByIdAndUpdate(userId, { $set: { subscribe } }, { projection: { subscribe: 1, follower: 1 }, new: true });
         console.log(`Successfully update user's subscription...`);
 
         if (!follower.length && (!updatedSubscribe || !Object.keys(updatedSubscribe).length)) {
             console.log('No preference, skip the regeneration.');
-        } else {
-            ArticleModel.generateNewsFeedInCache({ userId, preference: { follower, subscribe: updatedSubscribe } });
+            return { data: {} };
         }
 
-        return { data: updatedSubscribe };
+        return { data: { preference: { follower, subscribe } } };
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };

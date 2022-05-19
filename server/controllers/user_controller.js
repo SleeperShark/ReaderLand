@@ -1,6 +1,7 @@
 require('dotenv').config({ path: `${__dirname}/../../.env` });
 const validator = require('validator');
 const User = require('../models/user_model');
+const Category = require(`${__dirname}/../models/category_model`);
 const Article = require(`${__dirname}/../models/article_model`);
 const { generateUploadURL, validationEmail, modelResultResponder } = require(`${__dirname}/../../util/util`);
 const Notification = require('../models/notification_model');
@@ -206,9 +207,25 @@ const subscribe = async (req, res) => {
         }
     }
 
-    const result = await User.subscribe(userId, newSubscribe);
+    const verifyResult = await Category.verifyCategories(Object.keys(newSubscribe));
+    if (verifyResult.error) {
+        modelResultResponder(verifyResult, res);
+        return;
+    }
 
-    modelResultResponder(result, res);
+    const updateResult = await User.subscribe(userId, newSubscribe);
+    if (updateResult.error) {
+        modelResultResponder(updateResult, res);
+        return;
+    }
+
+    // Regenerate newsfeed
+    if (updateResult.data.preference) {
+        Article.generateNewsFeedInCache({ userId, preference: updateResult.data.preference });
+        updateResult.data = updateResult.data.preference.subscribe;
+    }
+
+    modelResultResponder(updateResult, res);
 };
 
 const favorite = async (req, res) => {

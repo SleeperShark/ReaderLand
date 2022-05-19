@@ -1,23 +1,29 @@
 const { Category } = require(`${__dirname}/schemas`);
 
 const verifyCategories = async (categories) => {
-    const validCategories = (await Category.find({})).map((elem) => elem.category);
+    try {
+        const validCategories = (await Category.find({})).map((elem) => elem.category);
 
-    for (let cat of categories) {
-        let valid = false;
+        for (let cat of categories) {
+            let valid = false;
 
-        for (let validCat of validCategories) {
-            if (validCat == cat) {
-                valid = true;
-                break;
+            for (let validCat of validCategories) {
+                if (validCat == cat) {
+                    valid = true;
+                    break;
+                }
+            }
+
+            if (!valid) {
+                return { error: `Invalid category ${cat}`, status: 400 };
             }
         }
-
-        if (!valid) {
-            return { error: `Invalid category ${cat}` };
-        }
+        return { data: true };
+    } catch (error) {
+        console.error('[ERROR] verifyCategories');
+        console.error(error);
+        return { error: 'Server error', status: 500 };
     }
-    return { data: true };
 };
 
 module.exports = { verifyCategories };

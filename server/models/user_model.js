@@ -14,10 +14,23 @@ const USER_ROLE = {
     USER: 2,
 };
 
-async function userExist(userId) {
-    const result = await User.findById(ObjectId(userId), { _id: 1 });
-    return result && true;
-}
+const validAndExist = async (userId) => {
+    try {
+        if (!ObjectId(userId)) {
+            return { error: 'Invalid userId.', status: 400 };
+        }
+
+        const exist = await User.findById(ObjectId(userId), { _id: 1 });
+        if (!exist) {
+            return { error: 'Invalid userId', status: 400 };
+        }
+        return { data: userId };
+    } catch (error) {
+        console.error('[ERROR] validAndExist');
+        console.error(error);
+        return { error: 'Server Error', status: 500 };
+    }
+};
 
 const authentication = (roleId, required = true) => {
     return async function (req, res, next) {
@@ -84,9 +97,9 @@ const socketAuthentication = () => {
                 next(new Error('Unauthorized'));
             }
 
-            const exist = await userExist(userId);
+            const verifyResult = await validAndExist(userId);
 
-            if (!exist) {
+            if (verifyResult.error) {
                 next(new Error('Unauthorized'));
             }
 
@@ -683,4 +696,5 @@ module.exports = {
     unfavorite,
     getSubscription,
     socketAuthentication,
+    validAndExist,
 };

@@ -154,9 +154,9 @@ const commentArticle = async (req, res) => {
 
         article.commentEvent = true;
         io.to(articleId).emit('update-comment', JSON.stringify(article));
-    }
 
-    result.data = result.data.article;
+        result.data = result.data.article;
+    }
 
     modelResultResponder(result, res);
 };

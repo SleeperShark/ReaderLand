@@ -1,7 +1,7 @@
 require('dotenv').config({ path: __dirname + '/../../.env' });
 const { IMAGE_URL } = process.env;
 const { Article, ObjectId, User, Category } = require('./schemas');
-const { articleWeightCounter, isObjectEmpty } = require(`${__dirname}/../../util/util`);
+const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
 
 //get userid: { _id, picture, name } object
@@ -672,7 +672,7 @@ const getCategories = async () => {
 //TODO: Fetch latest feedback after article is commented or replied
 async function getUpdatedComment(articleId) {
     const [article] = await Article.aggregate([
-        { $match: { _id: articleId } },
+        { $match: { _id: ObjectId(articleId) } },
         {
             $lookup: {
                 from: 'User',
@@ -728,32 +728,28 @@ const commentArticle = async ({ userId, articleId, comment }) => {
             return { error: 'ArticleId format error', status: 400 };
         }
 
-        articleId = ObjectId(articleId);
         const commentElem = { context: comment, reader: userId, createdAt: new Date().toISOString() };
 
         // update comment
-        const { comments: insertedComments } = await Article.findByIdAndUpdate(
-            articleId,
+        const { matchedCount } = await Article.updateOne(
+            { _id: ObjectId(articleId) },
             {
                 $push: {
                     comments: commentElem,
                 },
-            },
-            {
-                new: true,
-                projection: {
-                    comments: { $slice: -1 },
-                    _id: 1,
-                },
             }
         );
 
+        if (!matchedCount) {
+            return { error: 'No matched article.', status: 400 };
+        }
+
         console.log('Sucessfully update comment, ready to return latest comment and likes to user...');
 
-        const updatedComment = await getUpdatedComment(articleId);
-        // const newCommentId = insertedComments[insertedComments.length - 1]._id.toString();
+        const updatedArticle = await getUpdatedComment(articleId);
+        const updatedCommentId = updatedArticle.comments[updatedArticle.comments.length - 1]._id.toString();
 
-        return { data: { article: updatedComment, commentId: insertedComments[0]._id.toString() } };
+        return { data: { article: updatedArticle, commentId: updatedCommentId } };
     } catch (error) {
         console.error(error);
         return { status: 500, error: 'Server error' };

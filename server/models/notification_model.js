@@ -330,7 +330,7 @@ const getNotifications = async (userId, offset) => {
 const clearUnread = async (userId, clearnum) => {
     try {
         // Get total length of Notifications
-        let { length } = await Notification.findById(userId, { length: { $size: '$notifications' } });
+        let [{ length }] = await Notification.aggregate([{ $match: { _id: ObjectId(userId) } }, { $project: { length: { $size: '$notifications' } } }]);
 
         await unsetIsreadProperty({ userId, start: length - clearnum, clearnum });
     } catch (error) {

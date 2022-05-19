@@ -83,13 +83,13 @@ app.use('/api', [
 ]);
 
 // Page not found
-app.use((req, res, next) => {
+app.use((_, res) => {
     res.status(404).sendFile(__dirname + '/public/404.html');
     return;
 });
 
 // Error handling
-app.use((err, req, res, next) => {
+app.use((err, _, res) => {
     console.log(err);
     res.status(500).json({ error: 'Internal Server Error' });
 });

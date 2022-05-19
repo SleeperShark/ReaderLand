@@ -761,33 +761,26 @@ const commentArticle = async ({ userId, articleId, comment }) => {
 };
 
 const replyComment = async ({ userId, articleId, reply, commentId }) => {
-    //* verify articleId
-    try {
-        articleId = ObjectId(articleId);
-        commentId = ObjectId(commentId);
-    } catch (error) {
-        console.error('Invalid articleId or commentId');
-        return { status: 400, error: 'Invalid articleId' };
+    if (!ObjectId.isValid(articleId) || !ObjectId.isValid(commentId)) {
+        return { error: 'Invalid articleId or commentId.', status: 400 };
     }
 
     try {
-        const exist = await Article.countDocuments({ _id: articleId, author: userId, 'comments._id': commentId });
-
-        if (!exist) {
-            console.error('Unmatched articleId, authorId or commentId');
-            return { status: 400, error: 'Unmatched articleId or authorId' };
-        }
-
-        await Article.updateOne(
-            { _id: articleId, author: userId, 'comments._id': commentId },
+        const { matchedCount } = await Article.updateOne(
+            { _id: ObjectId(articleId), author: userId, 'comments._id': ObjectId(commentId) },
             {
                 $set: { 'comments.$.authorReply': { context: reply, createdAt: new Date().toISOString() } },
             }
         );
 
+        if (!matchedCount) {
+            console.error('No matched article or comment.');
+            return { error: 'No matched article or comment.', status: 400 };
+        }
+
         console.log('Successfully update reply content, ready to return updated comment...');
 
-        const updatedComment = await getUpdatedComment(articleId);
+        const updatedComment = await getUpdatedComment(ObjectId(articleId));
 
         return { data: updatedComment };
     } catch (error) {

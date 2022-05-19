@@ -1,7 +1,7 @@
 require('dotenv').config();
-const { User, ObjectId, Article } = require('./schemas');
+const { User, ObjectId } = require('./schemas');
 const Category = require(`${__dirname}/category_model`);
-const ArticleModel = require(`${__dirname}/article_model`);
+const Article = require(`${__dirname}/article_model`);
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_SECRET, IMAGE_URL } = process.env;
 const bcrypt = require('bcrypt');
@@ -82,7 +82,7 @@ const socketAuthentication = () => {
 
             const { userId } = await promisify(jwt.verify)(token, TOKEN_SECRET);
 
-            if (!ObjectId.valid(userId)) {
+            if (!ObjectId.isValid(userId)) {
                 next(new Error('Unauthorized'));
             }
 
@@ -605,25 +605,17 @@ const subscribe = async (userId, subscribe) => {
 
 // TODO: add articleId to user's favorite array
 const favorite = async (userId, articleId) => {
-    //TODO: validate articleId
-    if (!ObjectId.isValid(articleId)) {
-        console.error('Invalid articleId');
-        return { error: 'Invalid articleId', status: 400 };
-    }
-
-    const articleObjectId = ObjectId(articleId);
-
     try {
-        const exist = await Article.countDocuments({ _id: articleObjectId });
+        const exist = await Article.validAndExist(articleId);
         if (!exist) {
-            return { error: "article does't exist.", status: 400 };
+            return { error: 'Invalid Article', status: 400 };
         }
 
         // Remove article from favorite if exist
-        await User.updateOne({ _id: userId }, { $pull: { favorite: { articleId: articleObjectId } } });
+        await User.updateOne({ _id: userId }, { $pull: { favorite: { articleId: ObjectId(articleId) } } });
 
         // push articleId to favorite array
-        await User.updateOne({ _id: userId }, { $push: { favorite: { articleId: articleObjectId, createdAt: new Date().toISOString() } } });
+        await User.updateOne({ _id: userId }, { $push: { favorite: { articleId: ObjectId(articleId), createdAt: new Date().toISOString() } } });
 
         console.log('Successfully add article to favorite list...');
 

@@ -18,12 +18,7 @@ const USER_ROLE = {
 
 async function userExist(userId) {
     const result = await User.findById(ObjectId(userId), { _id: 1 });
-
-    if (result) {
-        return true;
-    }
-
-    return false;
+    return result && true;
 }
 
 const authentication = (roleId, required = true) => {
@@ -87,7 +82,11 @@ const socketAuthentication = () => {
 
             const { userId } = await promisify(jwt.verify)(token, TOKEN_SECRET);
 
-            const exist = await User.findById(ObjectId(userId), { project: {} });
+            if (!ObjectId.valid(userId)) {
+                next(new Error('Unauthorized'));
+            }
+
+            const exist = await userExist(userId);
 
             if (!exist) {
                 next(new Error('Unauthorized'));

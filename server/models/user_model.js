@@ -606,11 +606,6 @@ const subscribe = async (userId, subscribe) => {
 // TODO: add articleId to user's favorite array
 const favorite = async (userId, articleId) => {
     try {
-        const exist = await Article.validAndExist(articleId);
-        if (!exist) {
-            return { error: 'Invalid Article', status: 400 };
-        }
-
         // Remove article from favorite if exist
         await User.updateOne({ _id: userId }, { $pull: { favorite: { articleId: ObjectId(articleId) } } });
 

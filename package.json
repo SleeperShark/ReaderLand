@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "mocha './unit_test/user_model.test.js'",
         "startDev": "nodemon app.js"
     },
     "repository": {
@@ -34,5 +34,9 @@
         "socket.io": "^4.5.0",
         "sweetalert2": "^11.4.14",
         "validator": "^13.7.0"
+    },
+    "devDependencies": {
+        "chai": "^4.3.6",
+        "mocha": "^10.0.0"
     }
 }

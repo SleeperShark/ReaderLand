@@ -683,4 +683,5 @@ module.exports = {
     unfavorite,
     getSubscription,
     socketAuthentication,
+    userExist,
 };

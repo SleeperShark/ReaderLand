@@ -4,6 +4,15 @@ const { Article, ObjectId, User, Category } = require('./schemas');
 const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
 
+async function validAndExist(articleId) {
+    if (!ObjectId.isValid(articleId)) {
+        return false;
+    }
+
+    const exist = await Article.findById(ObjectId(articleId), { _id: 1 });
+    return exist && true;
+}
+
 //get userid: { _id, picture, name } object
 function mergeCommentsReaderInfo(article) {
     // TODO: process userinfo in comment array
@@ -859,6 +868,7 @@ const generateHotArticles = async () => {
 };
 
 module.exports = {
+    validAndExist,
     createArticle,
     getArticle,
     getNewsFeed,

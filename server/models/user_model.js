@@ -16,6 +16,16 @@ const USER_ROLE = {
     USER: 2,
 };
 
+async function userExist(userId) {
+    const result = await User.findById(ObjectId(userId), { _id: 1 });
+
+    if (result) {
+        return true;
+    }
+
+    return false;
+}
+
 const authentication = (roleId, required = true) => {
     return async function (req, res, next) {
         let accessToken = req.get('Authorization');
@@ -77,7 +87,7 @@ const socketAuthentication = () => {
 
             const { userId } = await promisify(jwt.verify)(token, TOKEN_SECRET);
 
-            const exist = await User.countDocuments({ _id: userId });
+            const exist = await User.findById(ObjectId(userId), { project: {} });
 
             if (!exist) {
                 next(new Error('Unauthorized'));

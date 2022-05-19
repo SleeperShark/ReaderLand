@@ -426,7 +426,6 @@ const getUserProfile = async (userId) => {
 
 const updateUserProfile = async (userId, updateInfo) => {
     try {
-        // const result = await User.updateOne({ _id: userId }, { $set: updateInfo });
         let user = await User.findByIdAndUpdate(
             userId,
             { $set: updateInfo },

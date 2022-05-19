@@ -1,5 +1,4 @@
 require('dotenv').config();
-const res = require('express/lib/response');
 const { Draft, ObjectId } = require('./schemas');
 
 const createDraft = async (userId, head) => {

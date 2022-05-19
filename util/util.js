@@ -5,6 +5,15 @@ const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, 
 const randomBytes = promisify(crypto.randomBytes);
 const Cache = require(`${__dirname}/cache`);
 
+const sleep = (sec, msg) => {
+    return new Promise((r) => {
+        console.log(msg);
+        setTimeout(() => {
+            r();
+        }, sec * 1000);
+    });
+};
+
 const wrapAsync = (fn) => {
     return function (req, res, next) {
         fn(req, res, next).catch(next);
@@ -170,4 +179,5 @@ module.exports = {
     articleWeightCounter,
     rateLimiter,
     validationEmail,
+    sleep,
 };

@@ -5,7 +5,7 @@ const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, 
 const randomBytes = promisify(crypto.randomBytes);
 const Cache = require(`${__dirname}/cache`);
 
-const sleep = (sec, msg) => {
+const sleep = async (sec, msg) => {
     return new Promise((r) => {
         console.log(msg);
         setTimeout(() => {

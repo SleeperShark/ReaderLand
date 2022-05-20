@@ -22,7 +22,7 @@ const validAndExist = async (userId) => {
 
         const exist = await User.findById(ObjectId(userId), { _id: 1 });
         if (!exist) {
-            return { error: 'Invalid userId', status: 400 };
+            return { error: 'Invalid userId.', status: 400 };
         }
         return { data: userId };
     } catch (error) {
@@ -123,6 +123,7 @@ const signUp = async (name, email, password) => {
             subscribe: {},
             follower: [],
             followee: [],
+            bio: '',
         };
 
         const user = await User.create(userInfo);
@@ -142,7 +143,7 @@ const signUp = async (name, email, password) => {
         return { data: { user, emailValidationToken } };
     } catch (error) {
         if (error.message.includes('duplicate')) {
-            return { error: 'Email already registered', status: 403 };
+            return { error: 'Email already registered.', status: 403 };
         }
         console.error('[ERROR] user_model: signUp');
         console.error(error);
@@ -205,12 +206,12 @@ const nativeSignIn = async (email, password, validRequired = true) => {
         const user = JSON.parse(JSON.stringify(modelUser));
 
         if (!(await comapreAsync(password, user.password))) {
-            return { error: 'Unauthorized', status: 401 };
+            return { error: 'Unauthorized.', status: 401 };
         }
 
         if (!modelUser.valid && validRequired) {
             console.log('Unvalidated Email');
-            return { error: 'Unauthorized', status: 401 };
+            return { error: 'Unauthorized.', status: 401 };
         }
 
         const accessToken = jwt.sign(

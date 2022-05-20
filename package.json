@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "mocha './unit_test/user_model.test.js'",
+        "test": "mocha './unit_test/user_model.test.js' --exit",
         "startDev": "nodemon app.js"
     },
     "repository": {
@@ -36,6 +36,7 @@
         "validator": "^13.7.0"
     },
     "devDependencies": {
+        "assertion-error": "^2.0.0",
         "chai": "^4.3.6",
         "mocha": "^10.0.0"
     }

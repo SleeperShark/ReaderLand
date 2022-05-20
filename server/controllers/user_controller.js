@@ -170,7 +170,7 @@ const follow = async (req, res) => {
 
     const validUserResult = await User.validAndExist(followerId);
     if (validUserResult.error) {
-        res.status(validUserResult.status).json({ error: validUserResult.error });
+        modelResultResponder(validUserResult);
         return;
     }
 
@@ -190,6 +190,17 @@ const unfollow = async (req, res) => {
 
     if (!followerId) {
         res.status(400).json({ error: 'followerId is required' });
+        return;
+    }
+
+    if (userId.toString() === followerId) {
+        res.status(400).json({ error: "User can't be follower itself" });
+        return;
+    }
+
+    const validUserResult = await User.validAndExist(followerId);
+    if (validUserResult.error) {
+        modelResultResponder(validUserResult);
         return;
     }
 

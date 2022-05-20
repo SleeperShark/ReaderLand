@@ -527,31 +527,13 @@ const follow = async (userId, followerId) => {
 };
 
 const unfollow = async (userId, followerId) => {
-    // check if userId equals to follower
-    if (userId.toString() === followerId) {
-        return { error: "User can't be follower itself", status: 400 };
-    }
-
-    if (!ObjectId.isValid(followerId)) {
-        console.error('Invalid followerId');
-        return { error: 'followerId format error', status: 400 };
-    }
-
-    const followerObjectId = ObjectId(followerId);
-
     try {
-        // validate followerId exist
-        const exist = await User.findById(followerId);
-        if (!exist) {
-            return { error: 'No matched follower.', status: 400 };
-        }
-
         // remove followerId from user's follower list
-        await User.findByIdAndUpdate(userId, { $pull: { follower: followerObjectId } });
+        await User.findByIdAndUpdate(userId, { $pull: { follower: ObjectId(followerId) } });
         console.log("Remove followerId from user's follower list...");
 
         // remove userId from follower's followee list
-        await User.findByIdAndUpdate(followerObjectId, { $pull: { followee: userId } });
+        await User.findByIdAndUpdate(ObjectId(followerId), { $pull: { followee: userId } });
         console.log("Remove userId from follower's followee list...");
 
         return { data: followerId };

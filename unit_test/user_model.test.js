@@ -1,6 +1,9 @@
-const { User } = require(`${__dirname}/../server/models/schemas.js`);
+require('dotenv').config({ path: `${__dirname}/../.env` });
+const { User, ObjectId } = require(`${__dirname}/../server/models/schemas.js`);
 const user_model = require(`${__dirname}/../server/models/user_model.js`);
 var assert = require('chai').assert;
+const jwt = require('jsonwebtoken');
+const { TOKEN_SECRET } = process.env;
 
 describe('User model unit test', function () {
     before((done) => {
@@ -21,9 +24,9 @@ describe('User model unit test', function () {
         password: 'password',
     };
 
-    describe('User Registration', function () {
-        let emailToken;
+    let emailToken;
 
+    describe('User Signup', function () {
         it('Valid Registered', async function () {
             const { name, email, password } = MochaTesterInfo;
             const { data } = await user_model.signUp(name, email, password);
@@ -47,11 +50,55 @@ describe('User model unit test', function () {
             assert.deepEqual(result, { error: 'Email already registered.', status: 403 }, 'Registered email error.');
         });
 
-        it('Login before email registration', async function () {
-            const { email, password } = MochaTesterInfo;
-            const signInResult = await user_model.nativeSignIn(email, password);
+        // it('Login before email registration', async function () {
+        //     const { email, password } = MochaTesterInfo;
+        //     const signInResult = await user_model.nativeSignIn(email, password);
 
-            assert.deepEqual(signInResult, { error: 'Unauthorized.', status: 401 }, "User can't login before email validation.");
+        //     assert.deepEqual(signInResult, { error: 'Unauthorized.', status: 401 }, "User can't login before email validation.");
+        // });
+
+        // it('Login after registration', async function () {
+        //     const { email, password, name } = MochaTesterInfo;
+        //     const {
+        //         data: { accessToken, user },
+        //     } = await user_model.nativeSignIn(email, password);
+
+        //     loginToken = accessToken;
+
+        //     assert.deepInclude(user, { provider: 'native', name, email }, 'User Info validation.');
+        //     assert(ObjectId.isValid(user.id), 'User id validation');
+        // });
+    });
+
+    describe('Email Validation', function () {
+        it('Email Validation', async function () {
+            const { data: name } = await user_model.validateEmailToken(emailToken);
+            assert.equal(MochaTesterInfo.name, name, 'Legal Validation should return user name as data.');
+        });
+
+        it('Unauthorized token', async function () {
+            const { _id, name, provider } = MochaTester;
+            const fakeToken = jwt.sign(
+                {
+                    userId: _id.toString(),
+                    provider,
+                    name,
+                    timestamp: new Date().toISOString(),
+                },
+                'FAKE'
+            );
+
+            const validateResult = await user_model.validateEmailToken(fakeToken);
+            assert.deepEqual(validateResult, { status: 401, error: 'Unauthorized.' }, 'Fake token should return unauthorized error.');
+        });
+
+        it('Expired token', async function () {
+            const { _id, name, provider } = MochaTester;
+            let timestamp_10_min_before = new Date().getTime() - 1000 * 60 * 10;
+            const expiredToken = jwt.sign({ userId: _id.toString(), provider, name, timestamp: new Date(timestamp_10_min_before).toISOString() }, TOKEN_SECRET);
+
+            const validateResult = await user_model.validateEmailToken(expiredToken);
+            assert.deepEqual(validateResult, { status: 401, error: 'Token expired.' }, 'Expired token.');
         });
     });
 

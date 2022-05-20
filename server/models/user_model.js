@@ -165,7 +165,7 @@ const validateEmailToken = async (token) => {
     try {
         user = await promisify(jwt.verify)(token, TOKEN_SECRET);
     } catch (error) {
-        return { status: 401, error: 'Unauthorized' };
+        return { status: 401, error: 'Unauthorized.' };
     }
 
     const { userId, provider, name, timestamp } = user;

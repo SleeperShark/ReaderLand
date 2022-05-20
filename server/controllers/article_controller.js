@@ -1,4 +1,5 @@
 const Article = require('../models/article_model.js');
+const Category = require(`${__dirname}/../models/category_model.js`);
 const Notification = require(`${__dirname}/../models/notification_model`);
 const Cache = require('../../util/cache');
 const { modelResultResponder } = require(`${__dirname}/../../util/util`);
@@ -122,6 +123,12 @@ const getCategoryArticles = async (req, res) => {
     if (!category) {
         console.log('[ERROR] No category');
         res.status(400).json({ error: 'Please Specify the category of the articles.' });
+        return;
+    }
+
+    const verifyResult = await Category.validAndExist(category);
+    if (verifyResult.error) {
+        modelResultResponder(verifyResult);
         return;
     }
 

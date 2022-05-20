@@ -21,9 +21,11 @@ const validAndExist = async (userId) => {
         }
 
         const exist = await User.findById(ObjectId(userId), { _id: 1 });
+
         if (!exist) {
             return { error: 'Invalid userId.', status: 400 };
         }
+
         return { data: userId };
     } catch (error) {
         console.error('[ERROR] validAndExist');
@@ -486,36 +488,15 @@ const updateUserProfile = async (userId, updateInfo) => {
 };
 
 const follow = async (userId, followerId) => {
-    // check if userId equals to follower
-    if (userId.toString() === followerId) {
-        console.log("User can't be follower itself");
-        return { error: "User can't be follower itself", status: 400 };
-    }
-
-    // validate whether followerId match BSON format
-    if (!ObjectId.isValid(followerId)) {
-        console.error('Invalid followerId.');
-        return { error: 'followerId format error', status: 400 };
-    }
-
-    const followerObjectId = ObjectId(followerId);
-
     try {
-        // check if followe exist
-        let exist = await User.findById(followerObjectId);
-
-        if (!exist) {
-            return { error: "FollowerId doesn't exist.", status: 400 };
-        }
-
         await User.updateOne({ _id: userId }, [
             {
                 $set: {
                     follower: {
                         $cond: {
-                            if: { $in: [followerObjectId, '$follower'] },
+                            if: { $in: [ObjectId(followerId), '$follower'] },
                             then: '$follower',
-                            else: { $concatArrays: ['$follower', [followerObjectId]] },
+                            else: { $concatArrays: ['$follower', [ObjectId(followerId)]] },
                         },
                     },
                 },
@@ -523,7 +504,7 @@ const follow = async (userId, followerId) => {
         ]);
         console.log("Successfully update user's follower list...");
 
-        await User.updateOne({ _id: followerObjectId }, [
+        await User.updateOne({ _id: ObjectId(followerId) }, [
             {
                 $set: {
                     followee: {
@@ -538,7 +519,7 @@ const follow = async (userId, followerId) => {
         ]);
         console.log("Successfully update follower's followee list...");
 
-        return { data: followerId };
+        return { data: ObjectId(followerId) };
     } catch (error) {
         console.error(error);
         return { error: 'Server Error', status: 500 };

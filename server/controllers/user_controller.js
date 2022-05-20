@@ -160,6 +160,20 @@ const follow = async (req, res) => {
         res.status(400).json({ error: 'FollowerId is required.' });
         return;
     }
+
+    // check if userId equals to follower
+    if (userId.toString() === followerId) {
+        console.log("User can't be follower itself");
+        res.status(400).json({ error: "User can't be follower itself", status: 400 });
+        return;
+    }
+
+    const validUserResult = await User.validAndExist(followerId);
+    if (validUserResult.error) {
+        res.status(validUserResult.status).json({ error: validUserResult.error });
+        return;
+    }
+
     const result = await User.follow(userId, followerId);
 
     if (result.data) {

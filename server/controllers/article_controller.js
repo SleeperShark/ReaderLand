@@ -9,6 +9,15 @@ const createArticle = async (req, res) => {
     const author = req.user.userId;
     const { title, category, context, preview, head } = req.body;
 
+    // TODO: verify Category
+    for (cat of category) {
+        const verifyCategoryResult = await Category.validAndExist(cat);
+        if (verifyCategoryResult.error) {
+            modelResultResponder(verifyCategoryResult);
+            return;
+        }
+    }
+
     const articleInfo = {
         title,
         category,
@@ -34,7 +43,7 @@ const createArticle = async (req, res) => {
         if (Cache.ready) {
             const {
                 data: { followee },
-            } = await User.getUserInfoFields(author, ['followee']);
+            } = await User.getUserInfoFields({ _id: author }, ['followee']);
 
             await Article.pushToNewsfeed(article, followee);
         }

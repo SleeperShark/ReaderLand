@@ -296,7 +296,7 @@ const unfavorite = async (req, res) => {
 const getSubscription = async (req, res) => {
     const { userId } = req.user;
 
-    const result = await User.getUserInfoFields(userId, ['subscribe']);
+    const result = await User.getUserInfoFields({ _id: userId }, ['subscribe']);
     if (result.data) {
         result.data = result.data.subscribe;
     }

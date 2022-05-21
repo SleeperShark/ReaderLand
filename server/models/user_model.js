@@ -263,14 +263,14 @@ const getUserDetail = async (email, roleId) => {
 };
 
 // TODO: get some of user's info
-const getUserInfoFields = async (userId, fields) => {
+const getUserInfoFields = async (filter, fields) => {
     try {
         const projection = fields.reduce((accu, curr) => {
             accu[curr] = 1;
             return accu;
         }, {});
 
-        const infoFields = await User.findById(userId, projection);
+        const infoFields = await User.findOne(filter, projection);
 
         return { data: infoFields };
     } catch (error) {

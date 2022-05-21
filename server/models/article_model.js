@@ -84,16 +84,6 @@ const pushToNewsfeed = async (article, followee) => {
 const createArticle = async (articleInfo) => {
     // articleInfo: title, author, context, category
     try {
-        //TODO: Validate all categories of the article are valid
-        let categories = await Category.find({}, { category: 1, _id: 0 });
-        categories = categories.map((elem) => elem.category);
-
-        for (let cat of articleInfo.category) {
-            if (!categories.includes(cat)) {
-                return { error: `Invalid category: ${cat}`, status: 400 };
-            }
-        }
-
         const article = await Article.create(articleInfo);
         console.log(`User ${articleInfo.author.toString()} successfully create article: ${article._id}`);
 

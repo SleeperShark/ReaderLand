@@ -152,14 +152,22 @@ const getCategoryArticles = async (req, res) => {
         return;
     }
 
-    const verifyResult = await Category.validAndExist(category);
-    if (verifyResult.error) {
-        modelResultResponder(verifyResult);
+    const verifyCategoryResult = await Category.validAndExist(category);
+    if (verifyCategoryResult.error) {
+        modelResultResponder(verifyCategoryResult);
         return;
     }
 
     let userId = req.user?.userId;
     let lastArticleId = req.query.lastArticleId;
+
+    if (lastArticleId) {
+        const verifyArticleResult = await Article.validAndExist(lastArticleId);
+        if (verifyArticleResult.error) {
+            modelResultResponder(verifyArticleResult);
+            return;
+        }
+    }
 
     const result = await Article.getCategoryArticles({ userId, category, lastArticleId });
 

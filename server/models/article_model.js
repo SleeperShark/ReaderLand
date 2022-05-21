@@ -531,17 +531,7 @@ const getLatestArticles = async (userId, lastArticleId) => {
 };
 
 const getCategoryArticles = async ({ userId, category, lastArticleId }) => {
-    if (lastArticleId && !ObjectId.isValid(lastArticleId)) {
-        console.log('Invalid lastArticleId');
-        return { error: 400, error: 'Invalid lastArticleId' };
-    }
     try {
-        // Validate category existence
-        const valid = await Category.findOne({ category });
-        if (!valid) {
-            return { error: 'No matched category.', status: 400 };
-        }
-
         //TODO: NO Cache scenario
         let aggregateArr = [];
 

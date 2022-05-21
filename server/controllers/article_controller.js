@@ -275,6 +275,7 @@ const getHotArticles = async (_, res) => {
         const result = await Article.generateHotArticles();
 
         modelResultResponder(result, res);
+        return;
     } else {
         let hotArticles;
 

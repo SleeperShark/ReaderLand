@@ -7,6 +7,7 @@ const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const { info } = require('console');
 
 const USER_ROLE = {
     ALL: -1,
@@ -258,6 +259,24 @@ const getUserDetail = async (email, roleId) => {
     } catch (error) {
         console.error(error);
         return { error: 'Server error', status: 500 };
+    }
+};
+
+// TODO: get some of user's info
+const getUserInfoFields = async (userId, fields) => {
+    try {
+        const projection = fields.reduce((accu, curr) => {
+            accu[curr] = 1;
+            return accu;
+        }, {});
+
+        const infoFields = await User.findById(userId, projection);
+
+        return { data: infoFields };
+    } catch (error) {
+        console.error('[ERROR] getUserInfoFields');
+        console.error(error);
+        return { error: 'Server Error.', status: 500 };
     }
 };
 
@@ -650,6 +669,7 @@ module.exports = {
     deleteUser,
     validateEmailToken,
     getUserDetail,
+    getUserInfoFields,
     getUserProfile,
     getAuthorProfile,
     updateUserProfile,

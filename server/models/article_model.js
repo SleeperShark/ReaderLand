@@ -28,9 +28,11 @@ function mergeCommentsReaderInfo(article) {
     // TODO: process userinfo in comment array
 
     const readersInfo = {};
+
     for (let user of article.comments_reader) {
         readersInfo[user._id.toString()] = { ...user };
     }
+
     delete article.comments_reader;
 
     article.comments.forEach((comment) => {
@@ -40,21 +42,12 @@ function mergeCommentsReaderInfo(article) {
     return;
 }
 
-const pushToNewsfeed = async (article) => {
+const pushToNewsfeed = async (article, followee) => {
     try {
-        //TODO: get author's followee list
-        const queryResult = await User.findById(article.author, { _id: 0, followee: 1 });
-        let followee = queryResult.followee;
-        if (!followee.length) {
-            return;
-        }
-
         const followeeNum = followee.length;
         //TODO: make followee list match lua format
         followee = followee.map((elem) => elem.toString() + '_newsfeed');
-        // console.log(followee);
         const articleId = article._id.toString();
-        // console.log(articleId);
 
         //TODO: push article id to followee's newsfeed
         const keys = ['articleId', 'followeeNum', 'randNom', ...new Array(followeeNum).fill('')];
@@ -101,11 +94,6 @@ const createArticle = async (articleInfo) => {
 
         const article = await Article.create(articleInfo);
         console.log(`User ${articleInfo.author.toString()} successfully create article: ${article._id}`);
-
-        // TODO: Insert the new article to followee's newsfeed Queue
-        if (Cache.ready) {
-            pushToNewsfeed(article);
-        }
 
         return { data: article };
     } catch (error) {
@@ -892,4 +880,5 @@ module.exports = {
     generateHotArticles,
     getCategoryArticles,
     generateNewsFeedInCache,
+    pushToNewsfeed,
 };

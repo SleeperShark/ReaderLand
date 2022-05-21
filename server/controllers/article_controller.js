@@ -1,44 +1,52 @@
 const Article = require('../models/article_model.js');
 const Category = require(`${__dirname}/../models/category_model.js`);
 const Notification = require(`${__dirname}/../models/notification_model`);
+const User = require(`${__dirname}/../models/user_model`);
 const Cache = require('../../util/cache');
 const { modelResultResponder } = require(`${__dirname}/../../util/util`);
 
 const createArticle = async (req, res) => {
-    try {
-        const author = req.user.userId;
-        const { title, category, context, preview, head } = req.body;
+    const author = req.user.userId;
+    const { title, category, context, preview, head } = req.body;
 
-        const articleInfo = {
-            title,
-            category,
-            context,
-            preview,
-            author,
-            head,
-            createdAt: new Date().toISOString(),
-        };
+    const articleInfo = {
+        title,
+        category,
+        context,
+        preview,
+        author,
+        head,
+        createdAt: new Date().toISOString(),
+    };
 
-        const values = Object.values(articleInfo);
-        if (values.includes('') || values.includes(null) || values.includes(undefined)) {
-            res.status(400).json({ error: 'Title, category, context, head and preview are all required.' });
-            return;
-        }
-
-        const result = await Article.createArticle(articleInfo);
-
-        if (result.data) {
-            //TODO: Sending Notification and socketIO
-            const io = req.app.get('socketio');
-            Notification.newPostNotification(result.data, io);
-
-            result.data = result.data._id.toString();
-        }
-
-        modelResultResponder(result, res);
-    } catch (error) {
-        console.error(error);
+    const values = Object.values(articleInfo);
+    if (values.includes('') || values.includes(null) || values.includes(undefined)) {
+        res.status(400).json({ error: 'Title, category, context, head and preview are all required.' });
+        return;
     }
+
+    const result = await Article.createArticle(articleInfo);
+
+    if (result.data) {
+        const article = result.data;
+
+        // TODO: push to newsfeed
+        if (Cache.ready) {
+            const {
+                data: { followee },
+            } = await User.getUserInfoFields(author, ['followee']);
+
+            await Article.pushToNewsfeed(article, followee);
+        }
+
+        //TODO: Sending Notification and socketIO
+        const io = req.app.get('socketio');
+        Notification.newPostNotification(article, io);
+
+        result.data = result.data._id.toString();
+    }
+
+    modelResultResponder(result, res);
 };
 
 const getArticle = async (req, res) => {

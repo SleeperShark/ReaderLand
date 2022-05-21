@@ -650,6 +650,27 @@ const isArticleFavorited = async (userId, articleId) => {
     }
 };
 
+const favoritesChecker = async (userId, articles) => {
+    try {
+        const { favorite } = await User.findById(userId, { 'favorite.articleId': 1 });
+
+        const checker = favorite.reduce((accu, { articleId }) => {
+            accu[articleId.toString()] = true;
+            return accu;
+        }, {});
+
+        articles.forEach((article) => {
+            article.favorited = checker[article._id.toString()] || false;
+        });
+
+        return { data: articles };
+    } catch (error) {
+        console.error('[ERROR] favoritesChecker');
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 module.exports = {
     USER_ROLE,
     authentication,
@@ -669,4 +690,5 @@ module.exports = {
     socketAuthentication,
     validAndExist,
     isArticleFavorited,
+    favoritesChecker,
 };

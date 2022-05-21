@@ -68,7 +68,7 @@ const getArticle = async (req, res) => {
     const result = await Article.getArticle(articleId, userId);
 
     // TODO: Check if article is favorited by user
-    if (result.data) {
+    if (result.data && userId) {
         const favoritedCheck = await User.isArticleFavorited(userId, articleId);
         if (favoritedCheck.data) {
             result.data.favorited = favoritedCheck.data;
@@ -162,6 +162,10 @@ const getLatestArticles = async (req, res) => {
     }
 
     const result = await Article.getLatestArticles(userId, lastArticleId);
+
+    if (result.data && userId) {
+        await User.favoritesChecker(userId, result.data.latest);
+    }
 
     modelResultResponder(result, res);
 };

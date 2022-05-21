@@ -160,10 +160,6 @@ const getArticle = async (articleId, userId = '') => {
             },
         ]);
 
-        if (!article) {
-            return { error: 'No matched article.', status: 400 };
-        }
-
         if (userId) {
             //TODO: check liked
             const uidString = userId.toString();
@@ -178,15 +174,6 @@ const getArticle = async (articleId, userId = '') => {
             for (let { reader } of article.comments) {
                 if (reader._id.toString() == uidString) {
                     article.commented = true;
-                    break;
-                }
-            }
-
-            //TODO: check favorited
-            const { favorite } = await User.findById(userId, { _id: 0, favorite: 1 });
-            for (let favoretedArticle of favorite) {
-                if (favoretedArticle.articleId.toString() == articleId.toString()) {
-                    article.favorited = true;
                     break;
                 }
             }

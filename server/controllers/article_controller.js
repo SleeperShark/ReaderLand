@@ -1,4 +1,5 @@
 const Article = require('../models/article_model.js');
+const User = require(`${__dirname}/../models/user_model.js`);
 const Category = require(`${__dirname}/../models/category_model.js`);
 const Notification = require(`${__dirname}/../models/notification_model`);
 const Cache = require('../../util/cache');
@@ -64,7 +65,27 @@ const getArticle = async (req, res) => {
         return;
     }
 
+    // TODO: check if article is favorited by user
+    let favorited = false;
+    if (userId) {
+        const getInfoResult = await User.getUserInfoFields({ _id: userId }, ['favorite']);
+
+        if (getInfoResult.data) {
+            for (let i = 0; i < getInfoResult.data.favorite.length; i++) {
+                if (articleId === getInfoResult.data.favorite[i].articleId.toString()) {
+                    favorited = true;
+                    break;
+                }
+            }
+        }
+    }
+
     const result = await Article.getArticle(articleId, userId);
+
+    // TODO: Check if article is favorited by user
+    if (result.data) {
+        result.data.favorited = favorited;
+    }
 
     modelResultResponder(result, res);
 };

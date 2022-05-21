@@ -1,7 +1,6 @@
 const Article = require('../models/article_model.js');
 const Category = require(`${__dirname}/../models/category_model.js`);
 const Notification = require(`${__dirname}/../models/notification_model`);
-const User = require(`${__dirname}/../models/user_model`);
 const Cache = require('../../util/cache');
 const { modelResultResponder } = require(`${__dirname}/../../util/util`);
 
@@ -41,11 +40,7 @@ const createArticle = async (req, res) => {
 
         // TODO: push to newsfeed
         if (Cache.ready) {
-            const {
-                data: { followee },
-            } = await User.getUserInfoFields({ _id: author }, ['followee']);
-
-            await Article.pushToNewsfeed(article, followee);
+            await Article.pushToNewsfeed(article, req.user.followee);
         }
 
         //TODO: Sending Notification and socketIO
@@ -75,7 +70,7 @@ const getArticle = async (req, res) => {
 };
 
 const getNewsFeed = async (req, res) => {
-    const { userId } = req.user;
+    const { userId, preference } = req.user;
     let { refresh, lastArticleId } = req.query;
     refresh = refresh && true;
 
@@ -87,7 +82,7 @@ const getNewsFeed = async (req, res) => {
         }
     }
 
-    const result = await Article.getNewsFeed(userId, refresh, lastArticleId);
+    const result = await Article.getNewsFeed(userId, refresh, lastArticleId, preference);
 
     modelResultResponder(result, res);
 };

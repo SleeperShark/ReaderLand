@@ -380,11 +380,8 @@ const getFeedsFromId = async (idArr, userId) => {
 };
 
 // TODO: get articles preview from customized newsfeed
-const getNewsFeed = async (userId, refresh, lastArticleId) => {
+const getNewsFeed = async (userId, refresh, lastArticleId, preference) => {
     try {
-        //TODO: check preference exist
-        const preference = await User.findById(userId, { follower: 1, subscribe: 1 });
-
         if (!preference.follower.length && (!preference.subscribe || !Object.keys(preference.subscribe).length)) {
             return { data: { noPreference: true } };
         }

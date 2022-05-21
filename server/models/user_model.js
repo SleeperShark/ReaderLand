@@ -59,23 +59,23 @@ const authentication = (roleId, required = true) => {
             req.user = user;
             if (roleId == null) {
                 next();
-            } else {
-                let filter = { email: user.email, _id: ObjectId(req.user.userId) };
-                if (roleId != USER_ROLE.ALL) {
-                    filter.role = roleId;
-                }
-
-                const result = await getUserInfoFields(filter, ['_id']);
-
-                if (result.error) {
-                    res.status(403).json({ error: 'Forbidden' });
-                } else {
-                    console.log(`User ${user.name} pass authentication...`);
-                    req.user.userId = result.data._id;
-                    next();
-                }
             }
-            return;
+
+            let filter = { email: user.email, _id: ObjectId(req.user.userId) };
+            if (roleId != USER_ROLE.ALL) {
+                filter.role = roleId;
+            }
+
+            const result = await getUserInfoFields(filter, ['_id']);
+
+            if (result.error) {
+                res.status(403).json({ error: 'Forbidden' });
+                return;
+            }
+
+            console.log(`User ${user.name} pass authentication...`);
+            req.user.userId = result.data._id;
+            next();
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Server error' });

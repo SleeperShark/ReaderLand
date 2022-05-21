@@ -197,13 +197,9 @@ const getCategoryArticles = async (req, res) => {
     }
 
     const result = await Article.getCategoryArticles({ userId, category, lastArticleId });
-    // if (userId && result.data) {
-    //     let favorites = [];
-    //     const getInfoResult = await User.getUserInfoFields({ _id: userId }, ['favorite']);
-    //     if(getInfoResult.data){
-
-    //     }
-    // }
+    if (userId && result.data) {
+        await User.favoritesChecker(userId, result.data.categoryArticles);
+    }
 
     modelResultResponder(result, res);
 };

@@ -276,17 +276,6 @@ const getFeedsFromId = async (idArr, userId) => {
         idArr = idArr.map((elem) => ObjectId(elem));
     }
 
-    let favoriteArticleObj = {};
-    if (userId) {
-        const { favorite } = await User.findById(userId, { favorite: 1 });
-
-        if (favorite.length) {
-            favorite.forEach((elem) => {
-                favoriteArticleObj[elem.articleId.toString()] = 1;
-            });
-        }
-    }
-
     let feedArticles = await Article.aggregate([
         {
             $match: { _id: { $in: idArr } },
@@ -348,11 +337,6 @@ const getFeedsFromId = async (idArr, userId) => {
                     article.commented = true;
                     break;
                 }
-            }
-
-            // check favorited
-            if (favoriteArticleObj[article._id.toString()]) {
-                article.favorited = true;
             }
         }
 

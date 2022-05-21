@@ -93,6 +93,10 @@ const getNewsFeed = async (req, res) => {
 
     const result = await Article.getNewsFeed(userId, refresh, lastArticleId, preference);
 
+    if (result.data) {
+        await User.favoritesChecker(userId, result.data.userFeeds);
+    }
+
     modelResultResponder(result, res);
 };
 

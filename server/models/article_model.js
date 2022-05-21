@@ -1,6 +1,6 @@
 require('dotenv').config({ path: __dirname + '/../../.env' });
 const { IMAGE_URL } = process.env;
-const { Article, ObjectId, User } = require('./schemas');
+const { Article, ObjectId } = require('./schemas');
 const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
 

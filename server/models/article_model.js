@@ -728,11 +728,6 @@ const replyComment = async ({ userId, articleId, reply, commentId }) => {
 };
 
 const readArticle = async (articleId) => {
-    if (!ObjectId.isValid(articleId)) {
-        console.error('Invalid articleId.');
-        return { error: 'Invalid articleId.', status: 400 };
-    }
-
     try {
         const { readCount } = await Article.findByIdAndUpdate(
             ObjectId(articleId),
@@ -744,6 +739,7 @@ const readArticle = async (articleId) => {
 
         return { data: readCount };
     } catch (error) {
+        console.log('[ERROR] readArticle');
         console.error(error);
         return { status: 500, error: 'Server error' };
     }

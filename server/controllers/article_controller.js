@@ -252,6 +252,12 @@ const replyComment = async (req, res) => {
 const readArticle = async (req, res) => {
     const { articleId } = req.params;
 
+    const verifyResult = await Article.validAndExist(articleId);
+    if (verifyResult.error) {
+        modelResultResponder(verifyResult);
+        return;
+    }
+
     // const { data: readCount, error, status } = await Article.readArticle(articleId);
     const result = await Article.readArticle(articleId);
 

@@ -562,17 +562,6 @@ const unfollow = async (userId, followerId) => {
     }
 };
 
-const getSubscription = async (userId) => {
-    try {
-        const { subscribe } = await User.findById(userId, { subscribe: 1, _id: 0 });
-
-        return { data: subscribe };
-    } catch (error) {
-        console.error(error);
-        return { error: 'Server error', status: 500 };
-    }
-};
-
 const subscribe = async (userId, subscribe) => {
     try {
         const { follower, subscribe: updatedSubscribe } = await User.findByIdAndUpdate(userId, { $set: { subscribe } }, { projection: { subscribe: 1, follower: 1 }, new: true });
@@ -678,7 +667,6 @@ module.exports = {
     subscribe,
     favorite,
     unfavorite,
-    getSubscription,
     socketAuthentication,
     validAndExist,
 };

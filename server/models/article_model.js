@@ -586,19 +586,7 @@ const getCategoryArticles = async ({ userId, category, lastArticleId }) => {
 
 // TODO: push userId to Article.likes array
 const likeArticle = async (userId, articleId) => {
-    //* examine the articleId format
-    if (!ObjectId.isValid(articleId)) {
-        console.error('Invalid articleId.');
-        return { error: 'ArticleId format error', status: 400 };
-    }
-
     try {
-        //* Check if Article exist
-        const exist = await Article.findById(ObjectId(articleId), { _id: 1 });
-        if (!exist) {
-            return { error: "Article doesn't exist.", status: 400 };
-        }
-
         await Article.updateOne({ _id: ObjectId(articleId) }, [
             {
                 $set: {

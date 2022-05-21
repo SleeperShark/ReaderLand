@@ -66,24 +66,24 @@ const getArticle = async (req, res) => {
 };
 
 const getNewsFeed = async (req, res) => {
-    try {
-        const { userId } = req.user;
-        let { refresh, lastArticleId } = req.query;
-        refresh = refresh && true;
+    const { userId } = req.user;
+    let { refresh, lastArticleId } = req.query;
+    refresh = refresh && true;
 
-        const result = await Article.getNewsFeed(userId, refresh, lastArticleId);
+    const result = await Article.getNewsFeed(userId, refresh, lastArticleId);
 
-        modelResultResponder(result, res);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Server Error' });
-        return;
-    }
+    modelResultResponder(result, res);
 };
 
 const likeArticle = async (req, res) => {
     const { articleId } = req.params;
     const { userId } = req.user;
+
+    const verifyResult = await Article.verifyResult(articleId);
+    if (verifyResult.error) {
+        modelResultResponder(verifyResult);
+        return;
+    }
 
     const result = await Article.likeArticle(userId, articleId);
 

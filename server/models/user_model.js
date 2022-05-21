@@ -635,6 +635,21 @@ const getAuthorProfile = async (authorId) => {
     }
 };
 
+const isArticleFavorited = async (userId, articleId) => {
+    try {
+        const [result] = await User.aggregate([
+            { $match: { _id: userId } },
+            { $project: { favorited: { $cond: { if: { $in: [ObjectId(articleId), '$favorite.articleId'] }, then: true, else: false } } } },
+        ]);
+
+        return { data: result.favorited };
+    } catch (error) {
+        console.error('[ ERROR ] isArticleFavorited');
+        console.error(error);
+        return { error: 'Server error', status: 500 };
+    }
+};
+
 module.exports = {
     USER_ROLE,
     authentication,
@@ -653,4 +668,5 @@ module.exports = {
     unfavorite,
     socketAuthentication,
     validAndExist,
+    isArticleFavorited,
 };

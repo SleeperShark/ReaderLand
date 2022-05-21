@@ -65,26 +65,14 @@ const getArticle = async (req, res) => {
         return;
     }
 
-    // TODO: check if article is favorited by user
-    let favorited = false;
-    if (userId) {
-        const getInfoResult = await User.getUserInfoFields({ _id: userId }, ['favorite']);
-
-        if (getInfoResult.data) {
-            for (let i = 0; i < getInfoResult.data.favorite.length; i++) {
-                if (articleId === getInfoResult.data.favorite[i].articleId.toString()) {
-                    favorited = true;
-                    break;
-                }
-            }
-        }
-    }
-
     const result = await Article.getArticle(articleId, userId);
 
     // TODO: Check if article is favorited by user
     if (result.data) {
-        result.data.favorited = favorited;
+        const favoritedCheck = await User.isArticleFavorited(userId, articleId);
+        if (favoritedCheck.data) {
+            result.data.favorited = favoritedCheck.data;
+        }
     }
 
     modelResultResponder(result, res);
@@ -205,6 +193,13 @@ const getCategoryArticles = async (req, res) => {
     }
 
     const result = await Article.getCategoryArticles({ userId, category, lastArticleId });
+    // if (userId && result.data) {
+    //     let favorites = [];
+    //     const getInfoResult = await User.getUserInfoFields({ _id: userId }, ['favorite']);
+    //     if(getInfoResult.data){
+
+    //     }
+    // }
 
     modelResultResponder(result, res);
 };

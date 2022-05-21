@@ -695,16 +695,13 @@ const commentArticle = async ({ userId, articleId, comment }) => {
 
         return { data: { article: updatedArticle, commentId: updatedCommentId } };
     } catch (error) {
+        console.error('[ERROR] commentArticle');
         console.error(error);
         return { status: 500, error: 'Server error' };
     }
 };
 
 const replyComment = async ({ userId, articleId, reply, commentId }) => {
-    if (!ObjectId.isValid(articleId) || !ObjectId.isValid(commentId)) {
-        return { error: 'Invalid articleId or commentId.', status: 400 };
-    }
-
     try {
         const { matchedCount } = await Article.updateOne(
             { _id: ObjectId(articleId), author: userId, 'comments._id': ObjectId(commentId) },
@@ -724,6 +721,7 @@ const replyComment = async ({ userId, articleId, reply, commentId }) => {
 
         return { data: updatedComment };
     } catch (error) {
+        console.error('[ERROR] replyComment');
         console.error(error);
         return { status: 500, error: 'Server error' };
     }

@@ -203,6 +203,10 @@ const validateEmailToken = async (token) => {
 const nativeSignIn = async (email, password, validRequired = true) => {
     try {
         const modelUser = await User.findOne({ email });
+        if (!modelUser) {
+            return { error: 'Unregistered.', status: 401 };
+        }
+
         const user = JSON.parse(JSON.stringify(modelUser));
 
         if (!(await comapreAsync(password, user.password))) {
@@ -229,7 +233,7 @@ const nativeSignIn = async (email, password, validRequired = true) => {
             data: {
                 accessToken,
                 user: {
-                    id: user._id.toString(),
+                    userId: user._id.toString(),
                     provider: user.provider,
                     name: user.name,
                     email: user.email,

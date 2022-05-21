@@ -3,6 +3,7 @@ const { User, ObjectId } = require(`${__dirname}/../server/models/schemas.js`);
 const user_model = require(`${__dirname}/../server/models/user_model.js`);
 var assert = require('chai').assert;
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 const { TOKEN_SECRET } = process.env;
 
 describe('User model unit test', function () {
@@ -26,7 +27,7 @@ describe('User model unit test', function () {
 
     let emailToken;
 
-    describe('User Signup', function () {
+    describe('[ User Signup ]', function () {
         it('Valid Registered', async function () {
             const { name, email, password } = MochaTesterInfo;
             const { data } = await user_model.signUp(name, email, password);
@@ -49,28 +50,9 @@ describe('User model unit test', function () {
 
             assert.deepEqual(result, { error: 'Email already registered.', status: 403 }, 'Registered email error.');
         });
-
-        // it('Login before email registration', async function () {
-        //     const { email, password } = MochaTesterInfo;
-        //     const signInResult = await user_model.nativeSignIn(email, password);
-
-        //     assert.deepEqual(signInResult, { error: 'Unauthorized.', status: 401 }, "User can't login before email validation.");
-        // });
-
-        // it('Login after registration', async function () {
-        //     const { email, password, name } = MochaTesterInfo;
-        //     const {
-        //         data: { accessToken, user },
-        //     } = await user_model.nativeSignIn(email, password);
-
-        //     loginToken = accessToken;
-
-        //     assert.deepInclude(user, { provider: 'native', name, email }, 'User Info validation.');
-        //     assert(ObjectId.isValid(user.id), 'User id validation');
-        // });
     });
 
-    describe('Email Validation', function () {
+    describe('[ Email Validation ]', function () {
         it('Email Validation', async function () {
             const { data: name } = await user_model.validateEmailToken(emailToken);
             assert.equal(MochaTesterInfo.name, name, 'Legal Validation should return user name as data.');
@@ -102,7 +84,42 @@ describe('User model unit test', function () {
         });
     });
 
-    describe('validAndExist', function () {
+    describe('[ User Sign in ]', function () {
+        it('Unregistered Email', async function () {
+            const signInRetult = await user_model.nativeSignIn('44444444@gmail.com');
+            assert.deepEqual(signInRetult, { error: 'Unregistered.', status: 401 }, 'Return Email unregistered error.');
+        });
+
+        it('Wrong Password', async function () {
+            const signInRetult = await user_model.nativeSignIn('40243105s@gmail.com', 'PASSWORD');
+            assert.deepEqual(signInRetult, { error: 'Unauthorized.', status: 401 }, 'Wrong password error.');
+        });
+
+        it('Unverified account', async function () {
+            await User.findByIdAndUpdate(MochaTester._id, { $set: { valid: false } });
+
+            const signInRetult = await user_model.nativeSignIn('40243105s@gmail.com', 'password');
+            assert.deepEqual(signInRetult, { error: 'Unauthorized.', status: 401 }, 'User yet pass the email validation.');
+        });
+
+        it('Valid Sign in', async function () {
+            await User.findByIdAndUpdate(MochaTester._id, { $set: { valid: true } });
+            const {
+                data: { user, accessToken },
+            } = await user_model.nativeSignIn('40243105s@gmail.com', 'password');
+
+            const { _id, provider, name, email, picture } = MochaTester;
+            const expectedUser = { userId: _id.toString(), provider, name, email, picture };
+
+            assert.deepEqual(user, expectedUser, 'User info verification');
+
+            const userFromToken = await promisify(jwt.verify)(accessToken, TOKEN_SECRET);
+            delete userFromToken.iat;
+            assert.deepEqual(userFromToken, expectedUser, 'Extract user info from verified JWT');
+        });
+    });
+
+    describe('[ validAndExist ]', function () {
         const inValidIdError = { error: 'Invalid userId.', status: 400 };
 
         before(async function () {

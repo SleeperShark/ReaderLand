@@ -97,15 +97,14 @@ const createArticle = async (articleInfo) => {
 
         return { data: article };
     } catch (error) {
-        console.log(error);
-        let status = 500;
-        let msg = 'Server Error';
+        console.error('[ERROR] article_model.createArticle');
+        console.error(error);
+
         if (error.message.includes('duplicate')) {
-            status = 400;
-            msg = "You can't have two articles with same title";
+            return { error: 'Duplicate index on article title.', status: 400 };
         }
 
-        return { error: msg, status };
+        return { error: 'Server Error.', status: 500 };
     }
 };
 

@@ -79,7 +79,7 @@ const likeArticle = async (req, res) => {
     const { articleId } = req.params;
     const { userId } = req.user;
 
-    const verifyResult = await Article.verifyResult(articleId);
+    const verifyResult = await Article.validAndExist(articleId);
     if (verifyResult.error) {
         modelResultResponder(verifyResult);
         return;

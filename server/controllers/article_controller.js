@@ -194,6 +194,12 @@ const commentArticle = async (req, res) => {
         return;
     }
 
+    const verifyResult = await Article.validAndExist(articleId);
+    if (verifyResult.error) {
+        modelResultResponder(verifyResult);
+        return;
+    }
+
     const result = await Article.commentArticle({ userId, articleId, comment });
 
     //TODO: Sending Notification and socketIO

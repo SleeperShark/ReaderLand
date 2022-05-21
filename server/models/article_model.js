@@ -672,12 +672,6 @@ async function getUpdatedComment(articleId) {
 
 const commentArticle = async ({ userId, articleId, comment }) => {
     try {
-        // validate articleId
-        if (!ObjectId.isValid(articleId)) {
-            console.error('Invalid articleId.');
-            return { error: 'ArticleId format error', status: 400 };
-        }
-
         const commentElem = { context: comment, reader: userId, createdAt: new Date().toISOString() };
 
         // update comment

@@ -60,20 +60,18 @@ const authentication = (roleId, required = true) => {
             if (roleId == null) {
                 next();
             } else {
-                let result;
-                if (roleId == USER_ROLE.ALL) {
-                    result = await getUserDetail(user.email);
-                } else {
-                    result = await getUserDetail(user.email, roleId);
+                let filter = { email: user.email, _id: ObjectId(req.user.userId) };
+                if (roleId != USER_ROLE.ALL) {
+                    filter.role = roleId;
                 }
+
+                const result = await getUserInfoFields(filter, ['_id']);
 
                 if (result.error) {
                     res.status(403).json({ error: 'Forbidden' });
                 } else {
-                    const userDetail = result.user;
-                    console.log(`User ${req.user.name} pass authentication...`);
-                    req.user.userId = userDetail._id;
-                    req.user.roleId = userDetail.role;
+                    console.log(`User ${user.name} pass authentication...`);
+                    req.user.userId = result.data._id;
                     next();
                 }
             }
@@ -246,22 +244,6 @@ const nativeSignIn = async (email, password, validRequired = true) => {
     }
 };
 
-// Validate user for authentication
-const getUserDetail = async (email, roleId) => {
-    try {
-        const filter = { email };
-
-        if (roleId) {
-            filter.role = roleId;
-        }
-
-        return { user: await User.findOne(filter) };
-    } catch (error) {
-        console.error(error);
-        return { error: 'Server error', status: 500 };
-    }
-};
-
 // TODO: get some of user's info
 const getUserInfoFields = async (filter, fields) => {
     try {
@@ -271,6 +253,10 @@ const getUserInfoFields = async (filter, fields) => {
         }, {});
 
         const infoFields = await User.findOne(filter, projection);
+
+        if (!infoFields) {
+            return { error: 'No matched user', status: 400 };
+        }
 
         return { data: infoFields };
     } catch (error) {
@@ -657,7 +643,6 @@ module.exports = {
     signUp,
     deleteUser,
     validateEmailToken,
-    getUserDetail,
     getUserInfoFields,
     getUserProfile,
     getAuthorProfile,

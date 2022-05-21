@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "mocha './unit_test/user_model.test.js' --exit",
+        "test": "set NODE_ENV=test&&mocha './unit_test/user_model.test.js' --exit",
         "startDev": "nodemon app.js"
     },
     "repository": {

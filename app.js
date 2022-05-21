@@ -97,9 +97,7 @@ app.use((err, _, res) => {
 if (NODE_ENV != 'production') {
     server.listen(port, async () => {
         Cache.connect().catch(() => {
-            if (!Cache.ready) {
-                console.error('Redis connect fail...');
-            }
+            console.log('redis connect fail');
         });
         console.log(`Listening on port: ${port}`);
     });

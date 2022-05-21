@@ -1,6 +1,8 @@
 require('dotenv').config({ path: __dirname + '/../../.env' });
 const { IMAGE_URL } = process.env;
-const { Article, ObjectId, User, Category } = require('./schemas');
+const { Article, ObjectId, User } = require('./schemas');
+const Category = require(`${__dirname}/category_model`);
+
 const { articleWeightCounter } = require(`${__dirname}/../../util/util`);
 const Cache = require('../../util/cache');
 
@@ -632,18 +634,6 @@ const unlikeArticle = async (userId, articleId) => {
     }
 };
 
-const getCategories = async () => {
-    try {
-        let categories = await Category.find({}, { _id: 0, category: 1 });
-        categories = categories.map((elem) => elem.category);
-
-        return { data: categories };
-    } catch (error) {
-        console.error(error);
-        return { status: 500, error: error.message };
-    }
-};
-
 //TODO: Fetch latest feedback after article is commented or replied
 async function getUpdatedComment(articleId) {
     const [article] = await Article.aggregate([
@@ -840,7 +830,6 @@ module.exports = {
     getNewsFeed,
     likeArticle,
     unlikeArticle,
-    getCategories,
     getLatestArticles,
     commentArticle,
     replyComment,

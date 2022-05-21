@@ -1,5 +1,18 @@
 const { Category } = require(`${__dirname}/schemas`);
 
+const getCategories = async () => {
+    try {
+        const result = await Category.find({}, { category: 1, _id: 0 });
+        const categories = result.map((elem) => elem.category.toString());
+
+        return { data: categories };
+    } catch (error) {
+        console.error('[ERROR] getCategories');
+        console.error(error);
+        return { error: 'Server Error.', status: 500 };
+    }
+};
+
 const validAndExist = async (category) => {
     try {
         const exist = await Category.findOne({ category });
@@ -40,4 +53,4 @@ const verifyCategories = async (categories) => {
     }
 };
 
-module.exports = { verifyCategories, validAndExist };
+module.exports = { verifyCategories, validAndExist, getCategories };

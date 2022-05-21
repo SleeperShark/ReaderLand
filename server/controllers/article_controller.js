@@ -124,8 +124,7 @@ const unlikeArticle = async (req, res) => {
 };
 
 const getCategories = async (_, res) => {
-    const result = await Article.getCategories();
-
+    const result = await Category.getCategories();
     modelResultResponder(result, res);
 };
 

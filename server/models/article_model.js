@@ -109,11 +109,6 @@ const createArticle = async (articleInfo) => {
 };
 
 const getArticle = async (articleId, userId = '') => {
-    if (!ObjectId.isValid(articleId)) {
-        console.error('Invalid articleId.');
-        return { error: 'Invalid articleId.', status: 400 };
-    }
-
     try {
         const [article] = await Article.aggregate([
             { $match: { _id: new ObjectId(articleId) } },
@@ -127,7 +122,7 @@ const getArticle = async (articleId, userId = '') => {
                             $project: {
                                 _id: 1,
                                 name: 1,
-                                picture: 1,
+                                picture: { $concat: [IMAGE_URL, '/avatar/', '$picture'] },
                                 followed: {
                                     $cond: {
                                         if: { $in: [userId, '$followee'] },
@@ -207,15 +202,13 @@ const getArticle = async (articleId, userId = '') => {
             }
         }
 
-        //TODO: image url
-        article.author.picture = `${IMAGE_URL}/avatar/${article.author.picture}`;
-
         mergeCommentsReaderInfo(article);
 
         return { data: article };
     } catch (error) {
-        console.log(error);
-        return { error: error.message, status: 500 };
+        console.error('[ERROR] article_model.getArticle');
+        console.error(error);
+        return { error: 'Server Error.', status: 500 };
     }
 };
 

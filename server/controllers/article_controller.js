@@ -53,6 +53,13 @@ const getArticle = async (req, res) => {
     const articleId = req.params.articleId;
     const userId = req.user?.userId;
 
+    const verifyResult = await Article.validAndExist(articleId);
+
+    if (verifyResult.error) {
+        modelResultResponder(verifyResult);
+        return;
+    }
+
     const result = await Article.getArticle(articleId, userId);
 
     modelResultResponder(result, res);

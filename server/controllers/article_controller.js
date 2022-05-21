@@ -106,6 +106,12 @@ const unlikeArticle = async (req, res) => {
     const { articleId } = req.params;
     const { userId } = req.user;
 
+    const verifyResult = await Article.validAndExist(articleId);
+    if (verifyResult.error) {
+        modelResultResponder(verifyResult);
+        return;
+    }
+
     const result = await Article.unlikeArticle(userId, articleId);
 
     if (result.data !== undefined) {

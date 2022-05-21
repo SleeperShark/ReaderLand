@@ -613,19 +613,7 @@ const likeArticle = async (userId, articleId) => {
 };
 
 const unlikeArticle = async (userId, articleId) => {
-    //* examine the articleId format
-    if (!ObjectId.isValid(articleId)) {
-        console.error('Invalid articleId.');
-        return { error: 'ArticleId format error', status: 400 };
-    }
-
     try {
-        //* Check if Article exist
-        const exist = await Article.findById(ObjectId(articleId), { _id: 1 });
-        if (!exist) {
-            return { error: "Article doesn't exist.", status: 400 };
-        }
-
         const { likes } = await Article.findByIdAndUpdate(
             ObjectId(articleId),
             { $pull: { likes: userId } },

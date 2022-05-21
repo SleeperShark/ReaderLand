@@ -66,7 +66,7 @@ const authentication = (roleId, required = true) => {
                 filter.role = roleId;
             }
 
-            const result = await getUserInfoFields(filter, ['_id']);
+            const result = await getUserInfoFields(filter, ['_id', 'subscribe', 'follower', 'followee']);
 
             if (result.error) {
                 res.status(403).json({ error: 'Forbidden' });
@@ -74,8 +74,12 @@ const authentication = (roleId, required = true) => {
             }
 
             console.log(`User ${user.name} pass authentication...`);
+
             req.user.userId = result.data._id;
-            next();
+            req.user.preference = { subscribe: result.data.subscribe, follower: result.data.follower };
+            req.user.followee = result.data.followee;
+
+            return next();
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Server error' });
@@ -93,10 +97,6 @@ const socketAuthentication = () => {
             // no required for unregistered user viewing article
 
             const { userId } = await promisify(jwt.verify)(token, TOKEN_SECRET);
-
-            if (!ObjectId.isValid(userId)) {
-                next(new Error('Unauthorized'));
-            }
 
             const verifyResult = await validAndExist(userId);
 

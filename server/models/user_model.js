@@ -7,7 +7,6 @@ const hashAsync = require('util').promisify(bcrypt.hash);
 const comapreAsync = require('util').promisify(bcrypt.compare);
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
-const { info } = require('console');
 
 const USER_ROLE = {
     ALL: -1,

@@ -70,6 +70,14 @@ const getNewsFeed = async (req, res) => {
     let { refresh, lastArticleId } = req.query;
     refresh = refresh && true;
 
+    if (lastArticleId) {
+        const verifyResult = await Article.validAndExist(lastArticleId);
+        if (verifyResult.error) {
+            modelResultResponder(verifyResult);
+            return;
+        }
+    }
+
     const result = await Article.getNewsFeed(userId, refresh, lastArticleId);
 
     modelResultResponder(result, res);
@@ -132,10 +140,12 @@ const getLatestArticles = async (req, res) => {
     let userId = req.user?.userId;
     const lastArticleId = req.query.lastArticleId;
 
-    const verifyResult = await Article.validAndExist(lastArticleId);
-    if (verifyResult.error) {
-        modelResultResponder(verifyResult);
-        return;
+    if (lastArticleId) {
+        const verifyResult = await Article.validAndExist(lastArticleId);
+        if (verifyResult.error) {
+            modelResultResponder(verifyResult);
+            return;
+        }
     }
 
     const result = await Article.getLatestArticles(userId, lastArticleId);

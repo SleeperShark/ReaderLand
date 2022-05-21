@@ -493,11 +493,6 @@ const getNewsFeed = async (userId, refresh, lastArticleId) => {
 };
 
 const getLatestArticles = async (userId, lastArticleId) => {
-    if (lastArticleId && !ObjectId.isValid(lastArticleId)) {
-        console.log('Invalid lastArticleId');
-        return { error: 400, error: 'Invalid lastArticleId' };
-    }
-
     try {
         let aggregateArr = [];
 

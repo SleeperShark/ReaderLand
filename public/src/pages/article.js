@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 const articleId = new URL(window.location).searchParams.get('id');
 const commentId = new URL(window.location).searchParams.get('commentId');
 

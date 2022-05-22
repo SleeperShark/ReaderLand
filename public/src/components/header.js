@@ -89,7 +89,7 @@ function appendNotifications(notifications, prepend = false) {
                 break;
         }
 
-        if (Object.keys(notifications[i].includes('isread'))) {
+        if (Object.keys(notifications[i]).includes('isread')) {
             unreadHTML = '<span class="unread"></span>';
         }
         notificationDiv.innerHTML = `

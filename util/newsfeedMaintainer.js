@@ -85,10 +85,10 @@ async function pullNewsFeed() {
     const newsfeedKeys = await Cache.keys('*_newsfeed');
 
     for (let feedKey of newsfeedKeys) {
-        try {
-            const userId = feedKey.split('_')[0];
-            console.log(`Pulling new articles for User ${userId}`);
+        const userId = feedKey.split('_')[0];
+        console.log(`Pulling new articles for User ${userId}`);
 
+        try {
             const timestampKey = userId + '_timestamp';
             let timeStamp = await Cache.get(timestampKey);
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const authorId = new URL(window.location).searchParams.get('id');
 
 // TODO: render author's info

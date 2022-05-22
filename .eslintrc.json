@@ -1,0 +1,12 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true,
+        "node": true
+    },
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+    "rules": { "indent": ["error", 4] }
+}

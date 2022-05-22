@@ -1,5 +1,6 @@
 require('dotenv').config({ path: `${__dirname}/../../.env` });
 const mongoose = require('mongoose');
+
 const { NODE_ENV, MONGO_USER, MONGO_PASSWORD, MONGO_DATABASE } = process.env;
 
 let connectURL;
@@ -9,6 +10,8 @@ switch (NODE_ENV) {
         break;
     case 'development':
         connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
+        break;
+    default:
         break;
 }
 

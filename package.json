@@ -4,6 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "lint": "eslint ./",
         "test": "set NODE_ENV=test&&mocha './unit_test/user_model.test.js' --exit",
         "startDev": "nodemon app.js"
     },
@@ -38,6 +39,11 @@
     "devDependencies": {
         "assertion-error": "^2.0.0",
         "chai": "^4.3.6",
-        "mocha": "^10.0.0"
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-prettier": "^4.0.0",
+        "mocha": "^10.0.0",
+        "prettier": "^2.6.2"
     }
 }

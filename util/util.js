@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { promisify } = require('util'); // util from native nodejs library
+const { promisify } = require('util');
 const crypto = require('crypto');
 const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, RATE_LIMIT_TIME, RATE_LIMIT_TTL, MAILER_USER, MAILER_PASS } = process.env;
 const randomBytes = promisify(crypto.randomBytes);

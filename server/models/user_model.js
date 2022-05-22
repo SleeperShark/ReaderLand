@@ -470,8 +470,6 @@ const updateUserProfile = async (userId, updateInfo) => {
 
         user = JSON.parse(JSON.stringify(user));
 
-        console.log(user);
-
         for (let key in updateInfo) {
             if (['name', 'email', 'picture'].includes(key)) {
                 //Remake JWT for new info

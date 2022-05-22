@@ -1,7 +1,8 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 let auth;
 const loadingIcon = document.querySelector('.lds-spinner');
 let allCategory;
-let cacheFail;
 let lastArticleIdForNewsfeed;
 
 async function favoriteArticle(e) {

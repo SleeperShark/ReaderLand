@@ -1,5 +1,6 @@
+/* eslint-disable no-undef */
 require('dotenv').config({ path: `${__dirname}/../.env` });
-const { User, ObjectId } = require(`${__dirname}/../server/models/schemas.js`);
+const { User } = require(`${__dirname}/../server/models/schemas.js`);
 const user_model = require(`${__dirname}/../server/models/user_model.js`);
 var assert = require('chai').assert;
 const jwt = require('jsonwebtoken');
@@ -122,23 +123,15 @@ describe('User model unit test', function () {
     describe('[ validAndExist ]', function () {
         const inValidIdError = { error: 'Invalid userId.', status: 400 };
 
-        before(async function () {
-            fakeUser = await User.create({ name: 'Mocha', email: 'Mocha@ReaderLand.com', bio: 'Testing before()' });
-        });
-
-        after(async function () {
-            await User.findByIdAndDelete(fakeUser._id);
-        });
-
         it('User exist scenario', async function () {
-            const result = await user_model.validAndExist(fakeUser._id.toString());
-            assert.deepEqual(result, { data: fakeUser._id.toString() }, 'Return the query id that exists.');
+            const result = await user_model.validAndExist(MochaTester._id.toString());
+            assert.deepEqual(result, { data: MochaTester._id.toString() }, 'Return the query id that exists.');
         });
 
         it("User doesn't exist scenario", async function () {
             let fakeId = '';
 
-            for (let letter of fakeUser._id.toString()) {
+            for (let letter of MochaTester._id.toString()) {
                 if (!isNaN(parseInt(letter))) {
                     fakeId += (parseInt(letter) + 1) % 10;
                 } else {
@@ -151,8 +144,8 @@ describe('User model unit test', function () {
         });
 
         it('Invalid userId error', async function () {
-            let extraLetter = fakeUser._id.toString() + '5';
-            let lackLetter = fakeUser._id.toString().slice(0, -1);
+            let extraLetter = MochaTester._id.toString() + '5';
+            let lackLetter = MochaTester._id.toString().slice(0, -1);
 
             let extraLetterResult = await user_model.validAndExist(extraLetter);
             let lackLetterResult = await user_model.validAndExist(lackLetter);

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 let articleInfo;
 let draftId = new URL(window.location).searchParams.get('draftId');
 var typingTimer;
@@ -444,8 +445,10 @@ async function init() {
 
             switch (type) {
                 case 'text':
-                    const textInput = paragraph.children[0];
-                    content = textInput.value;
+                    content = paragraph.children[0].value;
+                    break;
+                default:
+                    break;
             }
 
             // reorganize the linked list relation
@@ -538,7 +541,7 @@ async function init() {
         await toastBaker({ icon: 'success', text: '發布成功✧*｡٩(ˊᗜˋ*)و✧*｡', timer: 1500 });
 
         //TODO: delete draft
-        const result = await deleteDraftAPI(token, draftId);
+        await deleteDraftAPI(token, draftId);
 
         window.location.href = `/article.html?id=${articleId}`;
     });

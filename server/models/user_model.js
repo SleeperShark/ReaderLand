@@ -218,8 +218,6 @@ const nativeSignIn = async (email, password, validRequired = true) => {
             return { error: 'Unauthorized.', status: 401 };
         }
 
-        console.log(user);
-
         const accessToken = jwt.sign(
             {
                 provider: user.provider,

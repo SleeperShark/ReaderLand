@@ -1,4 +1,6 @@
-async function main() {
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-undef */
+async function init() {
     const auth = await authenticate();
 
     if (auth) {
@@ -10,14 +12,14 @@ async function main() {
     document.getElementById('login-btn').href = '#email-input';
 }
 
-main();
+init();
 
 //TODO: Switch between signin and signup form
 const nameContainer = document.getElementById('name');
 const repeatPasswordContainer = document.getElementById('repeat-password');
 const submitBtn = document.getElementById('submit-btn');
 const switchBtn = document.getElementById('switch');
-switchBtn.addEventListener('click', (event) => {
+switchBtn.addEventListener('click', () => {
     switch (switchBtn.dataset.state) {
         case 'sign-in':
             nameContainer.classList.remove('hide');
@@ -37,12 +39,12 @@ switchBtn.addEventListener('click', (event) => {
 
 //TODO: Focus and Blur effect for every field
 document.querySelectorAll('input').forEach((elem) => {
-    elem.addEventListener('blur', (event) => {
+    elem.addEventListener('blur', () => {
         const field = elem.previousSibling.previousSibling;
         field.style.color = 'rgba(0,0,0,0.5)';
         field.style.fontWeight = 'normal';
     });
-    elem.addEventListener('focus', (event) => {
+    elem.addEventListener('focus', () => {
         const field = elem.previousSibling.previousSibling;
         field.style.color = 'rgba(0,0,0,1)';
         field.style.fontWeight = 'bolder';

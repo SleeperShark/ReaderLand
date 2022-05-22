@@ -8,5 +8,5 @@
         "ecmaVersion": "latest"
     },
     "extends": ["eslint:recommended", "plugin:prettier/recommended"],
-    "rules": { "indent": ["error", 4] }
+    "rules": { "indent": ["error", 4, { "SwitchCase": 1 }] }
 }

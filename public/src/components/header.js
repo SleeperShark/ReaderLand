@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 const token = localStorage.getItem('ReaderLandToken');
 let user;
 let socket;
@@ -22,6 +24,7 @@ async function authenticate() {
     }
 
     user = (await res.json()).data;
+    // eslint-disable-next-line no-undef
     socket = io({
         autoConnect: false,
         auth: {
@@ -86,7 +89,7 @@ function appendNotifications(notifications, prepend = false) {
                 break;
         }
 
-        if (notifications[i].hasOwnProperty('isread')) {
+        if (Object.keys(notifications[i].includes('isread'))) {
             unreadHTML = '<span class="unread"></span>';
         }
         notificationDiv.innerHTML = `
@@ -259,8 +262,7 @@ async function renderHeader(auth) {
                 document.getElementById('notification-load').classList.add('hide');
             }
             // empty notification
-            if (!length) {
-            } else {
+            if (length) {
                 document.getElementById('notification-empty').classList.add('hide');
                 appendNotifications(notifications);
             }

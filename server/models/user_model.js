@@ -218,6 +218,8 @@ const nativeSignIn = async (email, password, validRequired = true) => {
             return { error: 'Unauthorized.', status: 401 };
         }
 
+        console.log(user);
+
         const accessToken = jwt.sign(
             {
                 provider: user.provider,
@@ -467,6 +469,8 @@ const updateUserProfile = async (userId, updateInfo) => {
         console.log('Succeefully update user profile: ' + Object.keys(updateInfo).join(', '));
 
         user = JSON.parse(JSON.stringify(user));
+
+        console.log(user);
 
         for (let key in updateInfo) {
             if (['name', 'email', 'picture'].includes(key)) {

@@ -615,6 +615,8 @@ fileInput.addEventListener('change', async () => {
             return;
         }
 
+        const { data: user } = updateProfileResult;
+
         uploadHint.innerText = '上傳成功';
         setTimeout(() => {
             uploadHint.style.display = 'none';
@@ -622,7 +624,7 @@ fileInput.addEventListener('change', async () => {
 
         //TODO: replace with new avatar, reset token and header profile image
         document.getElementById('profile-avatar').src = user.picture;
-        window.localStorage.setItem('ReaderLandToken', user.accessToken);
+        localStorage.setItem('ReaderLandToken', user.accessToken);
         document.getElementById('avatar').src = user.picture;
     } catch (error) {
         console.error(error);

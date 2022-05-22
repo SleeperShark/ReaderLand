@@ -10,7 +10,7 @@ const createArticle = async (req, res) => {
     const { title, category, context, preview, head } = req.body;
 
     // TODO: verify Category
-    for (cat of category) {
+    for (let cat of category) {
         const verifyCategoryResult = await Category.validAndExist(cat);
         if (verifyCategoryResult.error) {
             modelResultResponder(verifyCategoryResult);

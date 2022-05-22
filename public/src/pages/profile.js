@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 let allCategory;
 const directTo = new URL(window.location).searchParams.get('to');
 
@@ -38,7 +39,7 @@ async function renderDrafts() {
             window.location.href = `/edit.html?draftId=${_id}`;
         });
 
-        draftDiv.getElementsByClassName('draft-discard')[0].addEventListener('click', async (e) => {
+        draftDiv.getElementsByClassName('draft-discard')[0].addEventListener('click', async () => {
             const { error, status } = await deleteDraftAPI(token, _id);
 
             if (error) {
@@ -102,14 +103,14 @@ function renderFavorite(favoriteArticles) {
         favoritePage.appendChild(articleDiv);
 
         // Redirect to author.html when click author avatar
-        articleDiv.querySelector('.favorite-artilce-author').addEventListener('click', (e) => {
+        articleDiv.querySelector('.favorite-artilce-author').addEventListener('click', () => {
             window.location.href = `/author.html?id=${author._id}`;
         });
 
         //TODO: unfavortie enevt
         articleDiv.querySelector('i.fa-bookmark').addEventListener('click', async (e) => {
             const articleId = e.target.dataset.id;
-            const { error, data, status } = await unFavoriteArticleAPI(token, articleId);
+            const { error, status } = await unFavoriteArticleAPI(token, articleId);
             if (error) {
                 console.error(status);
                 console.error(error);
@@ -178,7 +179,7 @@ async function renderSubscribe(subscribe) {
 
         // Render other categories
         allCategory.forEach((cat) => {
-            if (subscribe.hasOwnProperty(cat)) return;
+            if (Object.keys(subscribe).includes(cat)) return;
             appendCategoryDiv(cat);
         });
     }
@@ -297,7 +298,7 @@ function renderFollower(follower) {
 
     followerPage.querySelectorAll('.unfollow-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
-            const { data, error, status } = await unFollowAuthorAPI(token, btn.parentElement.dataset.id);
+            const { error, status } = await unFollowAuthorAPI(token, btn.parentElement.dataset.id);
 
             if (error) {
                 console.error(status);
@@ -498,7 +499,7 @@ async function EditBioEvent() {
 
     if (bioVersion != bioDiv.innerText) {
         // PUT update API
-        const { data, error, status } = await updateUserProfileAPI(token, { bio: bioDiv.innerText });
+        const { error, status } = await updateUserProfileAPI(token, { bio: bioDiv.innerText });
 
         if (error) {
             console.error(status);
@@ -580,7 +581,7 @@ fileInput.addEventListener('change', async () => {
         uploadHint.style.display = 'inline-block';
 
         var {
-            data: { uploadURL, avatarName, avatarURL },
+            data: { uploadURL, avatarName },
             error,
             status,
         } = await getUploadUrlAPI(token);
@@ -606,10 +607,10 @@ fileInput.addEventListener('change', async () => {
         }
 
         //TODO: save new avatar image name
-        var { data: user, error, status } = await updateUserProfileAPI(token, { picture: avatarName });
-        if (error) {
-            console.error(status);
-            console.error(error);
+        var updateProfileResult = await updateUserProfileAPI(token, { picture: avatarName });
+        if (updateProfileResult.error) {
+            console.error(updateProfileResult.status);
+            console.error(updateProfileResult.error);
             await toastBaker({ icon: 'error', text: '系統異常，請稍後再試。' });
             return;
         }

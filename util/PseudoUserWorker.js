@@ -49,6 +49,7 @@ async function getFollowed(userId, others) {
     console.log(`Event: ${fans._id.toString()} follow user...`);
 }
 
+// eslint-disable-next-line no-unused-vars
 async function followersNewPost(userId, articles, authorsInfo) {
     console.log('Ready to Generate Post Notification...');
     articles = articles.filter((elem) => elem.author.toString() != userId.toString());
@@ -92,7 +93,7 @@ async function readerComment(userArticles, others) {
     console.log('Event: reader comment...');
 }
 
-async function authorReply(articles, userId, userEmail, others) {
+async function authorReply(articles, _, userEmail, others) {
     console.log('Ready to Rely user...');
     const articleId = articles[Math.floor(Math.random() * articles.length)];
     //TODO: user leave comment
@@ -179,7 +180,7 @@ async function run() {
 
         console.log('Collecting User Info...');
 
-        const [{ _id: userId, follower: followedAuthors, email: userEmail }] = await User.aggregate([
+        const [{ _id: userId, email: userEmail }] = await User.aggregate([
             { $sort: { _id: 1 } },
             { $limit: 1 },
             // { $match: { name: '' } },

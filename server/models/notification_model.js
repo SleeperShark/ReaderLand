@@ -76,7 +76,7 @@ const pullFollowNotification = async (followerId, followeeId, io) => {
         await Notification.updateOne({ _id: followerId }, updateObject);
 
         // substract 1 from unread count
-        if (record[record.length - 1].hasOwnProperty('isread')) {
+        if (Object.keys(record[record.length - 1]).includes('isread')) {
             await Notification.updateOne({ _id: followerId }, [{ $set: { unread: { $cond: { if: { $eq: ['$unread', 0] }, then: 0, else: { $subtract: ['$unread', 1] } } } } }]);
         }
 

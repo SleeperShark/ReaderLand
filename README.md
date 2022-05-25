@@ -25,11 +25,21 @@ More Article cards will be rendered at the bottom when scrolling down the page, 
 
 ## Article Page
 
-![Index Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/article_page.jpg)
+![Article Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/article_page.jpg)
 
-In addition to just reading article, readers can hit the like button, save it to their favorite list, share the article with the link copy button, and participate in real-time discussion with author and other readers.
+In addition to just reading article, readers can hit the like button, save it to their favorite list, share the article with the link copy button, and participate in real-time discussion on the comment board with author and other readers.
+
+Author will receive notification when readers like the article or leave a comment, and readers will be notified if the author replies their comments as well.
 
 ## Editing Page
+
+![Editing Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/editing_page.jpg)
+
+ReaderLand provides a concise interface and fluent user experice that help writer concentrate on the content production.
+
+When editing, writers can output their ideas efficiently and effortlessly without moving their hand away from the keyboard: you can move the cusor among paragraphs with page-up and page-down keys, insert new paragraph right below the current one with enter, and remove the paragrapg with backspace if it's empty.
+
+Linked-list structured paragraphs allows accurate auto-saving for every updated contents, users can reload the draft and resume their works without the concern of losing progress.
 
 ## Profile Page
 

@@ -43,6 +43,15 @@ Linked-list structured paragraphs allows accurate auto-saving for every updated 
 
 ## Profile Page
 
+![Profile Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/profile_page.jpg)
+
+In profile page, user can edit their avatar, username, introduction, manage favorited articles, draft, published articles, and check the followrs and fans as well.
+
+ReaderLand features user-defined newsfeed algorithm, which release readers from the black box algorithm tyranny.
+In subscription tab, readers can subscribe cateogories interest them and adjust the weight of each category. Server will then filter and sort articles by the subscription and author they follow, generating their personalized newsfeed contents on the index page.
+
+To see detailed explanations on the newsfeed algorithm, please check following section.
+
 # EdgeRank Algorithm
 
 **EdgeRank** = **Content Weight** x **Edge Weight** / **Time Decay**

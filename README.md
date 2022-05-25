@@ -15,17 +15,19 @@ Please note that the unvalidated account will be remove 10 minutes after registr
 
 ![Index Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/index_page.jpg)
 
-Readers can leisurely skim through aritcles newsfeeds displayed by time-series, category, or customized newsfeed.
+Readers can leisurely skim through aritcles newsfeeds displayed by time-series, categories, or customized newsfeed.
 Board on the left side lists subscritions and weights of the categories for the articles, user can adjust it in their own profile page.
 
 In each article card, user can scan the summary of the article. Click the title to enjoy whole article, or save it to your favorite list by clicking book mark icon on the top-right corner.
 Hover on the author's avatar to see author's short introduction. Click the avatar to see the author's page and start to follow him by hit the follow button.
 
-More Article cards will be rendered to the bottom when scrolling down the page, or reload the newsfeed by click refresh button on the right side of each tab.
+More Article cards will be rendered at the bottom when scrolling down the page, or reload the newsfeed by clicking refresh button on the right side of each tab.
 
 ## Article Page
 
-In addition to just reading article, readers can hit the like button, save it to their favorite list, share the article with the link copy button, and participate in real-time discussion
+![Index Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/article_page.jpg)
+
+In addition to just reading article, readers can hit the like button, save it to their favorite list, share the article with the link copy button, and participate in real-time discussion with author and other readers.
 
 ## Editing Page
 

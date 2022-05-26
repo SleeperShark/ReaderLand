@@ -2,6 +2,25 @@
 
 An article-based social platform for creative writers and inquisitive readers.
 
+<details id="table-of-content">
+  <summary>Table of Conetents</summary>
+  
+  ### ReaderLand Tutorial
+    
+  * [Registration](#registration)
+  * [Index Page](#index-page)
+  * [Article Page](#article-page)
+  * [Editing Page](#editing-page)
+  * [Profile Page](#profile-page)
+  
+  ### Website Structure
+  
+</details>
+
+---
+
+# ReaderLand Tutorial
+
 ## Registration
 
 ![Email Validation](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/Email_Validation.jpg)
@@ -10,6 +29,10 @@ After submitting the sign up form, user's will reveive an validation mail titled
 Click the link in the mail context to finish the registration validation, then start your journey of knowledge in the ReaderLand!
 
 Please note that the unvalidated account will be remove 10 minutes after registration, and user can't register with email already validated in ReaderLand.
+
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
 
 ## Index Page
 
@@ -23,6 +46,10 @@ Hover on the author's avatar to see author's short introduction. Click the avata
 
 More Article cards will be rendered at the bottom when scrolling down the page, or reload the newsfeed by clicking refresh button on the right side of each tab.
 
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
+  
 ## Article Page
 
 ![Article Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/article_page.jpg)
@@ -30,6 +57,10 @@ More Article cards will be rendered at the bottom when scrolling down the page, 
 In addition to just reading article, readers can hit the like button, save it to their favorite list, share the article with the link copy button, and participate in real-time discussion on the comment board with author and other readers.
 
 Author will receive notification when readers like the article or leave a comment, and readers will be notified if the author replies their comments as well.
+
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
 
 ## Editing Page
 
@@ -41,16 +72,138 @@ When editing, writers can output their ideas efficiently and effortlessly withou
 
 Linked-list structured paragraphs allows accurate auto-saving for every updated contents, users can reload the draft and resume their works without the concern of losing progress.
 
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
+
 ## Profile Page
 
 ![Profile Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/profile_page.jpg)
 
-In profile page, user can edit their avatar, username, introduction, manage favorited articles, draft, published articles, and check the followrs and fans as well.
+In profile page, users can: 
+  * Edit their avatar, username and introduction.
+  * Manage favorited articles, draft and published articles.
+  * Check the followrs and fans.
+  * Adjust categories and weight they subscribed.
 
 ReaderLand features user-defined newsfeed algorithm, which release readers from the black box algorithm tyranny.
 In subscription tab, readers can subscribe cateogories interest them and adjust the weight of each category. Server will then filter and sort articles by the subscription and author they follow, generating their personalized newsfeed contents on the index page.
 
 To see detailed explanations on the newsfeed algorithm, please check following section.
+
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
+
+---
+
+# Website Structure
+
+## Architecture
+
+![Architecture](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/Archietecture.jpg)
+
+## Database Collection Schema
+
+### User
+
+```
+{
+  _id: ObjectId,
+  role: Number, 
+  valid: Boolean,
+  email: String,
+  password: String,
+  picture: String,
+  provider: String,
+  follower: [ ObjectId ],
+  followee: [ ObjectId ],
+  subscribe: {
+    "Category": Number
+  },
+  bio: String,
+  favorite: [{ articleId: ObjectId, createdAt: ISOString }]
+}
+```
+
+### Category
+
+```
+{
+  _id: ObjectId, 
+  category: String,
+}
+```
+
+### Article
+
+```
+{
+  _id: ObjectId,
+  title: String, 
+  context: {
+    "ISOString": {
+      content: String,
+      type: String, 
+      nexr: ISOString
+    }
+  },
+  preview: String,
+  createdAt: ISOString,
+  readCount: Number,
+  likes: [ ObjectId ],
+  comments: [ {
+    _id: ObjectID,
+    context: String, 
+    createdAt: ISOString,
+    reader: ObjectId,
+    authorReply: {
+      context: String,
+      createdAt: ISOString
+    }
+  } ],
+  category: [ String ],
+  head: ISOString
+}
+```
+
+
+### Draft 
+
+```
+{
+  _id: ObjectId,
+  title: String,
+  author: ObjectId,
+  context: {
+    "ISOString": {
+      type: String,
+      content: String,
+      next: ISOString
+    }
+  },
+  head: ISOString,
+  createdAt: ISOString,
+  lastUpdatedAt: ISOString
+}
+```
+
+### Notification
+
+```
+{
+  _id: ObjectId,
+  unread: Number,
+  notifications: [ {
+    type: String,
+    createdAt: ISOString,
+    subject: ObjectId,
+    articleId: ObjectId,
+    commentId: ObjectId,
+    isread: Boolean
+  } ]
+}
+```
 
 # EdgeRank Algorithm
 

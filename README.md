@@ -17,6 +17,10 @@ An article-based social platform for creative writers and inquisitive readers.
   
 </details>
 
+---
+
+# ReaderLand Tutorial
+
 ## Registration
 
 ![Email Validation](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/Email_Validation.jpg)
@@ -90,6 +94,116 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 <p align="right">
 (<a href="#table-of-content">Back to top</a>)
 </p>
+
+---
+
+# Website Structure
+
+## Architecture
+
+![Architecture](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/Archietecture.jpg)
+
+## Database Collection Schema
+
+### User
+
+```
+{
+  _id: ObjectId,
+  role: Number, 
+  valid: Boolean,
+  email: String,
+  password: String,
+  picture: String,
+  provider: String,
+  follower: [ ObjectId ],
+  followee: [ ObjectId ],
+  subscribe: {
+    "Category": Number
+  },
+  bio: String,
+  favorite: [{ articleId: ObjectId, createdAt: ISOString }]
+}
+```
+
+### Category
+
+```
+{
+  _id: ObjectId, 
+  category: String,
+}
+```
+
+### Article
+
+```
+{
+  _id: ObjectId,
+  title: String, 
+  context: {
+    "ISOString": {
+      content: String,
+      type: String, 
+      nexr: ISOString
+    }
+  },
+  preview: String,
+  createdAt: ISOString,
+  readCount: Number,
+  likes: [ ObjectId ],
+  comments: [ {
+    _id: ObjectID,
+    context: String, 
+    createdAt: ISOString,
+    reader: ObjectId,
+    authorReply: {
+      context: String,
+      createdAt: ISOString
+    }
+  } ],
+  category: [ String ],
+  head: ISOString
+}
+```
+
+
+### Draft 
+
+```
+{
+  _id: ObjectId,
+  title: String,
+  author: ObjectId,
+  context: {
+    "ISOString": {
+      type: String,
+      content: String,
+      next: ISOString
+    }
+  },
+  head: ISOString,
+  createdAt: ISOString,
+  lastUpdatedAt: ISOString
+}
+```
+
+### Notification
+
+```
+{
+  _id: ObjectId,
+  unread: Number,
+  notifications: [ {
+    type: String,
+    createdAt: ISOString,
+    subject: ObjectId,
+    articleId: ObjectId,
+    commentId: ObjectId,
+    isread: Boolean
+  } ]
+}
+```
 
 # EdgeRank Algorithm
 

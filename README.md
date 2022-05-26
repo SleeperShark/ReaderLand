@@ -9,7 +9,7 @@ An article-based social platform for creative writers and inquisitive readers.
 After submitting the sign up form, user's will reveive an validation mail titled "ReaderLand 信箱驗證".
 Click the link in the mail context to finish the registration validation, then start your journey of knowledge in the ReaderLand!
 
-Please note that the unvalidated account will be remove 10 minutes after registration, and user can't register with email already been registered and validated before in ReaderLand.
+Please note that the unvalidated account will be remove 10 minutes after registration, and user can't register with email already validated in ReaderLand.
 
 ## Index Page
 

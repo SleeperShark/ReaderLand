@@ -15,6 +15,9 @@ An article-based social platform for creative writers and inquisitive readers.
   
   ### Website Structure
   
+  * [Architecture](#architecture)
+  * [Database Collection Schema](#database-collection-schema)
+  
 </details>
 
 ---
@@ -102,6 +105,10 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 ## Architecture
 
 ![Architecture](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/Archietecture.jpg)
+
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
 
 ## Database Collection Schema
 
@@ -204,6 +211,10 @@ To see detailed explanations on the newsfeed algorithm, please check following s
   } ]
 }
 ```
+
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
 
 # EdgeRank Algorithm
 

@@ -216,6 +216,32 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 (<a href="#table-of-content">Back to top</a>)
 </p>
 
-## EdgeRank-like Newsfeed Algorithm
+## EdgeRank-like Weight Algorithm
 
-![newsfeed](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/newsfeed.jpg)
+![newsfeed](https://user-images.githubusercontent.com/88277367/170655361-8bcdbf6d-0d6e-4e8f-8bbc-647657c235c9.jpg)
+
+In newsfeed generation, the server will filter articles written by the user's followers or matching the user's subscription, then sort articles by a preference weight derived from this EdgeRank-like weight algorithm.
+
+The algorithm is composed of three parameters: 
+
+  * **Preference Weight = ( 1 + SUM_OF_CAT_WEIGHT ) * ( FOLLOWER_WEIGHT )**
+     
+    Every article will start with a base weight of 1, then add the category weight derived from the user's subscription to it, and finally, multiply the total weight by follower weight if the article was written by one of the user's followers.
+    
+    For instance, if one article is categorized as "投資理財" and "職場產業" while the reader subscribes "投資理財" with weight of 5, the preference weight of the article is 1 + 5 = 6;
+    
+    If author of the article is also followed by the user, multiply the number by FOLLOWER_WEIGHT ( 3 in current environment ) to get the final preference weight.
+    
+    FOLLOWER_WIGHT is editable in `.env`.
+  
+  * Polularity Weight = 
+  
+     <p> READ_WEIGHT<sup>(READ_COUNT / READ_DIV)</sup> * \ </p>
+     <p> LIKE_WEIGHT <sup> ( LIKE_COUNT / LIKE_DIV) </sup> * \ </p> 
+     <p> COMMENT_WEIGHT <sup> ( COMMENT_COUNT / COMMENT_DIV) </sup> </p>
+      
+  * Time Decayer
+
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>

@@ -15,6 +15,9 @@ An article-based social platform for creative writers and inquisitive readers.
   
   ### Website Structure
   
+  * [Architecture](#architecture)
+  * [Database Collection Schema](#database-collection-schema)
+  
 </details>
 
 ---
@@ -102,6 +105,10 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 ## Architecture
 
 ![Architecture](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/Archietecture.jpg)
+
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
 
 ## Database Collection Schema
 
@@ -205,25 +212,40 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 }
 ```
 
-# EdgeRank Algorithm
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>
 
-**EdgeRank** = **Content Weight** x **Edge Weight** / **Time Decay**
+## EdgeRank-like Weight Algorithm
 
-**Content Weight:**
-A score defined by user's own subscription.
+![newsfeed](https://user-images.githubusercontent.com/88277367/170655361-8bcdbf6d-0d6e-4e8f-8bbc-647657c235c9.jpg)
 
-Every article starts with value 1 in weight. If article's categories match those subscribed by user, add up the weight that user set for the category.
-W
-if the author of the article is one the user's followers, multiply the weight value by **3**.
+In newsfeed generation, the server will filter articles written by the user's followers or matching the user's subscription, then sort articles by a preference weight derived from this EdgeRank-like weight algorithm.
 
----
+The algorithm is composed of 3 parameters: 
 
-**Edge Weight:**
-The reaction score of the article from reders, including number of read count, likes and comments.
+  * **Preference Weight = ( 1 + SUM_OF_CAT_WEIGHT ) * ( FOLLOWER_WEIGHT )**
+     
+    Every article will start with a base weight of 1, then add the category weight derived from the user's subscription to it, and finally, multiply the total weight by follower weight if the article was written by one of the user's followers.
+    
+    For instance, if one article is categorized as "投資理財" and "職場產業" while the reader subscribes "投資理財" with weight of 5, the preference weight of the article is 1 + 5 = 6;
+    
+    If author of the article is also followed by the user, multiply the number by FOLLOWER_WEIGHT ( 3 in current environment ) to get the final preference weight.
+    
+    FOLLOWER_WIGHT is editable in `.env`.
+    
+    ---
+  
+  * **Polularity Weight =**
+  
+     <p><strong> READ_WEIGHT<sup>(READ_COUNT / READ_DIV)</sup> * LIKE_WEIGHT<sup>(LIKE_COUNT / LIKE_DIV)</sup> * COMMENT_WEIGHT<sup>(COMMENT_COUNT / COMMENT_DIV) </sup> </strong></p>
+     
+     Popularity weight is the product of 3 feedback weights (views, likes and comments) each derived from their original weight to the power of count/divisor.
+     
+     Original weights and count divisor for each feedback type can be adjusted in `.env`.
+      
+  * Time Decayer
 
-Edge weight = **READ_WEIGHT^( READ_COUNT / 20 )** X **LIKE_WEIGHT^( LIKE_COUNT / 10 )** X **COMMENT_WEIGHT^( COMMENT_COUNT / 5 )**
-
----
-
-**Time Decay:**
-As an article gets older, it starts to lose importance.
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>

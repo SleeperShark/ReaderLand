@@ -106,7 +106,6 @@ const articleWeightCounter = (article, userPreference) => {
     if (commentCount) {
         weight *= Math.pow(parseInt(COMMENT_WEIGHT), Math.floor(commentCount / COMMENT_DIVISION));
     }
-    // console.log(READ_WEIGHT, LIKE_WEIGHT, COMMENT_WEIGHT);
 
     const decayWeight = timeDecayer(new Date(), createdAt);
 

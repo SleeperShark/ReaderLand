@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const { socketAuthentication } = require(`${__dirname}/server/models/user_model`);
 const Notification = require(`${__dirname}/server/models/notification_model`);
-const Cache = require(`${__dirname}/util/cache`);
 
 const { PORT: port, NODE_ENV } = process.env;
 
@@ -94,9 +93,6 @@ app.use((err, _, res) => {
 
 if (NODE_ENV !== 'production') {
     server.listen(port, async () => {
-        Cache.connect().catch(() => {
-            console.log('redis connect fail');
-        });
         console.log(`Listening on port: ${port}`);
     });
 }

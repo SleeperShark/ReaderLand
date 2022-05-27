@@ -1,7 +1,8 @@
 require('dotenv').config();
 const { promisify } = require('util');
 const crypto = require('crypto');
-const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, RATE_LIMIT_TIME, RATE_LIMIT_TTL, MAILER_USER, MAILER_PASS } = process.env;
+const { READ_WEIGHT, READ_DIVISION, LIKE_WEIGHT, LIKE_DIVISION, COMMENT_WEIGHT, COMMENT_DIVISION, RATE_LIMIT_TIME, RATE_LIMIT_TTL, MAILER_USER, MAILER_PASS, FOLLOWER_WEIGHT } =
+    process.env;
 const randomBytes = promisify(crypto.randomBytes);
 const Cache = require(`${__dirname}/cache`);
 
@@ -93,7 +94,7 @@ const articleWeightCounter = (article, userPreference) => {
     }
 
     if (follower.includes(author.toString())) {
-        weight *= 3;
+        weight *= FOLLOWER_WEIGHT;
     }
 
     if (readCount) {

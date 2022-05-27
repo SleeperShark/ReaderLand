@@ -3,7 +3,7 @@ const { User: UserSchema, Article: ArticleSchema } = require(`${__dirname}/../se
 const ArticleModel = require(`${__dirname}/../server/models/article_model`);
 const { articleWeightCounter } = require(`${__dirname}/util`);
 const Cache = require(`${__dirname}/cache`);
-const { SHUFFLE_POLICY } = process.env;
+const { INSERT_STRATEGY } = process.env;
 
 function randomDistribute(small, large) {
     const tempArr = [];
@@ -63,14 +63,14 @@ function shuffleTwo(newsfeed, pullfeed) {
 
     let newArr;
 
-    switch (SHUFFLE_POLICY) {
+    switch (INSERT_STRATEGY) {
         case '1':
-            console.log('shuffle Policy: Random');
+            console.log('Insert Strategy: Random');
             newArr = randomDistribute(small, large);
             break;
 
         case '2':
-            console.log('Shuffle Policy: Even');
+            console.log('Insert Strategy: Even');
             newArr = evenlyDistribute(small, large);
             break;
         default:

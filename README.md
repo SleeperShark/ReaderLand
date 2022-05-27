@@ -274,7 +274,9 @@ When an author publish a new article, server will retrieve the fans' id of the a
 
 ![Pull_model](https://user-images.githubusercontent.com/88277367/170694837-1d6d73e0-cad9-4ad1-ab9b-eced99e92db6.jpg)
 
-Every 15 minutes, [pullWorker.js]() will "Pull" the articles that meet the user's subscription (but not written by their followers) and was published after the newsfeed was generated, then sort the articls by newsfeed algorithm.
+Every 15 minutes, [pullWorker.js](https://github.com/SleeperShark/ReaderLand/blob/main/util/pullWorker.js) will "Pull" the articles that meet the user's subscription (but not written by their followers) and was published after the newsfeed was generated, then sort the articls by newsfeed algorithm.
+
+Finally, the worker will insert these articles into the newsfeed array. Currently the ReaderLand adopts a completely random-distributed strategy for insertion, but website maitainer can switch to a more even-distributed strategy by changing the strategy code in `.env`.
 
 <p align="right">
 (<a href="#table-of-content">Back to top</a>)

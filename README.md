@@ -43,7 +43,7 @@ Please note that the unvalidated account will be remove 10 minutes after registr
 
 ## Index Page
 
-![Index Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/index_page.jpg)
+![Index_Page](https://user-images.githubusercontent.com/88277367/170702279-13425148-f1e3-4659-ae52-ce0e8f7e4f83.gif)
 
 Readers can leisurely skim through aritcles newsfeeds displayed by time-series, categories, or customized newsfeed.
 Board on the left side lists subscritions and weights of the categories for the articles, user can adjust it in their own profile page.
@@ -59,7 +59,7 @@ More Article cards will be rendered at the bottom when scrolling down the page, 
   
 ## Article Page
 
-![Article Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/article_page.jpg)
+![Article_Page](https://user-images.githubusercontent.com/88277367/170703212-acb457eb-1f46-4ddc-b3c2-d331190012e2.gif)
 
 In addition to just reading article, readers can hit the like button, save it to their favorite list, share the article with the link copy button, and participate in real-time discussion on the comment board with author and other readers.
 
@@ -71,7 +71,7 @@ Author will receive notification when readers like the article or leave a commen
 
 ## Editing Page
 
-![Editing Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/editing_page.jpg)
+![Editing_Page](https://user-images.githubusercontent.com/88277367/170697643-fc1e5660-9eb3-49af-9abe-9211eb663f5a.gif)
 
 ReaderLand provides a concise interface and fluent user experice that help writer concentrate on the content production.
 
@@ -85,7 +85,7 @@ Linked-list structured paragraphs allows accurate auto-saving for every updated 
 
 ## Profile Page
 
-![Profile Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/profile_page.jpg)
+![Profile_Page](https://user-images.githubusercontent.com/88277367/170703821-127ea44a-195a-4e76-ada0-1c268966e9a8.gif)
 
 In profile page, users can:
 

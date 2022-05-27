@@ -222,7 +222,7 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 
 In newsfeed generation, the server will filter articles written by the user's followers or matching the user's subscription, then sort articles by a preference weight derived from this EdgeRank-like weight algorithm.
 
-The algorithm is composed of three parameters: 
+The algorithm is composed of 3 parameters: 
 
   * **Preference Weight = ( 1 + SUM_OF_CAT_WEIGHT ) * ( FOLLOWER_WEIGHT )**
      
@@ -233,12 +233,16 @@ The algorithm is composed of three parameters:
     If author of the article is also followed by the user, multiply the number by FOLLOWER_WEIGHT ( 3 in current environment ) to get the final preference weight.
     
     FOLLOWER_WIGHT is editable in `.env`.
+    
+    ---
   
-  * Polularity Weight = 
+  * **Polularity Weight =**
   
-     <p> READ_WEIGHT<sup>(READ_COUNT / READ_DIV)</sup> * \ </p>
-     <p> LIKE_WEIGHT <sup> ( LIKE_COUNT / LIKE_DIV) </sup> * \ </p> 
-     <p> COMMENT_WEIGHT <sup> ( COMMENT_COUNT / COMMENT_DIV) </sup> </p>
+     <p><strong> READ_WEIGHT<sup>(READ_COUNT / READ_DIV)</sup> * LIKE_WEIGHT<sup>(LIKE_COUNT / LIKE_DIV)</sup> * COMMENT_WEIGHT<sup>(COMMENT_COUNT / COMMENT_DIV) </sup> </strong></p>
+     
+     Popularity weight is the product of 3 feedback weights (views, likes and comments) each derived from their original weight to the power of count/divisor.
+     
+     Original weights and count divisor for each feedback type can be adjusted in `.env`.
       
   * Time Decayer
 

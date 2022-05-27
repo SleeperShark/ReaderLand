@@ -228,7 +228,7 @@ The algorithm is composed of 3 parameters:
      
     Every article will start with a base weight of 1, then add the category weight derived from the user's subscription to it, and finally, multiply the total weight by follower weight if the article was written by one of the user's followers.
     
-    For instance, if one article is categorized as "投資理財" and "職場產業" while the reader subscribes "投資理財" with weight of 5, the preference weight of the article is 1 + 5 = 6;
+    For instance, if one article is categorized as "投資理財" and "職場產業" while the reader subscribes "投資理財" with the weight of 5, the preference weight of the article is 1 + 5 = 6;
     
     If author of the article is also followed by the user, multiply the number by FOLLOWER_WEIGHT ( 3 in current environment ) to get the final preference weight.
     
@@ -236,16 +236,22 @@ The algorithm is composed of 3 parameters:
     
     ---
   
-  * **Polularity Weight =**
+  * **Popularity Weight =**
   
      <p><strong> READ_WEIGHT<sup>(READ_COUNT / READ_DIV)</sup> * LIKE_WEIGHT<sup>(LIKE_COUNT / LIKE_DIV)</sup> * COMMENT_WEIGHT<sup>(COMMENT_COUNT / COMMENT_DIV) </sup> </strong></p>
      
-     Popularity weight is the product of 3 feedback weights (views, likes and comments) each derived from their original weight to the power of count/divisor.
+     Popularity weight is the product of 3 feedback weights (views, likes, and comments) each derived from their original weight to the power of count/divisor.
      
      Original weights and count divisor for each feedback type can be adjusted in `.env`.
       
-  * Time Decayer
+  * **Time Decayer**
+
+    Briefly speaking, the time decay parameter raises the importance of the freshness of the articles: the more fresh the article was, the less time decayer value would be, and hence the greater the final weight article would get.
+    
+    To see detailed calculation of time decayer, check `timeDecayer` function in ~[util.js](https://github.com/SleeperShark/ReaderLand/blob/main/util/util.js)
 
 <p align="right">
 (<a href="#table-of-content">Back to top</a>)
 </p>
+
+## Updates for Newsfeed that Already exists

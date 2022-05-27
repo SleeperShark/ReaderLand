@@ -17,6 +17,10 @@ An article-based social platform for creative writers and inquisitive readers.
   
   * [Architecture](#architecture)
   * [Database Collection Schema](#database-collection-schema)
+  * [EdgeRank-like Weight Algorithm](#edgerank-like-weight-algorithm)
+  * [Updates for Newsfeed after Generation](#updates-for-newsfeed-after-generation)
+    * [Push Model](#push-model)
+    * [Pull Model](#pull-model)
   
 </details>
 
@@ -83,11 +87,12 @@ Linked-list structured paragraphs allows accurate auto-saving for every updated 
 
 ![Profile Page](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/profile_page.jpg)
 
-In profile page, users can: 
-  * Edit their avatar, username and introduction.
-  * Manage favorited articles, draft and published articles.
-  * Check the followrs and fans.
-  * Adjust categories and weight they subscribed.
+In profile page, users can:
+
+-   Edit their avatar, username and introduction.
+-   Manage favorited articles, draft and published articles.
+-   Check the followrs and fans.
+-   Adjust categories and weight they subscribed.
 
 ReaderLand features user-defined newsfeed algorithm, which release readers from the black box algorithm tyranny.
 In subscription tab, readers can subscribe cateogories interest them and adjust the weight of each category. Server will then filter and sort articles by the subscription and author they follow, generating their personalized newsfeed contents on the index page.
@@ -117,7 +122,7 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 ```
 {
   _id: ObjectId,
-  role: Number, 
+  role: Number,
   valid: Boolean,
   email: String,
   password: String,
@@ -137,7 +142,7 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 
 ```
 {
-  _id: ObjectId, 
+  _id: ObjectId,
   category: String,
 }
 ```
@@ -147,11 +152,11 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 ```
 {
   _id: ObjectId,
-  title: String, 
+  title: String,
   context: {
     "ISOString": {
       content: String,
-      type: String, 
+      type: String,
       nexr: ISOString
     }
   },
@@ -161,7 +166,7 @@ To see detailed explanations on the newsfeed algorithm, please check following s
   likes: [ ObjectId ],
   comments: [ {
     _id: ObjectID,
-    context: String, 
+    context: String,
     createdAt: ISOString,
     reader: ObjectId,
     authorReply: {
@@ -174,8 +179,7 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 }
 ```
 
-
-### Draft 
+### Draft
 
 ```
 {
@@ -222,36 +226,48 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 
 In newsfeed generation, the server will filter articles written by the user's followers or matching the user's subscription, then sort articles by a preference weight derived from this EdgeRank-like weight algorithm.
 
-The algorithm is composed of 3 parameters: 
+The algorithm is composed of 3 parameters:
 
-  * **Preference Weight = ( 1 + SUM_OF_CAT_WEIGHT ) * ( FOLLOWER_WEIGHT )**
-     
+-   **Preference Weight = ( 1 + SUM_OF_CAT_WEIGHT ) \* ( FOLLOWER_WEIGHT )**
+
     Every article will start with a base weight of 1, then add the category weight derived from the user's subscription to it, and finally, multiply the total weight by follower weight if the article was written by one of the user's followers.
-    
+
     For instance, if one article is categorized as "投資理財" and "職場產業" while the reader subscribes "投資理財" with the weight of 5, the preference weight of the article is 1 + 5 = 6;
-    
+
     If author of the article is also followed by the user, multiply the number by FOLLOWER_WEIGHT ( 3 in current environment ) to get the final preference weight.
-    
+
     FOLLOWER_WIGHT is editable in `.env`.
-    
-    ---
-  
-  * **Popularity Weight =**
-  
+
+    ***
+
+-   **Popularity Weight =**
+
      <p><strong> READ_WEIGHT<sup>(READ_COUNT / READ_DIV)</sup> * LIKE_WEIGHT<sup>(LIKE_COUNT / LIKE_DIV)</sup> * COMMENT_WEIGHT<sup>(COMMENT_COUNT / COMMENT_DIV) </sup> </strong></p>
      
      Popularity weight is the product of 3 feedback weights (views, likes, and comments) each derived from their original weight to the power of count/divisor.
      
      Original weights and count divisor for each feedback type can be adjusted in `.env`.
-      
-  * **Time Decayer**
+
+    ***
+
+-   **Time Decayer**
 
     Briefly speaking, the time decay parameter raises the importance of the freshness of the articles: the more fresh the article was, the less time decayer value would be, and hence the greater the final weight article would get.
-    
-    To see detailed calculation of time decayer, check `timeDecayer` function in ~[util.js](https://github.com/SleeperShark/ReaderLand/blob/main/util/util.js)
+
+    To see detailed calculation of time decayer, check `timeDecayer` function in [util.js](https://github.com/SleeperShark/ReaderLand/blob/main/util/util.js)
 
 <p align="right">
 (<a href="#table-of-content">Back to top</a>)
 </p>
 
-## Updates for Newsfeed that Already exists
+## Updates for Newsfeed after Generation
+
+To update the newsfeed with articles posted after generation, instead of regenerating it, ReaderLand implements Push-Pull model scheduled by crontab to insert new articles into newsfeeds.
+
+### Push Model
+
+### Pull Model
+
+<p align="right">
+(<a href="#table-of-content">Back to top</a>)
+</p>

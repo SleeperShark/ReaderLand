@@ -218,5 +218,4 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 
 ## EdgeRank-like Newsfeed Algorithm
 
-![Newsfeed Generation illustration](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/newsfeed_generation.jpg)
-
+![newsfeed](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/newsfeed.jpg)

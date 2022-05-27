@@ -222,7 +222,8 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 
 ## EdgeRank-like Weight Algorithm
 
-![newsfeed](https://user-images.githubusercontent.com/88277367/170655361-8bcdbf6d-0d6e-4e8f-8bbc-647657c235c9.jpg)
+![newsfeed](https://user-images.githubusercontent.com/88277367/170694192-2e4d1a98-55a9-428b-919a-672ab39cb0d9.jpg)
+
 
 In newsfeed generation, the server will filter articles written by the user's followers or matching the user's subscription, then sort articles by a preference weight derived from this EdgeRank-like weight algorithm.
 
@@ -266,7 +267,11 @@ To update the newsfeed with articles posted after generation, instead of regener
 
 ### Push Model
 
+![Push_model](https://user-images.githubusercontent.com/88277367/170694598-3303b87f-f7d1-44af-98a2-ff428723a16a.jpg)
+
 ### Pull Model
+
+![Pull_model](https://user-images.githubusercontent.com/88277367/170694837-1d6d73e0-cad9-4ad1-ab9b-eced99e92db6.jpg)
 
 <p align="right">
 (<a href="#table-of-content">Back to top</a>)

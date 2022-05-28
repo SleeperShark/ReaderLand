@@ -50,7 +50,7 @@ function evenlyDistribute(small, large) {
     return newArr;
 }
 
-function shuffleTwo(newsfeed, pullfeed) {
+function Insertfeeds(newsfeed, pullfeed) {
     let large, small;
 
     if (newsfeed.length > pullfeed.length) {
@@ -122,7 +122,7 @@ async function pullNewsFeed() {
             //TODO: insert new article into news feed
             const newsFeed = await Cache.lrange(`${userId}_newsfeed`, 0, -1);
 
-            const inertedArray = shuffleTwo(newsFeed, pullArticles);
+            const inertedArray = Insertfeeds(newsFeed, pullArticles);
             await Cache.del(`${userId}_newsfeed`);
             await Cache.rpush(`${userId}_newsfeed`, ...inertedArray);
             await Cache.set(`${userId}_timestamp`, currTimestamp);
@@ -186,20 +186,6 @@ async function main() {
     }
 
     await pullNewsFeed();
-
-    // switch (job) {
-    //     case 1:
-    //         console.log('Ready to perform pull feeds task...');
-    //         await pullNewsFeed();
-    //         break;
-    //     case 2:
-    //         console.log('Ready to regenerate newsfeed...');
-    //         await regenerateNewsfeed();
-    //         break;
-    //     default:
-    //         console.error(new Date().toISOString());
-    //         console.error('ERROR: Please provide task type as 3rd argument');
-    // }
 
     console.log('Task finish...');
     console.timeEnd();

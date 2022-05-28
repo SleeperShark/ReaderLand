@@ -120,7 +120,7 @@ To see detailed explanations on the newsfeed algorithm, please check following s
 
 ## Architecture
 
-![Architecture](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/Archietecture.jpg)
+![Archietecture](https://user-images.githubusercontent.com/88277367/170809579-0afd1eaf-bfcd-4865-aeb0-41141c077430.jpg)
 
 <p align="right">
 (<a href="#table-of-content">Back to top</a>)

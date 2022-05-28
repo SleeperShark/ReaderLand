@@ -171,8 +171,6 @@ async function main() {
 
     console.log(process.env.CACHE_PASSWORD);
 
-    const job = parseInt(process.argv[2]);
-
     //Sleep a while for redis connecction
     await new Promise((r) => {
         setTimeout(() => {
@@ -187,19 +185,21 @@ async function main() {
         return;
     }
 
-    switch (job) {
-        case 1:
-            console.log('Ready to perform pull feeds task...');
-            await pullNewsFeed();
-            break;
-        case 2:
-            console.log('Ready to regenerate newsfeed...');
-            await regenerateNewsfeed();
-            break;
-        default:
-            console.error(new Date().toISOString());
-            console.error('ERROR: Please provide task type as 3rd argument');
-    }
+    await pullNewsFeed();
+
+    // switch (job) {
+    //     case 1:
+    //         console.log('Ready to perform pull feeds task...');
+    //         await pullNewsFeed();
+    //         break;
+    //     case 2:
+    //         console.log('Ready to regenerate newsfeed...');
+    //         await regenerateNewsfeed();
+    //         break;
+    //     default:
+    //         console.error(new Date().toISOString());
+    //         console.error('ERROR: Please provide task type as 3rd argument');
+    // }
 
     console.log('Task finish...');
     console.timeEnd();

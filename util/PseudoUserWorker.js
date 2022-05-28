@@ -87,7 +87,7 @@ async function readerComment(userArticles, others) {
         method: 'POST',
         url: `${API_URL}/articles/${article._id.toString()}/comment`,
         headers: { Authorization: `Bearer ${readerToken}` },
-        data: { comment: `Robot comment...` },
+        data: { comment: '超讚的!這篇文大推!!!' },
     });
 
     console.log('Event: reader comment...');
@@ -106,7 +106,7 @@ async function authorReply(articles, _, userEmail, others) {
         method: 'POST',
         url: `${API_URL}/articles/${articleId.toString()}/comment`,
         headers: { Authorization: `Bearer ${userToken}` },
-        data: { comment: `User ghost comment...` },
+        data: { comment: '很棒的文章!' },
     });
 
     const commentId = comments[comments.length - 1]._id.toString();
@@ -119,7 +119,7 @@ async function authorReply(articles, _, userEmail, others) {
         method: 'POST',
         url: `${API_URL}/articles/${articleId.toString()}/replyComment`,
         headers: { Authorization: `Bearer ${authorToken}` },
-        data: { reply: 'Author ghost reply...', commentId },
+        data: { reply: '感謝支持 ~ ', commentId },
     });
 
     console.log('Event: author reply...');

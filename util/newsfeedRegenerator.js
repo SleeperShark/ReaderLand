@@ -2,7 +2,7 @@ require('dotenv').config({ path: __dirname + '/../.env' });
 const { User: UserSchema } = require(`${__dirname}/../server/models/schemas`);
 const ArticleModel = require(`${__dirname}/../server/models/article_model`);
 const Cache = require(`${__dirname}/cache`);
-const { sleep } = require(`${__dirname}/util`);
+const { sleepInSec } = require(`${__dirname}/util`);
 
 async function regenerateNewsfeed() {
     //TODO: get all user's newsfeed key in cache
@@ -31,7 +31,7 @@ async function main() {
         console.time();
 
         //Sleep a while for redis connecction
-        await sleep(1500, 'Waiting for redis awake...');
+        await sleepInSec(1, 'Waiting for redis awake...');
 
         await regenerateNewsfeed();
 

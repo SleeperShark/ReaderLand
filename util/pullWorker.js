@@ -1,6 +1,6 @@
 require('dotenv').config({ path: __dirname + '/../.env' });
 const { User: UserSchema, Article: ArticleSchema } = require(`${__dirname}/../server/models/schemas`);
-const { articleWeightCounter, sleep } = require(`${__dirname}/util`);
+const { articleWeightCounter, sleepInSec } = require(`${__dirname}/util`);
 const Cache = require(`${__dirname}/cache`);
 const { INSERT_STRATEGY } = process.env;
 
@@ -150,7 +150,7 @@ async function main() {
     console.log(process.env.CACHE_PASSWORD);
 
     //Sleep a while for redis connecction
-    await sleep(1500, 'Waiting for redis awake...');
+    await sleepInSec(1, 'Waiting for redis awake...');
 
     if (!Cache.ready) {
         console.error(new Date().toISOString());

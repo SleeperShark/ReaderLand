@@ -44,16 +44,14 @@ async function main() {
         console.log('Task finish...');
         console.timeEnd();
         console.log('');
-
-        process.exit();
     } catch (error) {
         console.log('[ERROR] regenerateNewsfeed');
         console.error(new Date().toISOString());
         console.error(error);
         console.error();
-
-        process.exit();
     }
+
+    process.exit();
 }
 
 main();

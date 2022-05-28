@@ -2,7 +2,7 @@
 
 An article-based social platform for creative writers and inquisitive readers.
 
-## Test Account
+## **Test Account**
 
 Webiste URL: https://headache.services
 
@@ -16,7 +16,7 @@ Webiste URL: https://headache.services
 <details id="table-of-content">
   <summary>Table of Conetents</summary>
   
-  ### ReaderLand Tutorial
+  ### **ReaderLand Tutorial**
  
   * [Index Page](#index-page)
   * [Article Page](#article-page)
@@ -24,23 +24,22 @@ Webiste URL: https://headache.services
   * [Profile Page](#profile-page)
   * [Registration](#registration)
   
-  ### Website Structure
+  ### **Website Structure**
   
   * [Architecture](#architecture)
-  (#database-collection-schema)
   * [EdgeRank-like Weight Algorithm](#edgerank-like-weight-algorithm)
   * [Updates for Newsfeed after Generation](#updates-for-newsfeed-after-generation)
     * [Push Model](#push-model)
     * [Pull Model](#pull-model)
-  * [Database Collection Schema]
+  * [Database Collection Schema](#database-collection-schema)
   
 </details>
 
 <br/>
 
-# ReaderLand Tutorial
+# **ReaderLand Tutorial**
 
-## Index Page
+## **Index Page**
 
 Browse through the articles derived from the personalized newsfeed algorithm.
 
@@ -58,7 +57,7 @@ More Article cards will be rendered at the bottom when scrolling down the page, 
 (<a href="#table-of-content">Back to top</a>)
 </p>
   
-## Article Page
+## **Article Page**
 
 Enjoy the beauty of knowledge and take part in a real-time discussion with author and other readers.
 
@@ -72,7 +71,7 @@ Author will receive notification when readers like the article or leave a commen
 (<a href="#table-of-content">Back to top</a>)
 </p>
 
-## Editing Page
+## **Editing Page**
 
 A User-friendly editing interface featured auto-saving and intuitive operation.
 
@@ -88,7 +87,7 @@ Linked-list structured paragraphs allows accurate auto-saving for every updated 
 (<a href="#table-of-content">Back to top</a>)
 </p>
 
-## Profile Page
+## **Profile Page**
 
 Adjust subscription of categories and weights to design the algorithm best matching your preference.
 
@@ -110,7 +109,7 @@ To see detailed explanations on the newsfeed algorithm, please check [EdgeRank-l
 (<a href="#table-of-content">Back to top</a>)
 </p>
 
-## Registration
+## **Registration**
 
 ![Email Validation](https://reader-land.s3.ap-northeast-1.amazonaws.com/README/Email_Validation.jpg)
 
@@ -127,9 +126,9 @@ Please note that the **unvalidated account will be remove 10 minutes after regis
 
 ---
 
-# Website Structure
+# **Website Structure**
 
-## Architecture
+## **Architecture**
 
 ![Archietecture](https://user-images.githubusercontent.com/88277367/170809579-0afd1eaf-bfcd-4865-aeb0-41141c077430.jpg)
 
@@ -137,7 +136,7 @@ Please note that the **unvalidated account will be remove 10 minutes after regis
 (<a href="#table-of-content">Back to top</a>)
 </p>
 
-## EdgeRank-like Weight Algorithm
+## **EdgeRank-like Weight Algorithm**
 
 ![newsfeed](https://user-images.githubusercontent.com/88277367/170694192-2e4d1a98-55a9-428b-919a-672ab39cb0d9.jpg)
 
@@ -177,17 +176,17 @@ The algorithm is composed of 3 parameters:
 (<a href="#table-of-content">Back to top</a>)
 </p>
 
-## Updates for Newsfeed after Generation
+## **Updates for Newsfeed after Generation**
 
 To update the newsfeed with articles posted after generation, instead of regenerating it, ReaderLand implements **Push-Pull model** scheduled by crontab to insert new articles into newsfeeds.
 
-### Push Model
+### **Push Model**
 
 ![Push_model](https://user-images.githubusercontent.com/88277367/170694598-3303b87f-f7d1-44af-98a2-ff428723a16a.jpg)
 
 When an author publish a new article, server will retrieve the fans' id of the author and **"Push"** the article to their newsfeed array randomly.
 
-### Pull Model
+### **Pull Model**
 
 ![Pull_model](https://user-images.githubusercontent.com/88277367/170694837-1d6d73e0-cad9-4ad1-ab9b-eced99e92db6.jpg)
 
@@ -199,9 +198,9 @@ Finally, the worker will insert these articles into the newsfeed array. Currentl
 (<a href="#table-of-content">Back to top</a>)
 </p>
 
-## Database Collection Schema
+## **Database Collection Schema**
 
-### User
+### **User**
 
 ```
 {
@@ -222,7 +221,7 @@ Finally, the worker will insert these articles into the newsfeed array. Currentl
 }
 ```
 
-### Category
+### **Category**
 
 ```
 {
@@ -231,7 +230,7 @@ Finally, the worker will insert these articles into the newsfeed array. Currentl
 }
 ```
 
-### Article
+### **Article**
 
 ```
 {
@@ -263,7 +262,7 @@ Finally, the worker will insert these articles into the newsfeed array. Currentl
 }
 ```
 
-### Draft
+### **Draft**
 
 ```
 {
@@ -283,7 +282,7 @@ Finally, the worker will insert these articles into the newsfeed array. Currentl
 }
 ```
 
-### Notification
+### **Notification**
 
 ```
 {

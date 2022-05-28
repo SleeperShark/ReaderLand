@@ -183,7 +183,6 @@ async function run() {
         const [{ _id: userId, email: userEmail }] = await User.aggregate([
             { $sort: { _id: 1 } },
             { $limit: 1 },
-            // { $match: { name: '' } },
             {
                 $lookup: {
                     from: 'User',

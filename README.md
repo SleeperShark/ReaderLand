@@ -11,7 +11,7 @@ Webiste URL: https://headache.services
     -   Email: `author_0@ReaderLand.com`
     -   Password: `password`
 
-    number 0 can be raplace with number 1 to 9
+    To simulate real user experience, crontab scheduler executes the [PseudoWorker.js]() to mimic other user interaction with the test account every minute. User will be notified of these action by the notification on the header.
 
 <details id="table-of-content">
   <summary>Table of Conetents</summary>

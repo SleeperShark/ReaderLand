@@ -22,8 +22,8 @@ services:
         container_name: ReaderLand-nginx
         image: nginx:alpine
         restart: always
-        port:
-            - 80:80
+        ports:
+            - '80:80'
         networks:
             - ReaderLand
         volumes:

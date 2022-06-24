@@ -32,6 +32,6 @@ services:
             - ReaderLand
 
 networks:
-    ReaderLand:
+    ReaderLand-server-network:
         name: ReaderLand-server-network
         driver: bridge

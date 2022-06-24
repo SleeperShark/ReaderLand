@@ -5,14 +5,14 @@ services:
         image: redis:6.2.6
         restart: always
         networks:
-            - ReaderLand
+            - ReaderLand-server-network
 
     ReaderLand:
         container_name: ReaderLand-server
         image: readerland:latest
         restart: always
         networks:
-            - ReaderLand
+            - ReaderLand-server-network
         env_file:
             - .env
         depends_on:
@@ -25,7 +25,7 @@ services:
         ports:
             - '80:80'
         networks:
-            - ReaderLand
+            - ReaderLand-server-network
         volumes:
             - /home/ec2-user/Project/ReaderLand_docker_volumes/nginx:/etc/nginx
         depends_on:

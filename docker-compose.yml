@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+    redis:
+        container_name: RederLand-reids
+        image: redis:6.2.6
+        restart: always
+        networks:
+            - ReaderLand
+        volumes:
+            - /home/ec2-user/Project/ReaderLand_docker_volumes/redis:/data
+
+networks:
+    ReaderLand:
+        name: ReaderLand-server-network
+        driver: bridge

@@ -24,10 +24,11 @@ services:
         restart: always
         ports:
             - '80:80'
+            - '443:443'
         networks:
             - ReaderLand-server-network
         volumes:
-            - /home/ec2-user/Project/ReaderLand_docker_volumes/nginx:/etc/nginx
+            - /etc/nginx:/etc/nginx
         depends_on:
             - ReaderLand
 

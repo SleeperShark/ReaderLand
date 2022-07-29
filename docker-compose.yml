@@ -28,7 +28,7 @@ services:
         networks:
             - ReaderLand-server-network
         volumes:
-            - /etc/nginx:/etc/nginx
+            - /home/ec2-user/docker-nginx:/etc/nginx
         depends_on:
             - ReaderLand
 

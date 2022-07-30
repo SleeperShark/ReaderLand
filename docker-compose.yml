@@ -6,8 +6,6 @@ services:
         restart: always
         networks:
             - ReaderLand-server-network
-        ports:
-            - '6379:6379'
 
     ReaderLand:
         container_name: ReaderLand-server

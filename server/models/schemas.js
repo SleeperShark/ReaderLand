@@ -8,15 +8,15 @@ switch (NODE_ENV) {
     case 'test':
         connectURL = 'mongodb://localhost:27017/ReaderLand';
         break;
-    // case 'development':
-    //     connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
-    //     break;
-    // case 'production':
-    //     connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
-    //     break;
-    // case 'docker-env':
-    //     connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
-    //     break;
+    case 'development':
+        connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
+        break;
+    case 'production':
+        connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
+        break;
+    case 'docker':
+        connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
+        break;
     default:
         connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
         break;

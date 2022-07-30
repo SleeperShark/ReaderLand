@@ -1,7 +1,7 @@
 require('dotenv').config({ path: __dirname + '/../.env' });
 const { User: UserSchema, Article: ArticleSchema } = require(`${__dirname}/../server/models/schemas`);
 const { articleWeightCounter, sleepInSec } = require(`${__dirname}/util`);
-const Cache = require(`${__dirname}/cache`);
+const Cache = require(`${__dirname}/cacheForWorker`);
 const { INSERT_STRATEGY } = process.env;
 
 function randomDistribute(small, large) {

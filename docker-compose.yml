@@ -14,7 +14,7 @@ services:
         networks:
             - ReaderLand-server-network
         env_file:
-            - .env
+            - .env-dockercompose
         depends_on:
             - redis
 

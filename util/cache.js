@@ -2,7 +2,7 @@ require('dotenv').config();
 const Redis = require('ioredis');
 const { CACHE_HOST, CACHE_PORT, CACHE_USER, CACHE_PASSWORD, NODE_ENV } = process.env;
 const retryTimes = NODE_ENV != 'production' ? 1 : 5;
-let cacheHost = NODE_ENV == 'docker-env' ? '127.0.0.1' : CACHE_HOST;
+let cacheHost = NODE_ENV == 'docker-env' ? 'ReaderLand-redis' : CACHE_HOST;
 
 const redisClient = new Redis({
     port: CACHE_PORT,

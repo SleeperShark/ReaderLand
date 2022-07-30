@@ -9,6 +9,8 @@ switch (NODE_ENV) {
         connectURL = 'mongodb://localhost:27017/ReaderLand';
         break;
     case 'development':
+    case 'production':
+    case 'docker-env':
         connectURL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@readerland.uebkf.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
         break;
     default:

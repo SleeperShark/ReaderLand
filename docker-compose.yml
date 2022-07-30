@@ -17,6 +17,8 @@ services:
             - .env-dockercompose
         depends_on:
             - redis
+        ports:
+            - '3000:3000'
 
     nginx:
         container_name: ReaderLand-nginx

@@ -1,7 +1,7 @@
 require('dotenv').config({ path: __dirname + '/../.env' });
 const { User: UserSchema } = require(`${__dirname}/../server/models/schemas`);
 const ArticleModel = require(`${__dirname}/../server/models/article_model`);
-const Cache = require(`${__dirname}/cacheForWorker`);
+const Cache = require(`${__dirname}/cache`);
 const { sleepInSec } = require(`${__dirname}/util`);
 
 async function regenerateNewsfeed() {

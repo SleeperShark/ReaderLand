@@ -1,6 +1,6 @@
 const { Article, User, Category, Notification, Draft, ObjectId } = require(`${__dirname}/../server/models/schemas`);
 const { generateNewsFeedInCache } = require(`${__dirname}/../server/models/article_model`);
-const Cache = require(`${__dirname}/../util/cacheForWorker`);
+const Cache = require(`${__dirname}/../util/cache`);
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const { generateHotArticles } = require(`${__dirname}/../util/hotArticleGenerator`);

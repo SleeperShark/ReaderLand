@@ -2,7 +2,7 @@ require('dotenv').config();
 const Redis = require('ioredis');
 const { CACHE_PORT, CACHE_USER, CACHE_PASSWORD } = process.env;
 const retryTimes = 1;
-let cacheHost = 'localhost';
+const cacheHost = 'localhost';
 
 const redisClient = new Redis({
     port: CACHE_PORT,

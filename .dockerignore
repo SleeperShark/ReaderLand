@@ -10,3 +10,5 @@ node_modules
 README.md
 unit_test
 .env
+shutDownServer.sh
+startUpServer.sh

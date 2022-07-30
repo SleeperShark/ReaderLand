@@ -5,3 +5,4 @@ weightRecord.json
 NewsFeed.json
 test/fake*.json
 shutDownServer.sh
+startUpServer.sh

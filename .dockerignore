@@ -12,3 +12,4 @@ unit_test
 .env
 shutDownServer.sh
 startUpServer.sh
+.env-dockercompose

@@ -12,7 +12,7 @@ services:
         image: readerland:latest
         restart: always
         volumes:
-            - '/var/log/ReaderLand:/var/log'
+            - /var/log/ReaderLand:/var/log
         networks:
             - ReaderLand-server-network
         env_file:

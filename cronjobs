@@ -1,0 +1,2 @@
+* * * * * echo "hello world" >> /var/log/test.log 2>&1
+# remember to end this file with an empty new line

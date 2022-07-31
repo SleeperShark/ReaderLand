@@ -147,8 +147,6 @@ async function main() {
     console.log(`${new Date().toISOString()}: Newsfeed Maintainer awake...`);
     console.time();
 
-    console.log(process.env.CACHE_PASSWORD);
-
     //Sleep a while for redis connecction
     await sleepInSec(1, 'Waiting for redis awake...');
 

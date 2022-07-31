@@ -6,6 +6,5 @@ COPY . .
 RUN npm install
 
 COPY ./cronjobs /etc/crontabs/root
-RUN crond 
 
-CMD ["node", "/usr/src/app/app.js"]
+CMD ["sh", "-c", "crond && /usr/local/bin/node /usr/src/app/app.js"]

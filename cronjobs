@@ -1,2 +1,4 @@
 
-* * * * * echo "hello world" >> /var/log/test.log 2>&1
+# ACTIVITY GENERATOR TASK
+* * * * * /usr/local/bin/node /usr/src/app/util/PseudoUserWorker.js 1>> /var/log/Activity_Generator.log 2>&1
+

@@ -11,6 +11,8 @@ services:
         container_name: ReaderLand-server
         image: readerland:latest
         restart: always
+        volumes:
+            - '/var/log/ReaderLand:/var/log'
         networks:
             - ReaderLand-server-network
         env_file:

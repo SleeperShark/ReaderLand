@@ -7,3 +7,4 @@ test/fake*.json
 shutDownServer.sh
 startUpServer.sh
 .env-dockercompose
+startUpServer.sh

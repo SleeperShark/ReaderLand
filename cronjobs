@@ -10,3 +10,4 @@
 
 # Reset Database Task
 0 0,12 * * * /usr/local/bin/node /usr/src/app/test/setUpDatabase.js 1>> /var/log/Reset_Database.log 2>> /var/log/error.log
+

@@ -1,4 +1,12 @@
 
 # ACTIVITY GENERATOR TASK
-* * * * * /usr/local/bin/node /usr/src/app/util/PseudoUserWorker.js 1>> /var/log/Activity_Generator.log 2>&1
+* * * * * /usr/local/bin/node /usr/src/app/util/PseudoUserWorker.js 1>> /var/log/Activity_Generator.log 2>> /var/log/error.log 
 
+# PULL FEED TASK
+15,30,45 * * * * /usr/local/bin/node /usr/src/app/util/pullWorker.js >> /var/log/Newsfeed_Maintainer.log 2>> /var/log/error.log 
+
+# REFRESH NEWSFEED TASK
+0 1-11,13-23 * * * /usr/local/bin/node /usr/src/app/util/newsfeedRegenerator.js >> /var/log/Newsfeed_Maintainer.log 2>> /var/log/error.log
+
+# Reset Database Task
+0 0,12 * * * /usr/local/bin/node /usr/src/app/test/setUpDatabase.js 1>> /var/log/Reset_Database.log 2>> /var/log/error.log

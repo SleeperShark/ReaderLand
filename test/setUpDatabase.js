@@ -334,8 +334,17 @@ async function initDatabase() {
         await Category.deleteMany();
         await Draft.deleteMany();
         await Notification.deleteMany();
-        await Cache.flushall();
-        console.log('Clear all collections and cache...');
+        console.log('Clean up Database...');
+
+        try {
+            await Cache.flushall();
+            console.log('Clean up Cache in redis...');
+        } catch (error) {
+            console.log('Error in Cache.flushall()...');
+            console.error(new Date().toISOString());
+            console.error(error);
+            console.error();
+        }
 
         await insertCategory();
         console.log('Insert categories...');

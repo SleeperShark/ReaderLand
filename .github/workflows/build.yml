@@ -23,7 +23,6 @@ jobs:
                       docker-compose down
                       docker container prune -f
                       docker rmi readerland
-                      docker build -t readerland .
                       docker-compose up -d
                       echo "Deploy success..."
                       exit

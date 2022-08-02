@@ -17,6 +17,7 @@ jobs:
                   key: ${{ secrets.EC2_KEY }}
                   port: ${{ secrets.EC2_PORT }}
                   script: |
+                      cd /home/ec2-user/Project/ReaderLand
                       docker-compose down
                       docker container prune -f
                       docker rmi readerland

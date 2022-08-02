@@ -130,7 +130,13 @@ Please note that the **unvalidated account will be remove 10 minutes after regis
 
 ## **Architecture**
 
+### Architecture of Main Branch 
+
 ![Archietecture](https://user-images.githubusercontent.com/88277367/170809579-0afd1eaf-bfcd-4865-aeb0-41141c077430.jpg)
+
+### Architecture of docker-env 
+
+![Architecture-docker-env](https://user-images.githubusercontent.com/88277367/182330877-f2e4cfb5-ae15-4455-a250-37cac6645973.jpg)
 
 <p align="right">
 (<a href="#table-of-content">Back to top</a>)

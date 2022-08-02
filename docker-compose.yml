@@ -8,7 +8,6 @@ services:
             - ReaderLand-server-network
 
     ReaderLand:
-        build: .
         container_name: ReaderLand-server
         image: readerland:latest
         restart: always

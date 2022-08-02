@@ -18,7 +18,10 @@ jobs:
                   port: ${{ secrets.EC2_PORT }}
                   script: |
                       cd /home/ec2-user/Project/ReaderLand
+                      git pull
+                      git sw docker-cicd
                       docker-compose down
                       docker container prune -f
                       docker rmi readerland
+                      docker build -t readerland .
                       docker-compose up
